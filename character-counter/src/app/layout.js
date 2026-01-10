@@ -11,20 +11,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Text Analyzer - Free Online Word, Character & Sentence Counter",
-  description:
-    "A simple real-time text analyzer tool for characters, words, sentences, paragraphs, and word density.",
-};
-
 export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+  return children;
 }
