@@ -63,10 +63,10 @@ export async function POST(request) {
     
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 86400,
+      maxAge: 60 * 60 * 24,
     });
 
     console.log('[API] Cookie set on response');
