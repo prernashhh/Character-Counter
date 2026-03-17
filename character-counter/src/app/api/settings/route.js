@@ -25,6 +25,13 @@ export async function GET() {
         instagramUrl: '',
         privacyPolicyContent: '',
         footerCopyrightYear: new Date().getFullYear(),
+        headingSettings: {
+          h1Text: 'Character Counter',
+          h2Text: 'Analyze your text with confidence',
+          h3Text: 'Statistics',
+          h4Text: 'About This Tool',
+          tone: 'professional',
+        },
       });
     }
 
@@ -53,6 +60,7 @@ export async function PUT(request) {
       instagramUrl,
       privacyPolicyContent,
       footerCopyrightYear,
+      headingSettings,
     } = body;
 
     let settings = await Settings.findOne();
@@ -66,6 +74,13 @@ export async function PUT(request) {
         instagramUrl,
         privacyPolicyContent,
         footerCopyrightYear: footerCopyrightYear ?? new Date().getFullYear(),
+        headingSettings: headingSettings ?? {
+          h1Text: 'Character Counter',
+          h2Text: 'Analyze your text with confidence',
+          h3Text: 'Statistics',
+          h4Text: 'About This Tool',
+          tone: 'professional',
+        },
       });
     } else {
       if (aboutContent !== undefined) settings.aboutContent = aboutContent;
@@ -75,6 +90,7 @@ export async function PUT(request) {
       if (instagramUrl !== undefined) settings.instagramUrl = instagramUrl;
       if (privacyPolicyContent !== undefined) settings.privacyPolicyContent = privacyPolicyContent;
       if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
+      if (headingSettings !== undefined) settings.headingSettings = headingSettings;
 
       await settings.save();
     }

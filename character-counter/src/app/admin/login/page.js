@@ -25,7 +25,6 @@ export default function AdminLogin() {
       const data = await response.json();
 
       if (data.success) {
-        // Brief delay to avoid race conditions between Set-Cookie and navigation.
         await new Promise(resolve => setTimeout(resolve, 100));
         router.push('/admin/dashboard');
       } else {
@@ -52,6 +51,9 @@ export default function AdminLogin() {
               </svg>
               Back to Home
             </a>
+          </div>
+          <div className="flex justify-center mb-3">
+            <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-12 h-12" />
           </div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
             Admin Login

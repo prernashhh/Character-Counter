@@ -18,6 +18,13 @@ export default function AdminSettings() {
     instagramUrl: '',
     privacyPolicyContent: '',
     footerCopyrightYear: new Date().getFullYear(),
+    headingSettings: {
+      h1Text: 'Character Counter',
+      h2Text: 'Analyze your text with confidence',
+      h3Text: 'Statistics',
+      h4Text: 'About This Tool',
+      tone: 'professional',
+    },
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -39,6 +46,13 @@ export default function AdminSettings() {
           gmail: '',
           linkedinUrl: '',
         };
+        const headingSettings = data.settings.headingSettings || {
+          h1Text: 'Character Counter',
+          h2Text: 'Analyze your text with confidence',
+          h3Text: 'Statistics',
+          h4Text: 'About This Tool',
+          tone: 'professional',
+        };
         setSettings({
           ...data.settings,
           aboutUsContent: {
@@ -51,6 +65,13 @@ export default function AdminSettings() {
             linkedinUrl: aboutUsContacts.linkedinUrl || '',
           },
           footerCopyrightYear: data.settings.footerCopyrightYear || new Date().getFullYear(),
+          headingSettings: {
+            h1Text: headingSettings.h1Text || 'Character Counter',
+            h2Text: headingSettings.h2Text || 'Analyze your text with confidence',
+            h3Text: headingSettings.h3Text || 'Statistics',
+            h4Text: headingSettings.h4Text || 'About This Tool',
+            tone: headingSettings.tone || 'professional',
+          },
         });
       }
     } catch (error) {
@@ -332,6 +353,97 @@ export default function AdminSettings() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Homepage Heading Controls</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Heading Tone</label>
+                <select
+                  value={settings.headingSettings.tone}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    headingSettings: {
+                      ...settings.headingSettings,
+                      tone: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                >
+                  <option value="professional">Professional</option>
+                  <option value="general">General</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">H1 Text</label>
+                <input
+                  type="text"
+                  value={settings.headingSettings.h1Text}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    headingSettings: {
+                      ...settings.headingSettings,
+                      h1Text: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  placeholder="Main heading"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">H2 Text</label>
+                <input
+                  type="text"
+                  value={settings.headingSettings.h2Text}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    headingSettings: {
+                      ...settings.headingSettings,
+                      h2Text: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  placeholder="Secondary heading"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">H3 Text</label>
+                <input
+                  type="text"
+                  value={settings.headingSettings.h3Text}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    headingSettings: {
+                      ...settings.headingSettings,
+                      h3Text: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  placeholder="Section heading"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">H4 Text</label>
+                <input
+                  type="text"
+                  value={settings.headingSettings.h4Text}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    headingSettings: {
+                      ...settings.headingSettings,
+                      h4Text: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  placeholder="Small section heading"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

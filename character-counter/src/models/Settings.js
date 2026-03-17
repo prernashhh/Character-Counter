@@ -37,6 +37,30 @@ const AboutUsContactsSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const HeadingSettingsSchema = new mongoose.Schema({
+  h1Text: {
+    type: String,
+    default: 'Character Counter',
+  },
+  h2Text: {
+    type: String,
+    default: 'Analyze your text with confidence',
+  },
+  h3Text: {
+    type: String,
+    default: 'Statistics',
+  },
+  h4Text: {
+    type: String,
+    default: 'About This Tool',
+  },
+  tone: {
+    type: String,
+    enum: ['professional', 'general'],
+    default: 'professional',
+  },
+}, { _id: false });
+
 const SettingsSchema = new mongoose.Schema(
   {
     aboutContent: {
@@ -66,6 +90,16 @@ const SettingsSchema = new mongoose.Schema(
     footerCopyrightYear: {
       type: Number,
       default: () => new Date().getFullYear(),
+    },
+    headingSettings: {
+      type: HeadingSettingsSchema,
+      default: () => ({
+        h1Text: 'Character Counter',
+        h2Text: 'Analyze your text with confidence',
+        h3Text: 'Statistics',
+        h4Text: 'About This Tool',
+        tone: 'professional',
+      }),
     },
   },
   {

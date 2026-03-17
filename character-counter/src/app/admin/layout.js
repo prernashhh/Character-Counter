@@ -41,7 +41,10 @@ export default function AdminLayout({ children }) {
         <div className="h-full flex flex-col">
           {/* Logo/Header */}
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
+            <div className="flex items-center gap-3">
+              <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-9 h-9" />
+              <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
+            </div>
           </div>
 
           {/* Navigation */}
@@ -110,7 +113,10 @@ export default function AdminLayout({ children }) {
         {/* Top Header */}
         <header className="bg-white shadow-sm">
           <div className="px-6 py-4 flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-800">Admin Panel</h1>
+            <div className="flex items-center gap-2">
+              <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-7 h-7" />
+              <h1 className="text-xl font-semibold text-gray-800">Admin Panel</h1>
+            </div>
             <a
               href="/"
               className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"

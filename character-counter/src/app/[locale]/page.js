@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
+import SiteFooter from '@/components/SiteFooter';
 
 // Language configurations
 const languages = [
@@ -72,6 +73,14 @@ export default function Home() {
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [aboutContent, setAboutContent] = useState("");
+    const [footerYear, setFooterYear] = useState(new Date().getFullYear());
+    const [headingSettings, setHeadingSettings] = useState({
+      h1Text: 'Character Counter',
+      h2Text: 'Analyze your text with confidence',
+      h3Text: 'Statistics',
+      h4Text: 'About This Tool',
+      tone: 'professional',
+    });
 
     useEffect(() => {
     const savedText = localStorage.getItem("textAnalyzerContent");
@@ -92,8 +101,20 @@ export default function Home() {
     try {
       const response = await fetch('/api/settings');
       const data = await response.json();
-      if (data.success && data.settings.aboutContent) {
-        setAboutContent(data.settings.aboutContent);
+      if (data.success && data.settings) {
+        setAboutContent(data.settings.aboutContent || t('aboutContent'));
+        if (Number.isInteger(data.settings.footerCopyrightYear)) {
+          setFooterYear(data.settings.footerCopyrightYear);
+        }
+        if (data.settings.headingSettings) {
+          setHeadingSettings({
+            h1Text: data.settings.headingSettings.h1Text || 'Character Counter',
+            h2Text: data.settings.headingSettings.h2Text || 'Analyze your text with confidence',
+            h3Text: data.settings.headingSettings.h3Text || 'Statistics',
+            h4Text: data.settings.headingSettings.h4Text || 'About This Tool',
+            tone: data.settings.headingSettings.tone || 'professional',
+          });
+        }
       } else {
         setAboutContent(t('aboutContent'));
       }
@@ -139,7 +160,10 @@ export default function Home() {
     };
   }, [text]);
 
+  const isProfessionalTone = headingSettings.tone === 'professional';
+
   return (
+    <>
     <main className="min-h-screen lg:h-screen flex flex-col lg:flex-row overflow-hidden bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Side Menu Drawer */}
       {showMenu && (
@@ -298,7 +322,9 @@ export default function Home() {
 
           {/* Section 2: Statistics */}
           <div className="bg-linear-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">{t('statistics')}</h3>
+            <h3 className={`text-lg mb-4 ${isProfessionalTone ? 'font-semibold text-slate-800' : 'font-bold text-gray-800'}`}>
+              {headingSettings.h3Text || t('statistics')}
+            </h3>
             
             {/* Row 1: Words and Characters */}
             <div className="grid grid-cols-2 gap-3 mb-3">
@@ -387,9 +413,15 @@ export default function Home() {
       {/* Center Text Analyzer Section */}
       <section className="flex-1 flex flex-col px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
         <div className="w-full max-w-4xl mx-auto h-full flex flex-col gap-4">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-center bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm shrink-0 py-2">
-            {t('characterCounter')}
-          </h1>
+          <div className="flex flex-col items-center gap-2 shrink-0 py-2">
+            <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-14 h-14" />
+            <h1 className={`text-center ${isProfessionalTone ? 'text-3xl sm:text-4xl lg:text-5xl font-semibold text-slate-900' : 'text-3xl sm:text-4xl lg:text-5xl font-extrabold bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm'}`}>
+              {headingSettings.h1Text || t('characterCounter')}
+            </h1>
+            <h2 className={`text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
+              {headingSettings.h2Text || 'Analyze your text with confidence'}
+            </h2>
+          </div>
 
           {/* Text Input Section */}
           <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-indigo-100 flex-1 flex flex-col min-h-0">
@@ -415,12 +447,12 @@ export default function Home() {
       <aside className="w-full lg:w-80 bg-white/80 backdrop-blur-sm shadow-2xl overflow-y-auto border-t lg:border-t-0 lg:border-l border-indigo-100">
         <div className="p-4 sm:p-6">
           <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-200 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <h4 className={`text-xl mb-4 flex items-center gap-2 ${isProfessionalTone ? 'font-semibold text-slate-800' : 'font-bold text-gray-800'}`}>
               <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {t('aboutTitle')}
-            </h2>
+              {headingSettings.h4Text || t('aboutTitle')}
+            </h4>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
                 {aboutContent && aboutContent.split('\n').map((line, index) => {
@@ -435,5 +467,7 @@ export default function Home() {
         </div>
       </aside>
     </main>
+    <SiteFooter locale={locale} footerYear={footerYear} />
+    </>
   );
 }
