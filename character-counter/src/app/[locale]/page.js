@@ -201,6 +201,18 @@ export default function Home() {
                   </svg>
                   {t('termsConditions')}
                 </button>
+                <button
+                  onClick={() => {
+                    router.push('/privacy-policy', { locale });
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-indigo-50 rounded-lg transition-colors text-gray-700 font-medium flex items-center gap-3"
+                >
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9h8M8 13h6m-9 8h14a2 2 0 002-2V7a2 2 0 00-2-2h-3.586a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 0012.586 3h-1.172a1 1 0 00-.707.293L9.293 4.707A1 1 0 018.586 5H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Privacy Policy
+                </button>
                 <button 
                   onClick={() => {
                     router.push('/disclaimer', { locale });

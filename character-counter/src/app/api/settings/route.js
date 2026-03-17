@@ -24,6 +24,7 @@ export async function GET() {
         instagramHandle: '',
         instagramUrl: '',
         privacyPolicyContent: '',
+        footerCopyrightYear: new Date().getFullYear(),
       });
     }
 
@@ -51,6 +52,7 @@ export async function PUT(request) {
       instagramHandle,
       instagramUrl,
       privacyPolicyContent,
+      footerCopyrightYear,
     } = body;
 
     let settings = await Settings.findOne();
@@ -63,6 +65,7 @@ export async function PUT(request) {
         instagramHandle,
         instagramUrl,
         privacyPolicyContent,
+        footerCopyrightYear: footerCopyrightYear ?? new Date().getFullYear(),
       });
     } else {
       if (aboutContent !== undefined) settings.aboutContent = aboutContent;
@@ -71,6 +74,7 @@ export async function PUT(request) {
       if (instagramHandle !== undefined) settings.instagramHandle = instagramHandle;
       if (instagramUrl !== undefined) settings.instagramUrl = instagramUrl;
       if (privacyPolicyContent !== undefined) settings.privacyPolicyContent = privacyPolicyContent;
+      if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
 
       await settings.save();
     }

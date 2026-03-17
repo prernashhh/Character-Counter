@@ -63,6 +63,10 @@ const SettingsSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    footerCopyrightYear: {
+      type: Number,
+      default: () => new Date().getFullYear(),
+    },
   },
   {
     timestamps: true,

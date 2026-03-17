@@ -17,6 +17,7 @@ export default function AdminSettings() {
     instagramHandle: '',
     instagramUrl: '',
     privacyPolicyContent: '',
+    footerCopyrightYear: new Date().getFullYear(),
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,6 +50,7 @@ export default function AdminSettings() {
             gmail: aboutUsContacts.gmail || '',
             linkedinUrl: aboutUsContacts.linkedinUrl || '',
           },
+          footerCopyrightYear: data.settings.footerCopyrightYear || new Date().getFullYear(),
         });
       }
     } catch (error) {
@@ -384,6 +386,32 @@ export default function AdminSettings() {
                   placeholder="Enter your privacy policy content..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-gray-900"
                 />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Footer Copyright</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Copyright Year
+                </label>
+                <input
+                  type="number"
+                  min="2000"
+                  max="9999"
+                  value={settings.footerCopyrightYear}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    footerCopyrightYear: Number(e.target.value || new Date().getFullYear()),
+                  })}
+                  placeholder="2025"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-gray-900"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Footer preview: Copyright © {settings.footerCopyrightYear} Character Count Online Tool. All rights reserved.
+                </p>
               </div>
             </div>
           </div>
