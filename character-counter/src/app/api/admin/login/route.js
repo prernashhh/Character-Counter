@@ -3,13 +3,14 @@ import Admin from '@/models/Admin';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         error: 'Email and password are required',
       }, { status: 400 });
@@ -20,7 +21,7 @@ export async function POST(request) {
     const admin = await Admin.findOne({ email: email.toLowerCase() });
 
     if (!admin) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         error: 'Invalid credentials',
       }, { status: 401 });
@@ -29,7 +30,7 @@ export async function POST(request) {
     const isPasswordValid = await bcrypt.compare(password, admin.password);
 
     if (!isPasswordValid) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         error: 'Invalid credentials',
       }, { status: 401 });
@@ -59,13 +60,13 @@ export async function POST(request) {
       maxAge: 86400,
     });
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       message: 'Login successful',
     });
 
   } catch (error) {
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error.message,
     }, { status: 500 });
