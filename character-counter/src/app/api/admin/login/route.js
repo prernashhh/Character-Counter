@@ -2,7 +2,6 @@ import connectDB from '@/lib/db';
 import Admin from '@/models/Admin';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
@@ -51,8 +50,12 @@ export async function POST(request) {
       { expiresIn: '1d' }
     );
 
-    const cookieStore = await cookies();
-    cookieStore.set('admin_token', token, {
+    const response = NextResponse.json({
+      success: true,
+      message: 'Login successful',
+    });
+
+    response.cookies.set('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -60,10 +63,7 @@ export async function POST(request) {
       maxAge: 86400,
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Login successful',
-    });
+    return response;
 
   } catch (error) {
     return NextResponse.json({
