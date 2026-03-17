@@ -71,6 +71,7 @@ export default function Home() {
     const [text, setText] = useState("");
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+    const [aboutContent, setAboutContent] = useState("");
 
     useEffect(() => {
     const savedText = localStorage.getItem("textAnalyzerContent");
@@ -83,7 +84,23 @@ export default function Home() {
     if (savedLanguage && savedLanguage !== locale) {
         router.replace(pathname, { locale: savedLanguage });
     }
+
+    fetchAboutContent();
     }, []);
+
+  const fetchAboutContent = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      const data = await response.json();
+      if (data.success && data.settings.aboutContent) {
+        setAboutContent(data.settings.aboutContent);
+      } else {
+        setAboutContent(t('aboutContent'));
+      }
+    } catch (error) {
+      setAboutContent(t('aboutContent'));
+    }
+  };
 
   const handleTextChange = (e) => {
     const newText = e.target.value;
@@ -394,7 +411,7 @@ export default function Home() {
             </h2>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
-                {t('aboutContent') && t('aboutContent').split('\n').map((line, index) => {
+                {aboutContent && aboutContent.split('\n').map((line, index) => {
                   if (line.match(/^\*\*.*\*\*$/)) {
                     return <p key={index} className="font-bold mt-3">{line.replace(/\*\*/g, '')}</p>;
                   }

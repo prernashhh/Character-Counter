@@ -21,12 +21,31 @@ export function generateStaticParams() {
 export default async function LocaleLayout({ children, params }) {
   const { locale } = await params;
   const messages = await getMessages({ locale });
+  const currentYear = new Date().getFullYear();
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextIntlClientProvider messages={messages} locale={locale}>
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <main className="flex-1">{children}</main>
+            <footer className="border-t border-slate-200 bg-white/80 backdrop-blur-sm">
+              <div className="max-w-6xl mx-auto px-4 py-6 text-sm text-slate-600 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <p>© {currentYear} Character Counter. All rights reserved.</p>
+                <div className="flex items-center gap-4">
+                  <a href={`/${locale}/about-us`} className="hover:text-slate-900 transition-colors">
+                    About Us
+                  </a>
+                  <a href={`/${locale}/contact-us`} className="hover:text-slate-900 transition-colors">
+                    Contact
+                  </a>
+                  <a href={`/${locale}/terms-conditions`} className="hover:text-slate-900 transition-colors">
+                    Terms
+                  </a>
+                </div>
+              </div>
+            </footer>
+          </div>
         </NextIntlClientProvider>
       </body>
     </html>
