@@ -2,6 +2,8 @@ import connectDB from '@/lib/db';
 import Admin from '@/models/Admin';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await connectDB();

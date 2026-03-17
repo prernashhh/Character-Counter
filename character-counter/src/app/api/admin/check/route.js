@@ -1,8 +1,10 @@
-import connectDB from '@/lib/db';
 import Admin from '@/models/Admin';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const { default: connectDB } = await import('@/lib/db');
     await connectDB();
 
     const admins = await Admin.find({}).select('-password');
