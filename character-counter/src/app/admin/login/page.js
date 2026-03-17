@@ -14,10 +14,7 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
 
-    console.log('🔐 [LOGIN] Starting login attempt...', { email: formData.email });
-
     try {
-      console.log('📤 [LOGIN] Sending POST request to /api/admin/login');
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -25,37 +22,19 @@ export default function AdminLogin() {
         body: JSON.stringify(formData),
       });
 
-      console.log('📥 [LOGIN] Response status:', response.status);
-      console.log('📥 [LOGIN] Response headers:', {
-        'content-type': response.headers.get('content-type'),
-        'set-cookie': response.headers.get('set-cookie'),
-      });
-
       const data = await response.json();
-      console.log('📦 [LOGIN] Response body:', data);
 
       if (data.success) {
-        console.log('✅ [LOGIN] Login successful! Checking cookies...');
-        console.log('🍪 [LOGIN] Current cookies:', document.cookie || '(HTTP-only cookie, cannot be read from JS)');
-        console.log('🔀 [LOGIN] Redirecting to /admin/dashboard...');
-        
-        // Small delay to ensure cookie is set before redirect
+        // Brief delay to avoid race conditions between Set-Cookie and navigation.
         await new Promise(resolve => setTimeout(resolve, 100));
-        
         router.push('/admin/dashboard');
-        console.log('🔀 [LOGIN] Router.push called');
       } else {
-        console.error('❌ [LOGIN] Login failed:', data.error);
         setError(data.error || 'Login failed');
       }
     } catch (err) {
-      console.error('💥 [LOGIN] Error caught:', err);
-      console.error('💥 [LOGIN] Error message:', err.message);
-      console.error('💥 [LOGIN] Error stack:', err.stack);
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
-      console.log('⏹️ [LOGIN] Login attempt finished');
     }
   };
 
