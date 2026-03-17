@@ -52,19 +52,26 @@ export async function POST(request) {
       { expiresIn: '1d' }
     );
 
+    console.log('[API] Creating response and setting cookie...');
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
     });
 
+    console.log('[API] Token:', token.substring(0, 20) + '...');
+    console.log('[API] NODE_ENV:', process.env.NODE_ENV);
+    
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'lax',
       path: '/',
       maxAge: 86400,
     });
 
+    console.log('[API] Cookie set on response');
+    console.log('[API] Response headers before return:', response.headers.getSetCookie());
+    
     return response;
 
   } catch (error) {
