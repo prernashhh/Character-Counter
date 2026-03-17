@@ -21,6 +21,7 @@ export default function AdminLogin() {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
@@ -35,8 +36,12 @@ export default function AdminLogin() {
 
       if (data.success) {
         console.log('✅ [LOGIN] Login successful! Checking cookies...');
-        console.log('🍪 [LOGIN] Current cookies:', document.cookie);
+        console.log('🍪 [LOGIN] Current cookies:', document.cookie || '(HTTP-only cookie, cannot be read from JS)');
         console.log('🔀 [LOGIN] Redirecting to /admin/dashboard...');
+        
+        // Small delay to ensure cookie is set before redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         router.push('/admin/dashboard');
         console.log('🔀 [LOGIN] Router.push called');
       } else {
