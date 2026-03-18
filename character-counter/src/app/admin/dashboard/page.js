@@ -1,4 +1,35 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+
 export default function AdminDashboard() {
+  const [stats, setStats] = useState({ total: 0, published: 0, drafts: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/admin/posts/stats', { cache: 'no-store' });
+        const data = await response.json();
+        if (data.success && data.stats) {
+          setStats(data.stats);
+        } else {
+          setStats({ total: 0, published: 0, drafts: 0 });
+        }
+      } catch {
+        setStats({ total: 0, published: 0, drafts: 0 });
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const totalLabel = loadingStats ? '...' : stats.total;
+  const publishedLabel = loadingStats ? '...' : stats.published;
+  const draftsLabel = loadingStats ? '...' : stats.drafts;
+
   return (
     <div className="space-y-6">
       <div>
@@ -11,7 +42,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Posts</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">0</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">{totalLabel}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-full">
               <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +56,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Published</p>
-              <p className="mt-2 text-3xl font-bold text-green-600">0</p>
+              <p className="mt-2 text-3xl font-bold text-green-600">{publishedLabel}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-full">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +70,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Drafts</p>
-              <p className="mt-2 text-3xl font-bold text-yellow-600">0</p>
+              <p className="mt-2 text-3xl font-bold text-yellow-600">{draftsLabel}</p>
             </div>
             <div className="p-3 bg-yellow-50 rounded-full">
               <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

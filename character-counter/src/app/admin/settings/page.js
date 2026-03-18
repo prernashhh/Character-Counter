@@ -2,7 +2,28 @@
 
 import { useState, useEffect } from 'react';
 
+const defaultSeoSettings = {
+  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', h1: 'Character Counter', h2: 'Analyze your text with confidence', h3: 'Statistics', h4: 'About This Tool', h5: '', h6: '' },
+  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', h1: 'About Us', h2: '', h3: '', h4: '', h5: '', h6: '' },
+  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', h1: 'Contact Us', h2: '', h3: '', h4: '', h5: '', h6: '' },
+  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', h1: 'Terms and Conditions', h2: '', h3: '', h4: '', h5: '', h6: '' },
+  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', h1: 'Disclaimer', h2: '', h3: '', h4: '', h5: '', h6: '' },
+  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', h1: 'Privacy Policy', h2: '', h3: '', h4: '', h5: '', h6: '' },
+  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', h1: 'Blog Posts', h2: '', h3: '', h4: '', h5: '', h6: '' },
+};
+
+const pageSeoOptions = [
+  { key: 'home', label: 'Home Page' },
+  { key: 'aboutUs', label: 'About Us Page' },
+  { key: 'contactUs', label: 'Contact Us Page' },
+  { key: 'termsConditions', label: 'Terms & Conditions Page' },
+  { key: 'disclaimer', label: 'Disclaimer Page' },
+  { key: 'privacyPolicy', label: 'Privacy Policy Page' },
+  { key: 'blog', label: 'Blog Page' },
+];
+
 export default function AdminSettings() {
+  const [selectedSeoPage, setSelectedSeoPage] = useState('home');
   const [settings, setSettings] = useState({
     aboutContent: '',
     aboutUsContent: {
@@ -25,6 +46,7 @@ export default function AdminSettings() {
       h4Text: 'About This Tool',
       tone: 'professional',
     },
+    seoSettings: defaultSeoSettings,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,6 +93,10 @@ export default function AdminSettings() {
             h3Text: headingSettings.h3Text || 'Statistics',
             h4Text: headingSettings.h4Text || 'About This Tool',
             tone: headingSettings.tone || 'professional',
+          },
+          seoSettings: {
+            ...defaultSeoSettings,
+            ...(data.settings.seoSettings || {}),
           },
         });
       }
@@ -353,6 +379,89 @@ export default function AdminSettings() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Controls (Meta + H1-H6)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Page</label>
+                <select
+                  value={selectedSeoPage}
+                  onChange={(e) => setSelectedSeoPage(e.target.value)}
+                  className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                >
+                  {pageSeoOptions.map((option) => (
+                    <option key={option.key} value={option.key}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                  <input
+                    type="text"
+                    value={settings.seoSettings?.[selectedSeoPage]?.metaTitle || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      seoSettings: {
+                        ...settings.seoSettings,
+                        [selectedSeoPage]: {
+                          ...settings.seoSettings[selectedSeoPage],
+                          metaTitle: e.target.value,
+                        },
+                      },
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                    placeholder="SEO title for selected page"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                  <textarea
+                    rows={3}
+                    value={settings.seoSettings?.[selectedSeoPage]?.metaDescription || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      seoSettings: {
+                        ...settings.seoSettings,
+                        [selectedSeoPage]: {
+                          ...settings.seoSettings[selectedSeoPage],
+                          metaDescription: e.target.value,
+                        },
+                      },
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                    placeholder="SEO description for selected page"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].map((tag) => (
+                  <div key={tag}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{tag.toUpperCase()} Text</label>
+                    <input
+                      type="text"
+                      value={settings.seoSettings?.[selectedSeoPage]?.[tag] || ''}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        seoSettings: {
+                          ...settings.seoSettings,
+                          [selectedSeoPage]: {
+                            ...settings.seoSettings[selectedSeoPage],
+                            [tag]: e.target.value,
+                          },
+                        },
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                      placeholder={`${tag.toUpperCase()} heading for selected page`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Homepage Heading Controls</h3>
             <div className="space-y-4">

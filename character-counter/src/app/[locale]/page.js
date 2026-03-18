@@ -73,7 +73,17 @@ export default function Home() {
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [aboutContent, setAboutContent] = useState("");
+    const [latestPosts, setLatestPosts] = useState([]);
+    const [latestPostsLoading, setLatestPostsLoading] = useState(true);
     const [footerYear, setFooterYear] = useState(new Date().getFullYear());
+    const [homeSeo, setHomeSeo] = useState({
+      h1: 'Character Counter',
+      h2: 'Analyze your text with confidence',
+      h3: 'Statistics',
+      h4: 'About This Tool',
+      h5: '',
+      h6: '',
+    });
     const [headingSettings, setHeadingSettings] = useState({
       h1Text: 'Character Counter',
       h2Text: 'Analyze your text with confidence',
@@ -95,6 +105,7 @@ export default function Home() {
     }
 
     fetchAboutContent();
+    fetchLatestPosts();
     }, []);
 
   const fetchAboutContent = async () => {
@@ -115,11 +126,35 @@ export default function Home() {
             tone: data.settings.headingSettings.tone || 'professional',
           });
         }
+        if (data.settings.seoSettings?.home) {
+          setHomeSeo({
+            h1: data.settings.seoSettings.home.h1 || 'Character Counter',
+            h2: data.settings.seoSettings.home.h2 || 'Analyze your text with confidence',
+            h3: data.settings.seoSettings.home.h3 || 'Statistics',
+            h4: data.settings.seoSettings.home.h4 || 'About This Tool',
+            h5: data.settings.seoSettings.home.h5 || '',
+            h6: data.settings.seoSettings.home.h6 || '',
+          });
+        }
       } else {
         setAboutContent(t('aboutContent'));
       }
     } catch (error) {
       setAboutContent(t('aboutContent'));
+    }
+  };
+
+  const fetchLatestPosts = async () => {
+    try {
+      const response = await fetch('/api/posts?limit=4', { cache: 'no-store' });
+      const data = await response.json();
+      if (data.success) {
+        setLatestPosts(data.posts || []);
+      }
+    } catch {
+      setLatestPosts([]);
+    } finally {
+      setLatestPostsLoading(false);
     }
   };
 
@@ -223,7 +258,7 @@ export default function Home() {
                   <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
-                  Blog
+                  Blogs
                 </button>
                 <button 
                   onClick={() => {
@@ -335,7 +370,7 @@ export default function Home() {
           {/* Section 2: Statistics */}
           <div className="bg-linear-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200 shadow-sm">
             <h3 className={`text-lg mb-4 ${isProfessionalTone ? 'font-semibold text-slate-800' : 'font-bold text-gray-800'}`}>
-              {headingSettings.h3Text || t('statistics')}
+              {homeSeo.h3 || t('statistics')}
             </h3>
             
             {/* Row 1: Words and Characters */}
@@ -428,11 +463,13 @@ export default function Home() {
           <div className="flex flex-col items-center gap-2 shrink-0 py-2">
             <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-14 h-14" />
             <h1 className={`text-center ${isProfessionalTone ? 'text-3xl sm:text-4xl lg:text-5xl font-semibold text-slate-900' : 'text-3xl sm:text-4xl lg:text-5xl font-extrabold bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm'}`}>
-              {headingSettings.h1Text || t('characterCounter')}
+              {homeSeo.h1 || t('characterCounter')}
             </h1>
             <h2 className={`text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
-              {headingSettings.h2Text || 'Analyze your text with confidence'}
+              {homeSeo.h2 || 'Analyze your text with confidence'}
             </h2>
+            {homeSeo.h5 && <h5 className="text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
+            {homeSeo.h6 && <h6 className="text-center text-xs text-slate-500">{homeSeo.h6}</h6>}
           </div>
 
           {/* Text Input Section */}
@@ -458,12 +495,12 @@ export default function Home() {
       {/* About Section */}
       <aside className="w-full lg:w-80 bg-white/80 backdrop-blur-sm shadow-2xl overflow-y-auto border-t lg:border-t-0 lg:border-l border-indigo-100">
         <div className="p-4 sm:p-6">
-          <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-200 shadow-sm">
+          <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-200 shadow-sm mb-5">
             <h4 className={`text-xl mb-4 flex items-center gap-2 ${isProfessionalTone ? 'font-semibold text-slate-800' : 'font-bold text-gray-800'}`}>
               <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {headingSettings.h4Text || t('aboutTitle')}
+              {homeSeo.h4 || t('aboutTitle')}
             </h4>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
@@ -475,6 +512,38 @@ export default function Home() {
                 })}
               </div>
             </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <h4 className="text-lg font-semibold text-slate-800 mb-4">Latest Blogs</h4>
+
+            {latestPostsLoading ? (
+              <p className="text-sm text-slate-500">Loading blogs...</p>
+            ) : latestPosts.length === 0 ? (
+              <p className="text-sm text-slate-500">No published blogs yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {latestPosts.map((post) => (
+                  <button
+                    key={post._id}
+                    onClick={() => router.push(`/blog/${post.slug}`, { locale })}
+                    className="w-full text-left rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:bg-indigo-50/40 transition-colors"
+                  >
+                    <p className="text-sm font-semibold text-slate-800 truncate">{post.title}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ''}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => router.push('/blog', { locale })}
+              className="mt-4 w-full rounded-lg bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              View All Blogs
+            </button>
           </div>
         </div>
       </aside>

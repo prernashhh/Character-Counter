@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { routing } from "@/i18n/routing";
+import { getPageSeoServer } from "@/lib/seo-server";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -16,6 +17,14 @@ const geistMono = Geist_Mono({
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata() {
+  const seo = await getPageSeoServer('home');
+  return {
+    title: seo.metaTitle,
+    description: seo.metaDescription,
+  };
 }
 
 export default async function LocaleLayout({ children, params }) {

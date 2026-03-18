@@ -1,5 +1,6 @@
 import connectDB from '@/lib/db';
 import Settings from '@/models/Settings';
+import { normalizeSeoSettings } from '@/lib/seo-settings';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,8 +33,11 @@ export async function GET() {
           h4Text: 'About This Tool',
           tone: 'professional',
         },
+        seoSettings: normalizeSeoSettings({}),
       });
     }
+
+    settings.seoSettings = normalizeSeoSettings(settings.seoSettings || {});
 
     return Response.json({
       success: true,
@@ -61,6 +65,7 @@ export async function PUT(request) {
       privacyPolicyContent,
       footerCopyrightYear,
       headingSettings,
+      seoSettings,
     } = body;
 
     let settings = await Settings.findOne();
@@ -81,6 +86,7 @@ export async function PUT(request) {
           h4Text: 'About This Tool',
           tone: 'professional',
         },
+        seoSettings: normalizeSeoSettings(seoSettings || {}),
       });
     } else {
       if (aboutContent !== undefined) settings.aboutContent = aboutContent;
@@ -91,9 +97,12 @@ export async function PUT(request) {
       if (privacyPolicyContent !== undefined) settings.privacyPolicyContent = privacyPolicyContent;
       if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
       if (headingSettings !== undefined) settings.headingSettings = headingSettings;
+      if (seoSettings !== undefined) settings.seoSettings = normalizeSeoSettings(seoSettings);
 
       await settings.save();
     }
+
+    settings.seoSettings = normalizeSeoSettings(settings.seoSettings || {});
 
     return Response.json({
       success: true,

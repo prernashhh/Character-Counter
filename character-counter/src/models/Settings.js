@@ -61,6 +61,27 @@ const HeadingSettingsSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const SeoPageSchema = new mongoose.Schema({
+  metaTitle: { type: String, default: '' },
+  metaDescription: { type: String, default: '' },
+  h1: { type: String, default: '' },
+  h2: { type: String, default: '' },
+  h3: { type: String, default: '' },
+  h4: { type: String, default: '' },
+  h5: { type: String, default: '' },
+  h6: { type: String, default: '' },
+}, { _id: false });
+
+const SeoSettingsSchema = new mongoose.Schema({
+  home: { type: SeoPageSchema, default: () => ({}) },
+  aboutUs: { type: SeoPageSchema, default: () => ({}) },
+  contactUs: { type: SeoPageSchema, default: () => ({}) },
+  termsConditions: { type: SeoPageSchema, default: () => ({}) },
+  disclaimer: { type: SeoPageSchema, default: () => ({}) },
+  privacyPolicy: { type: SeoPageSchema, default: () => ({}) },
+  blog: { type: SeoPageSchema, default: () => ({}) },
+}, { _id: false });
+
 const SettingsSchema = new mongoose.Schema(
   {
     aboutContent: {
@@ -100,6 +121,10 @@ const SettingsSchema = new mongoose.Schema(
         h4Text: 'About This Tool',
         tone: 'professional',
       }),
+    },
+    seoSettings: {
+      type: SeoSettingsSchema,
+      default: () => ({}),
     },
   },
   {

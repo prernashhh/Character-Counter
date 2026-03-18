@@ -1,5 +1,6 @@
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +9,7 @@ async function getPublishedPosts() {
     await connectDB();
     const posts = await Post.find({ published: true })
       .sort({ createdAt: -1 })
-      .select('title slug excerpt createdAt')
+      .select('title slug excerpt content createdAt')
       .lean();
 
     return posts.map((post) => ({
@@ -52,14 +53,22 @@ export default async function BlogPage({ params }) {
               {posts.map((post) => (
                 <article key={post._id} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                   <h2 className="text-xl font-semibold text-slate-900 mb-3">{post.title}</h2>
-                  <p className="text-slate-600 mb-4">{post.excerpt || 'Read this post to explore more details.'}</p>
+                  <p className="text-slate-600 mb-4">
+                    {post.excerpt || post.content?.slice(0, 140) || 'Read this post to explore more details.'}
+                    {post.content && post.content.length > 140 ? '...' : ''}
+                  </p>
                   <div className="flex items-center justify-between text-sm text-slate-500">
                     <span>
                       {post.createdAt
                         ? new Date(post.createdAt).toLocaleDateString()
                         : ''}
                     </span>
-                    <span className="font-medium text-indigo-600">/{post.slug}</span>
+                    <Link
+                      href={`/${locale}/blog/${post.slug}`}
+                      className="font-medium text-indigo-600 hover:text-indigo-800"
+                    >
+                      Read more
+                    </Link>
                   </div>
                 </article>
               ))}
