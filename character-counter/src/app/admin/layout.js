@@ -35,18 +35,10 @@ export default function AdminLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen bg-gray-100 flex">
+        <div className="h-screen bg-gray-100 flex overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg hidden lg:block">
+      <aside className="w-64 bg-white shadow-lg hidden lg:block shrink-0 sticky top-0 h-screen overflow-y-auto">
         <div className="h-full flex flex-col">
-          {/* Logo/Header */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-9 h-9" />
-              <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
-            </div>
-          </div>
-
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             <a
@@ -109,7 +101,7 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Header */}
         <header className="bg-white shadow-sm">
           <div className="px-6 py-4 flex items-center justify-between">

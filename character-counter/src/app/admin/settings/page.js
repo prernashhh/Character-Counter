@@ -17,13 +17,16 @@ const pageSeoOptions = [
   { key: 'aboutUs', label: 'About Us Page' },
   { key: 'contactUs', label: 'Contact Us Page' },
   { key: 'termsConditions', label: 'Terms & Conditions Page' },
-  { key: 'disclaimer', label: 'Disclaimer Page' },
   { key: 'privacyPolicy', label: 'Privacy Policy Page' },
+  { key: 'disclaimer', label: 'Disclaimer Page' },
   { key: 'blog', label: 'Blog Page' },
 ];
 
+const headingTagOptions = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+
 export default function AdminSettings() {
-  const [selectedSeoPage, setSelectedSeoPage] = useState('home');
+  const [selectedSeoPage, setSelectedSeoPage] = useState('contactUs');
+  const [selectedHeadingTag, setSelectedHeadingTag] = useState('h1');
   const [settings, setSettings] = useState({
     aboutContent: '',
     aboutUsContent: {
@@ -51,9 +54,28 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [securityForm, setSecurityForm] = useState({
+    currentPassword: '',
+  });
+  const [securityVerified, setSecurityVerified] = useState(false);
+  const [securityVerifying, setSecurityVerifying] = useState(false);
+  const [securityMessage, setSecurityMessage] = useState('');
+  const [adminIdForm, setAdminIdForm] = useState({
+    email: '',
+  });
+  const [adminIdSaving, setAdminIdSaving] = useState(false);
+  const [adminIdMessage, setAdminIdMessage] = useState('');
+  const [passwordForm, setPasswordForm] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
 
   useEffect(() => {
     fetchSettings();
+    fetchAdminProfile();
   }, []);
 
   const fetchSettings = async () => {
@@ -107,6 +129,20 @@ export default function AdminSettings() {
     }
   };
 
+  const fetchAdminProfile = async () => {
+    try {
+      const response = await fetch('/api/admin/me');
+      const data = await response.json();
+
+      if (data.authenticated && data.admin?.email) {
+        setAdminEmail(data.admin.email);
+        setAdminIdForm({ email: data.admin.email });
+      }
+    } catch {
+      setAdminEmail('');
+    }
+  };
+
   const addAboutUsSection = () => {
     setSettings({
       ...settings,
@@ -150,6 +186,157 @@ export default function AdminSettings() {
         closingText: value,
       },
     });
+  };
+
+  const updateSeoField = (pageKey, field, value) => {
+    setSettings({
+      ...settings,
+      seoSettings: {
+        ...settings.seoSettings,
+        [pageKey]: {
+          ...settings.seoSettings[pageKey],
+          [field]: value,
+        },
+      },
+    });
+  };
+
+  const handleVerifyCurrentPassword = async (e) => {
+    e.preventDefault();
+    setSecurityMessage('');
+    setSecurityVerified(false);
+
+    if (!securityForm.currentPassword) {
+      setSecurityMessage('Error: Enter current password to continue.');
+      return;
+    }
+
+    setSecurityVerifying(true);
+    try {
+      const response = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: securityForm.currentPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setSecurityMessage(`Error: ${data.error || 'Current password is incorrect.'}`);
+        return;
+      }
+
+      setSecurityVerified(true);
+      setSecurityMessage('Current password verified. You can now update Admin ID or password.');
+    } catch {
+      setSecurityMessage('Error: Could not verify current password.');
+    } finally {
+      setSecurityVerifying(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordMessage('');
+
+    if (!securityVerified) {
+      setPasswordMessage('Error: Verify current password first.');
+      return;
+    }
+
+    if (!passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordMessage('Error: New password and confirm password are required.');
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordMessage('Error: New password must be at least 8 characters.');
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage('Error: New password and confirm password do not match.');
+      return;
+    }
+
+    setPasswordSaving(true);
+    try {
+      const response = await fetch('/api/admin/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: securityForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setPasswordMessage(`Error: ${data.error || 'Could not update password.'}`);
+        return;
+      }
+
+      setPasswordMessage('Password updated successfully.');
+      setPasswordForm({
+        newPassword: '',
+        confirmPassword: '',
+      });
+      setSecurityForm({ currentPassword: '' });
+      setSecurityVerified(false);
+    } catch {
+      setPasswordMessage('Error: Failed to update password.');
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const handleAdminIdUpdate = async (e) => {
+    e.preventDefault();
+    setAdminIdMessage('');
+
+    const nextEmail = (adminIdForm.email || '').trim().toLowerCase();
+
+    if (!securityVerified) {
+      setAdminIdMessage('Error: Verify current password first.');
+      return;
+    }
+
+    if (!nextEmail) {
+      setAdminIdMessage('Error: Admin ID (email) is required.');
+      return;
+    }
+
+    setAdminIdSaving(true);
+    try {
+      const response = await fetch('/api/admin/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: nextEmail,
+          currentPassword: securityForm.currentPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setAdminIdMessage(`Error: ${data.error || 'Could not update admin ID.'}`);
+        return;
+      }
+
+      setAdminEmail(nextEmail);
+      setAdminIdForm({
+        email: nextEmail,
+      });
+      setAdminIdMessage('Admin ID updated successfully.');
+      setSecurityForm({ currentPassword: '' });
+      setSecurityVerified(false);
+    } catch {
+      setAdminIdMessage('Error: Failed to update admin ID.');
+    } finally {
+      setAdminIdSaving(false);
+    }
   };
 
   const handleSave = async () => {
@@ -380,7 +567,55 @@ export default function AdminSettings() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Controls (Meta + H1-H6)</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Us Section</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Contact page SEO and heading controls are available in the dedicated SEO section below.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Terms & Conditions Section</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Terms & Conditions page SEO and heading controls are available in the dedicated SEO section below.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Privacy Policy
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Privacy Policy Content
+                </label>
+                <textarea
+                  rows={6}
+                  value={settings.privacyPolicyContent}
+                  onChange={(e) => setSettings({ ...settings, privacyPolicyContent: e.target.value })}
+                  placeholder="Enter your privacy policy content..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-gray-900"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Disclaimer Section</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Disclaimer page SEO and heading controls are available in the dedicated SEO section below.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Settings</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Manage SEO title, description, and heading tags from one place.
+            </p>
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Page</label>
@@ -401,16 +636,7 @@ export default function AdminSettings() {
                   <input
                     type="text"
                     value={settings.seoSettings?.[selectedSeoPage]?.metaTitle || ''}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      seoSettings: {
-                        ...settings.seoSettings,
-                        [selectedSeoPage]: {
-                          ...settings.seoSettings[selectedSeoPage],
-                          metaTitle: e.target.value,
-                        },
-                      },
-                    })}
+                    onChange={(e) => updateSeoField(selectedSeoPage, 'metaTitle', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                     placeholder="SEO title for selected page"
                   />
@@ -420,135 +646,165 @@ export default function AdminSettings() {
                   <textarea
                     rows={3}
                     value={settings.seoSettings?.[selectedSeoPage]?.metaDescription || ''}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      seoSettings: {
-                        ...settings.seoSettings,
-                        [selectedSeoPage]: {
-                          ...settings.seoSettings[selectedSeoPage],
-                          metaDescription: e.target.value,
-                        },
-                      },
-                    })}
+                    onChange={(e) => updateSeoField(selectedSeoPage, 'metaDescription', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                     placeholder="SEO description for selected page"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].map((tag) => (
-                  <div key={tag}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{tag.toUpperCase()} Text</label>
+              <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
+                <p className="text-sm font-medium text-indigo-900">Heading Tag Editor</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Heading Level</label>
+                    <select
+                      value={selectedHeadingTag}
+                      onChange={(e) => setSelectedHeadingTag(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                    >
+                      {headingTagOptions.map((tag) => (
+                        <option key={tag} value={tag}>{tag.toUpperCase()}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {selectedHeadingTag.toUpperCase()} Text
+                    </label>
                     <input
                       type="text"
-                      value={settings.seoSettings?.[selectedSeoPage]?.[tag] || ''}
-                      onChange={(e) => setSettings({
-                        ...settings,
-                        seoSettings: {
-                          ...settings.seoSettings,
-                          [selectedSeoPage]: {
-                            ...settings.seoSettings[selectedSeoPage],
-                            [tag]: e.target.value,
-                          },
-                        },
-                      })}
+                      value={settings.seoSettings?.[selectedSeoPage]?.[selectedHeadingTag] || ''}
+                      onChange={(e) => updateSeoField(selectedSeoPage, selectedHeadingTag, e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                      placeholder={`${tag.toUpperCase()} heading for selected page`}
+                      placeholder={`Enter ${selectedHeadingTag.toUpperCase()} text for selected page`}
                     />
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Homepage Heading Controls</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Heading Tone</label>
-                <select
-                  value={settings.headingSettings.tone}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    headingSettings: {
-                      ...settings.headingSettings,
-                      tone: e.target.value,
-                    },
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                >
-                  <option value="professional">Professional</option>
-                  <option value="general">General</option>
-                </select>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Password and ID</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Verify current password once, then update Admin ID or password.
+            </p>
+
+            {securityMessage && (
+              <div className={`mb-4 p-3 rounded-lg text-sm ${securityMessage.startsWith('Error:') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                {securityMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyCurrentPassword} className="rounded-lg border border-slate-200 p-4 mb-6">
+              <h4 className="text-base font-semibold text-gray-900 mb-3">Step 1: Verify Current Password</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                  <input
+                    type="password"
+                    value={securityForm.currentPassword}
+                    onChange={(e) => {
+                      setSecurityForm({ currentPassword: e.target.value });
+                      setSecurityVerified(false);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-gray-900"
+                    autoComplete="current-password"
+                  />
+                </div>
+
+                <div className="flex md:justify-end">
+                  <button
+                    type="submit"
+                    disabled={securityVerifying}
+                    className="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {securityVerifying ? 'Verifying...' : 'Verify Password'}
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="rounded-lg border border-slate-200 p-4">
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Step 2: Update Admin ID (Email)</h4>
+                <p className="text-sm text-gray-600 mb-4">Current Admin ID: {adminEmail || 'Not available'}</p>
+
+                {adminIdMessage && (
+                  <div className={`mb-4 p-3 rounded-lg text-sm ${adminIdMessage.startsWith('Error:') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                    {adminIdMessage}
+                  </div>
+                )}
+
+                <form onSubmit={handleAdminIdUpdate} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">New Admin ID (Email)</label>
+                    <input
+                      type="email"
+                      value={adminIdForm.email}
+                      onChange={(e) => setAdminIdForm({ ...adminIdForm, email: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      autoComplete="email"
+                      disabled={!securityVerified}
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={adminIdSaving || !securityVerified}
+                      className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {adminIdSaving ? 'Updating ID...' : 'Update Admin ID'}
+                    </button>
+                  </div>
+                </form>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">H1 Text</label>
-                <input
-                  type="text"
-                  value={settings.headingSettings.h1Text}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    headingSettings: {
-                      ...settings.headingSettings,
-                      h1Text: e.target.value,
-                    },
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                  placeholder="Main heading"
-                />
-              </div>
+              <div className="rounded-lg border border-slate-200 p-4">
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Step 3: Update Password</h4>
+                {passwordMessage && (
+                  <div className={`mb-4 p-3 rounded-lg text-sm ${passwordMessage.startsWith('Error:') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                    {passwordMessage}
+                  </div>
+                )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">H2 Text</label>
-                <input
-                  type="text"
-                  value={settings.headingSettings.h2Text}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    headingSettings: {
-                      ...settings.headingSettings,
-                      h2Text: e.target.value,
-                    },
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                  placeholder="Secondary heading"
-                />
-              </div>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                    <input
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-900"
+                      autoComplete="new-password"
+                      disabled={!securityVerified}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                    <input
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-900"
+                      autoComplete="new-password"
+                      disabled={!securityVerified}
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">H3 Text</label>
-                <input
-                  type="text"
-                  value={settings.headingSettings.h3Text}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    headingSettings: {
-                      ...settings.headingSettings,
-                      h3Text: e.target.value,
-                    },
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                  placeholder="Section heading"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">H4 Text</label>
-                <input
-                  type="text"
-                  value={settings.headingSettings.h4Text}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    headingSettings: {
-                      ...settings.headingSettings,
-                      h4Text: e.target.value,
-                    },
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                  placeholder="Small section heading"
-                />
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={passwordSaving || !securityVerified}
+                      className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {passwordSaving ? 'Updating Password...' : 'Update Password'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -589,29 +845,6 @@ export default function AdminSettings() {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              Privacy Policy
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Privacy Policy Content
-                </label>
-                <textarea
-                  rows={6}
-                  value={settings.privacyPolicyContent}
-                  onChange={(e) => setSettings({ ...settings, privacyPolicyContent: e.target.value })}
-                  placeholder="Enter your privacy policy content..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-gray-900"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Footer Copyright</h3>
             <div className="space-y-4">
               <div>
@@ -636,6 +869,7 @@ export default function AdminSettings() {
               </div>
             </div>
           </div>
+
         </div>
 
         <div className="flex justify-end">

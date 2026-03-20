@@ -460,11 +460,17 @@ export default function Home() {
       {/* Center Text Analyzer Section */}
       <section className="flex-1 flex flex-col px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
         <div className="w-full max-w-4xl mx-auto h-full flex flex-col gap-4">
-          <div className="flex flex-col items-center gap-2 shrink-0 py-2">
-            <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-14 h-14" />
-            <h1 className={`text-center ${isProfessionalTone ? 'text-3xl sm:text-4xl lg:text-5xl font-semibold text-slate-900' : 'text-3xl sm:text-4xl lg:text-5xl font-extrabold bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm'}`}>
-              {homeSeo.h1 || t('characterCounter')}
-            </h1>
+          <div className="flex flex-col items-center gap-3 shrink-0 py-2">
+            <div className="relative rounded-2xl bg-linear-to-br from-indigo-500 via-violet-500 to-fuchsia-500 p-0.75 shadow-lg shadow-indigo-300/50">
+              <div className="rounded-[14px] bg-white/95 p-2">
+                <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-12 h-12 sm:w-14 sm:h-14" />
+              </div>
+            </div>
+            <div className="relative text-center">
+              <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
+                Character Counter
+              </h1>
+            </div>
             <h2 className={`text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
               {homeSeo.h2 || 'Analyze your text with confidence'}
             </h2>

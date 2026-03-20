@@ -4,6 +4,51 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
+const contactIcons = {
+  instagram: (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  gmail: (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M3 6.5h18v11H3z" />
+      <path d="M3 7l9 7 9-7" />
+    </svg>
+  ),
+  linkedin: (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M8 10v7" />
+      <circle cx="8" cy="7.5" r="1" fill="currentColor" stroke="none" />
+      <path d="M12 17v-4.2c0-1.7 1.2-2.8 2.7-2.8s2.3 1 2.3 2.8V17" />
+    </svg>
+  ),
+};
+
+function ContactRow({ icon, label, href, value, external = false }) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg bg-white p-3 border border-slate-200">
+      <span className="text-indigo-600 mt-0.5" aria-hidden="true">
+        {icon}
+      </span>
+      <p className="m-0">
+        <span className="font-semibold text-gray-800">{label}: </span>
+        <a
+          href={href}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noreferrer' : undefined}
+          className="text-indigo-600 hover:text-indigo-800 underline break-all"
+        >
+          {value}
+        </a>
+      </p>
+    </div>
+  );
+}
+
 export default function AboutUs() {
   const t = useTranslations();
   const [aboutUsContent, setAboutUsContent] = useState(null);
@@ -100,43 +145,32 @@ export default function AboutUs() {
 
               <div className="mt-8 rounded-xl p-6 border border-slate-200 bg-slate-50">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Connect With Us</h2>
-                <div className="space-y-2 text-base">
+                <div className="space-y-3 text-base">
                   {aboutUsContacts.instagramUrl && (
-                    <p>
-                      <span className="font-semibold text-gray-800">Instagram: </span>
-                      <a
-                        href={aboutUsContacts.instagramUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-indigo-600 hover:text-indigo-800 underline break-all"
-                      >
-                        {aboutUsContacts.instagramUrl}
-                      </a>
-                    </p>
+                    <ContactRow
+                      icon={contactIcons.instagram}
+                      label="Instagram"
+                      href={aboutUsContacts.instagramUrl}
+                      value={aboutUsContacts.instagramUrl}
+                      external
+                    />
                   )}
                   {aboutUsContacts.gmail && (
-                    <p>
-                      <span className="font-semibold text-gray-800">Gmail: </span>
-                      <a
-                        href={`mailto:${aboutUsContacts.gmail}`}
-                        className="text-indigo-600 hover:text-indigo-800 underline break-all"
-                      >
-                        {aboutUsContacts.gmail}
-                      </a>
-                    </p>
+                    <ContactRow
+                      icon={contactIcons.gmail}
+                      label="Gmail"
+                      href={`mailto:${aboutUsContacts.gmail}`}
+                      value={aboutUsContacts.gmail}
+                    />
                   )}
                   {aboutUsContacts.linkedinUrl && (
-                    <p>
-                      <span className="font-semibold text-gray-800">LinkedIn: </span>
-                      <a
-                        href={aboutUsContacts.linkedinUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-indigo-600 hover:text-indigo-800 underline break-all"
-                      >
-                        {aboutUsContacts.linkedinUrl}
-                      </a>
-                    </p>
+                    <ContactRow
+                      icon={contactIcons.linkedin}
+                      label="LinkedIn"
+                      href={aboutUsContacts.linkedinUrl}
+                      value={aboutUsContacts.linkedinUrl}
+                      external
+                    />
                   )}
                   {!hasAnyContact && (
                     <p className="text-gray-500 italic">
@@ -179,43 +213,32 @@ export default function AboutUs() {
 
               <div className="mt-8 rounded-xl p-6 border border-slate-200 bg-slate-50">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Connect With Us</h2>
-                <div className="space-y-2 text-base">
+                <div className="space-y-3 text-base">
                   {aboutUsContacts.instagramUrl && (
-                    <p>
-                      <span className="font-semibold text-gray-800">Instagram: </span>
-                      <a
-                        href={aboutUsContacts.instagramUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-indigo-600 hover:text-indigo-800 underline break-all"
-                      >
-                        {aboutUsContacts.instagramUrl}
-                      </a>
-                    </p>
+                    <ContactRow
+                      icon={contactIcons.instagram}
+                      label="Instagram"
+                      href={aboutUsContacts.instagramUrl}
+                      value={aboutUsContacts.instagramUrl}
+                      external
+                    />
                   )}
                   {aboutUsContacts.gmail && (
-                    <p>
-                      <span className="font-semibold text-gray-800">Gmail: </span>
-                      <a
-                        href={`mailto:${aboutUsContacts.gmail}`}
-                        className="text-indigo-600 hover:text-indigo-800 underline break-all"
-                      >
-                        {aboutUsContacts.gmail}
-                      </a>
-                    </p>
+                    <ContactRow
+                      icon={contactIcons.gmail}
+                      label="Gmail"
+                      href={`mailto:${aboutUsContacts.gmail}`}
+                      value={aboutUsContacts.gmail}
+                    />
                   )}
                   {aboutUsContacts.linkedinUrl && (
-                    <p>
-                      <span className="font-semibold text-gray-800">LinkedIn: </span>
-                      <a
-                        href={aboutUsContacts.linkedinUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-indigo-600 hover:text-indigo-800 underline break-all"
-                      >
-                        {aboutUsContacts.linkedinUrl}
-                      </a>
-                    </p>
+                    <ContactRow
+                      icon={contactIcons.linkedin}
+                      label="LinkedIn"
+                      href={aboutUsContacts.linkedinUrl}
+                      value={aboutUsContacts.linkedinUrl}
+                      external
+                    />
                   )}
                   {!hasAnyContact && (
                     <p className="text-gray-500 italic">
