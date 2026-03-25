@@ -38,6 +38,11 @@ export default function AdminSettings() {
       gmail: '',
       linkedinUrl: '',
     },
+    socialLinks: {
+      instagramUrl: 'https://instagram.com/prerna.9_',
+      twitterUrl: 'https://twitter.com/prerna.9_',
+      emailAddress: 'prerna.9_@gmail.com',
+    },
     instagramHandle: '',
     instagramUrl: '',
     privacyPolicyContent: '',
@@ -97,6 +102,11 @@ export default function AdminSettings() {
           h4Text: 'About This Tool',
           tone: 'professional',
         };
+        const socialLinks = data.settings.socialLinks || {
+          instagramUrl: 'https://instagram.com/prerna.9_',
+          twitterUrl: 'https://twitter.com/prerna.9_',
+          emailAddress: 'prerna.9_@gmail.com',
+        };
         setSettings({
           ...data.settings,
           aboutUsContent: {
@@ -115,6 +125,11 @@ export default function AdminSettings() {
             h3Text: headingSettings.h3Text || 'Statistics',
             h4Text: headingSettings.h4Text || 'About This Tool',
             tone: headingSettings.tone || 'professional',
+          },
+          socialLinks: {
+            instagramUrl: socialLinks.instagramUrl || 'https://instagram.com/prerna.9_',
+            twitterUrl: socialLinks.twitterUrl || 'https://twitter.com/prerna.9_',
+            emailAddress: socialLinks.emailAddress || 'prerna.9_@gmail.com',
           },
           seoSettings: {
             ...defaultSeoSettings,
@@ -814,30 +829,63 @@ export default function AdminSettings() {
               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              Instagram Settings
+              Sidebar Social Links
             </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              These links are used by Instagram, Twitter, and Email icons in the homepage left sidebar.
+            </p>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Instagram Handle
-                </label>
-                <input
-                  type="text"
-                  value={settings.instagramHandle}
-                  onChange={(e) => setSettings({ ...settings, instagramHandle: e.target.value })}
-                  placeholder="@yourusername"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Instagram URL
                 </label>
                 <input
                   type="url"
-                  value={settings.instagramUrl}
-                  onChange={(e) => setSettings({ ...settings, instagramUrl: e.target.value })}
+                  value={settings.socialLinks?.instagramUrl || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    socialLinks: {
+                      ...settings.socialLinks,
+                      instagramUrl: e.target.value,
+                    },
+                  })}
                   placeholder="https://instagram.com/yourusername"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Twitter URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.socialLinks?.twitterUrl || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    socialLinks: {
+                      ...settings.socialLinks,
+                      twitterUrl: e.target.value,
+                    },
+                  })}
+                  placeholder="https://twitter.com/yourusername"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={settings.socialLinks?.emailAddress || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    socialLinks: {
+                      ...settings.socialLinks,
+                      emailAddress: e.target.value,
+                    },
+                  })}
+                  placeholder="youremail@example.com"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>

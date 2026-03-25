@@ -37,6 +37,21 @@ const AboutUsContactsSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const SocialLinksSchema = new mongoose.Schema({
+  instagramUrl: {
+    type: String,
+    default: 'https://instagram.com/prerna.9_',
+  },
+  twitterUrl: {
+    type: String,
+    default: 'https://twitter.com/prerna.9_',
+  },
+  emailAddress: {
+    type: String,
+    default: 'prerna.9_@gmail.com',
+  },
+}, { _id: false });
+
 const HeadingSettingsSchema = new mongoose.Schema({
   h1Text: {
     type: String,
@@ -95,6 +110,14 @@ const SettingsSchema = new mongoose.Schema(
     aboutUsContacts: {
       type: AboutUsContactsSchema,
       default: () => ({ instagramUrl: '', gmail: '', linkedinUrl: '' }),
+    },
+    socialLinks: {
+      type: SocialLinksSchema,
+      default: () => ({
+        instagramUrl: 'https://instagram.com/prerna.9_',
+        twitterUrl: 'https://twitter.com/prerna.9_',
+        emailAddress: 'prerna.9_@gmail.com',
+      }),
     },
     instagramHandle: {
       type: String,

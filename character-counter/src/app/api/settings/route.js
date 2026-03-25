@@ -22,6 +22,11 @@ export async function GET() {
           gmail: '',
           linkedinUrl: '',
         },
+        socialLinks: {
+          instagramUrl: 'https://instagram.com/prerna.9_',
+          twitterUrl: 'https://twitter.com/prerna.9_',
+          emailAddress: 'prerna.9_@gmail.com',
+        },
         instagramHandle: '',
         instagramUrl: '',
         privacyPolicyContent: '',
@@ -60,6 +65,7 @@ export async function PUT(request) {
       aboutContent,
       aboutUsContent,
       aboutUsContacts,
+      socialLinks,
       instagramHandle,
       instagramUrl,
       privacyPolicyContent,
@@ -75,6 +81,7 @@ export async function PUT(request) {
         aboutContent,
         aboutUsContent,
         aboutUsContacts,
+        socialLinks,
         instagramHandle,
         instagramUrl,
         privacyPolicyContent,
@@ -92,6 +99,7 @@ export async function PUT(request) {
       if (aboutContent !== undefined) settings.aboutContent = aboutContent;
       if (aboutUsContent !== undefined) settings.aboutUsContent = aboutUsContent;
       if (aboutUsContacts !== undefined) settings.aboutUsContacts = aboutUsContacts;
+      if (socialLinks !== undefined) settings.socialLinks = socialLinks;
       if (instagramHandle !== undefined) settings.instagramHandle = instagramHandle;
       if (instagramUrl !== undefined) settings.instagramUrl = instagramUrl;
       if (privacyPolicyContent !== undefined) settings.privacyPolicyContent = privacyPolicyContent;
