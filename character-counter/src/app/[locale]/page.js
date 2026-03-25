@@ -50,6 +50,10 @@ const countParagraphs = (text) => {
     .filter((para) => para.trim().length > 0).length;
 };
 
+const countSpecialCharacters = (text) => {
+  return (text.match(/[^\p{L}\p{N}\s]/gu) || []).length;
+};
+
 const getWordDensity = (text) => {
   if (!text.trim()) return [];
 
@@ -174,6 +178,7 @@ export default function Home() {
     characterCount,
     wordCount,
     spaceCount,
+    specialCharCount,
     sentenceCount,
     paragraphCount,
     topWords,
@@ -181,6 +186,7 @@ export default function Home() {
     const characterCount = text.length;
     const wordCount = countWords(text);
     const spaceCount = countSpaces(text);
+    const specialCharCount = countSpecialCharacters(text);
     const sentenceCount = countSentences(text);
     const paragraphCount = countParagraphs(text);
     const topWords = getWordDensity(text);
@@ -189,6 +195,7 @@ export default function Home() {
       characterCount,
       wordCount,
       spaceCount,
+      specialCharCount,
       sentenceCount,
       paragraphCount,
       topWords,
@@ -196,6 +203,25 @@ export default function Home() {
   }, [text]);
 
   const isProfessionalTone = headingSettings.tone === 'professional';
+  const introBlock = (
+    <div className="flex flex-col items-center gap-3 shrink-0 py-2">
+      <div className="relative rounded-2xl bg-linear-to-br from-indigo-500 via-violet-500 to-fuchsia-500 p-0.75 shadow-lg shadow-indigo-300/50">
+        <div className="rounded-[14px] bg-white/95 p-2">
+          <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-12 h-12 sm:w-14 sm:h-14" />
+        </div>
+      </div>
+      <div className="relative text-center">
+        <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
+          Character Counter
+        </h1>
+      </div>
+      <h2 className={`text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
+        {homeSeo.h2 || 'Analyze your text with confidence'}
+      </h2>
+      {homeSeo.h5 && <h5 className="text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
+      {homeSeo.h6 && <h6 className="text-center text-xs text-slate-500">{homeSeo.h6}</h6>}
+    </div>
+  );
 
   return (
     <>
@@ -367,6 +393,28 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="lg:hidden bg-white/80 rounded-xl p-4 border border-indigo-100 shadow-sm">
+            {introBlock}
+          </div>
+
+          {/* Mobile Text Input (shown above stats/cards) */}
+          <div className="lg:hidden bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-indigo-100 flex flex-col">
+            <label
+              htmlFor="text-input-mobile"
+              className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide"
+            >
+              {t('enterText')}
+            </label>
+            <textarea
+              id="text-input-mobile"
+              value={text}
+              onChange={handleTextChange}
+              placeholder={t('placeholder')}
+              className="w-full h-80 p-4 border-2 border-indigo-200 rounded-xl resize-none focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 text-black text-base transition-all duration-200 bg-white/50 backdrop-blur-sm overflow-y-auto"
+              aria-label="Text input for analysis"
+            />
+          </div>
+
           {/* Section 2: Statistics */}
           <div className="bg-linear-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200 shadow-sm">
             <h3 className={`text-lg mb-4 ${isProfessionalTone ? 'font-semibold text-slate-800' : 'font-bold text-gray-800'}`}>
@@ -413,6 +461,12 @@ export default function Home() {
                 </p>
                 <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('spaces')}</p>
               </div>
+              <div className="bg-white/70 rounded-lg p-3 border border-indigo-100">
+                <p className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                  {specialCharCount}
+                </p>
+                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">Symbols/Special Character</p>
+              </div>
             </div>
           </div>
 
@@ -458,24 +512,10 @@ export default function Home() {
       </aside>
 
       {/* Center Text Analyzer Section */}
-      <section className="flex-1 flex flex-col px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
+      <section className="hidden lg:flex flex-1 flex-col px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
         <div className="w-full max-w-4xl mx-auto h-full flex flex-col gap-4">
-          <div className="flex flex-col items-center gap-3 shrink-0 py-2">
-            <div className="relative rounded-2xl bg-linear-to-br from-indigo-500 via-violet-500 to-fuchsia-500 p-0.75 shadow-lg shadow-indigo-300/50">
-              <div className="rounded-[14px] bg-white/95 p-2">
-                <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-12 h-12 sm:w-14 sm:h-14" />
-              </div>
-            </div>
-            <div className="relative text-center">
-              <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
-                Character Counter
-              </h1>
-            </div>
-            <h2 className={`text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
-              {homeSeo.h2 || 'Analyze your text with confidence'}
-            </h2>
-            {homeSeo.h5 && <h5 className="text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
-            {homeSeo.h6 && <h6 className="text-center text-xs text-slate-500">{homeSeo.h6}</h6>}
+          <div className="flex">
+            {introBlock}
           </div>
 
           {/* Text Input Section */}
