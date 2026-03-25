@@ -24,6 +24,24 @@ export async function generateMetadata() {
   return {
     title: seo.metaTitle,
     description: seo.metaDescription,
+    icons: {
+      icon: {
+        url: '/Charater Count Favicon Logo.png',
+        sizes: '192x192 256x256 512x512',
+        type: 'image/png',
+      },
+      shortcut: '/Charater Count Favicon Logo.png',
+      apple: {
+        url: '/Charater Count Favicon Logo.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    },
+    openGraph: {
+      title: seo.metaTitle,
+      description: seo.metaDescription,
+      images: ['/Charater Count Favicon Logo.png'],
+    },
   };
 }
 

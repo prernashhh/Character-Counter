@@ -106,7 +106,7 @@ export default function AdminLayout({ children }) {
         <header className="bg-white shadow-sm">
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-7 h-7" />
+              <img src="/Charater Count Favicon Logo.png" alt="Character Count Online Tool logo" className="w-7 h-7" />
               <h1 className="text-xl font-semibold text-gray-800">Admin Panel</h1>
             </div>
             <a

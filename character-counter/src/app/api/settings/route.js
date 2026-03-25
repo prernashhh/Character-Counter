@@ -4,14 +4,16 @@ import { normalizeSeoSettings } from '@/lib/seo-settings';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDB();
+    const { searchParams } = new URL(request.url);
+    const scope = searchParams.get('scope');
 
-    let settings = await Settings.findOne();
+    let settings = await Settings.findOne().lean();
 
     if (!settings) {
-      settings = await Settings.create({
+      const createdSettings = await Settings.create({
         aboutContent: '',
         aboutUsContent: {
           sections: [],
@@ -40,9 +42,35 @@ export async function GET() {
         },
         seoSettings: normalizeSeoSettings({}),
       });
+      settings = createdSettings.toObject();
     }
 
     settings.seoSettings = normalizeSeoSettings(settings.seoSettings || {});
+
+    if (scope === 'home') {
+      return Response.json({
+        success: true,
+        settings: {
+          aboutContent: settings.aboutContent ?? '',
+          footerCopyrightYear: settings.footerCopyrightYear ?? new Date().getFullYear(),
+          headingSettings: settings.headingSettings ?? {
+            h1Text: 'Character Counter',
+            h2Text: 'Analyze your text with confidence',
+            h3Text: 'Statistics',
+            h4Text: 'About This Tool',
+            tone: 'professional',
+          },
+          seoSettings: {
+            home: settings.seoSettings.home,
+          },
+          socialLinks: settings.socialLinks ?? {
+            instagramUrl: 'https://instagram.com/prerna.9_',
+            twitterUrl: 'https://twitter.com/prerna.9_',
+            emailAddress: 'prerna.9_@gmail.com',
+          },
+        },
+      });
+    }
 
     return Response.json({
       success: true,

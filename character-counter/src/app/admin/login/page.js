@@ -53,7 +53,7 @@ export default function AdminLogin() {
             </a>
           </div>
           <div className="flex justify-center mb-3">
-            <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-12 h-12" />
+            <img src="/Charater Count Favicon Logo.png" alt="Character Count Online Tool logo" className="w-12 h-12" />
           </div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
             Admin Login

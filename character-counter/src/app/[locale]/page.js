@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
-import SiteFooter from '@/components/SiteFooter';
 
 // Language configurations
 const languages = [
@@ -73,10 +72,11 @@ export default function Home() {
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
+    const defaultAboutContent = t('aboutContent');
     const [text, setText] = useState("");
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
-    const [aboutContent, setAboutContent] = useState("");
+    const [aboutContent, setAboutContent] = useState(defaultAboutContent);
     const [footerYear, setFooterYear] = useState(new Date().getFullYear());
     const [homeSeo, setHomeSeo] = useState({
       h1: 'Character Counter',
@@ -116,10 +116,10 @@ export default function Home() {
 
   const fetchAboutContent = async () => {
     try {
-      const response = await fetch('/api/settings');
+      const response = await fetch('/api/settings?scope=home');
       const data = await response.json();
       if (data.success && data.settings) {
-        setAboutContent(data.settings.aboutContent || t('aboutContent'));
+        setAboutContent(data.settings.aboutContent || defaultAboutContent);
         if (Number.isInteger(data.settings.footerCopyrightYear)) {
           setFooterYear(data.settings.footerCopyrightYear);
         }
@@ -148,10 +148,10 @@ export default function Home() {
           emailAddress: data.settings.socialLinks?.emailAddress || 'prerna.9_@gmail.com',
         });
       } else {
-        setAboutContent(t('aboutContent'));
+        setAboutContent(defaultAboutContent);
       }
     } catch (error) {
-      setAboutContent(t('aboutContent'));
+      setAboutContent(defaultAboutContent);
     }
   };
 
@@ -197,12 +197,8 @@ export default function Home() {
 
   const isProfessionalTone = headingSettings.tone === 'professional';
   const introBlock = (
-    <div className="w-full flex flex-col items-center gap-3 shrink-0 py-2">
-      <div className="relative rounded-2xl bg-linear-to-br from-indigo-500 via-violet-500 to-fuchsia-500 p-0.75 shadow-lg shadow-indigo-300/50">
-        <div className="rounded-[14px] bg-white/95 p-2">
-          <img src="/app-logo.svg" alt="Character Count Online Tool logo" className="w-12 h-12 sm:w-14 sm:h-14" />
-        </div>
-      </div>
+    <div className="w-full flex flex-col items-center gap-1 shrink-0 py-2">
+      <img src="/Charater Count Favicon Logo.png" alt="Character Count Online Tool logo" className="w-20 h-20 sm:w-24 sm:h-24" />
       <div className="relative text-center">
         <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
           Character Counter
@@ -545,17 +541,17 @@ export default function Home() {
       </aside>
 
       {/* Center Text Analyzer Section */}
-      <section className="hidden lg:flex flex-1 flex-col px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col gap-4">
+      <section className="hidden lg:flex flex-1 flex-col px-4 sm:px-6 lg:px-8 py-4 overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col gap-3">
           <div className="w-full">
             {introBlock}
           </div>
 
           {/* Text Input Section */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-indigo-100 flex-1 flex flex-col min-h-0">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-indigo-100 flex-1 flex flex-col min-h-0">
             <label
               htmlFor="text-input"
-              className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide shrink-0"
+              className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide shrink-0"
             >
               {t('enterText')}
             </label>
@@ -564,9 +560,30 @@ export default function Home() {
               value={text}
               onChange={handleTextChange}
               placeholder={t('placeholder')}
-              className="w-full flex-1 p-5 border-2 border-indigo-200 rounded-xl resize-none focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 text-black text-base lg:text-lg transition-all duration-200 bg-white/50 backdrop-blur-sm overflow-y-auto"
+              className="w-full flex-1 p-4 border-2 border-indigo-200 rounded-xl resize-none focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 text-black text-base lg:text-lg transition-all duration-200 bg-white/50 backdrop-blur-sm overflow-y-auto"
               aria-label="Text input for analysis"
             />
+          </div>
+
+          {/* Footer Section - Desktop Only */}
+          <div className="hidden lg:block bg-linear-to-r from-indigo-50/90 via-sky-50/90 to-violet-50/90 rounded-2xl p-3 shrink-0">
+            <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
+              <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
+              <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+                <a href={`/${locale}/about-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                  About Us
+                </a>
+                <a href={`/${locale}/contact-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                  Contact
+                </a>
+                <a href={`/${locale}/privacy-policy`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                  Privacy Policy
+                </a>
+                <a href={`/${locale}/terms-conditions`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                  Terms
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -583,19 +600,48 @@ export default function Home() {
             </h4>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
-                {aboutContent && aboutContent.split('\n').map((line, index) => {
-                  if (line.match(/^\*\*.*\*\*$/)) {
-                    return <p key={index} className="font-bold mt-3">{line.replace(/\*\*/g, '')}</p>;
-                  }
-                  return line ? <p key={index} className="mb-2">{line}</p> : <div key={index} className="h-2" />;
-                })}
+                {aboutContent ? (
+                  aboutContent.split('\n').map((line, index) => {
+                    if (line.match(/^\*\*.*\*\*$/)) {
+                      return <p key={index} className="font-bold mt-3">{line.replace(/\*\*/g, '')}</p>;
+                    }
+                    return line ? <p key={index} className="mb-2">{line}</p> : <div key={index} className="h-2" />;
+                  })
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <img src="/Charater Count Favicon Logo.png" alt="Character Counter" className="w-12 h-12 mb-3 opacity-50" />
+                    <p className="text-xs text-gray-500 text-center">Loading content...</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </aside>
     </main>
-    <SiteFooter locale={locale} footerYear={footerYear} />
+
+    {/* Footer - Mobile/Tablet */}
+    <footer className="lg:hidden bg-linear-to-r from-indigo-50/90 via-sky-50/90 to-violet-50/90">
+      <div className="max-w-6xl mx-auto px-4 py-3">
+        <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
+          <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+            <a href={`/${locale}/about-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+              About Us
+            </a>
+            <a href={`/${locale}/contact-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+              Contact
+            </a>
+            <a href={`/${locale}/privacy-policy`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+              Privacy Policy
+            </a>
+            <a href={`/${locale}/terms-conditions`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+              Terms
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
     </>
   );
 }
