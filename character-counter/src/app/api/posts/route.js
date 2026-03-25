@@ -17,7 +17,7 @@ export async function GET(request) {
     const posts = await Post.find({ published: true })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .select('title slug excerpt createdAt')
+      .select('title slug excerpt content coverImageUrl createdAt')
       .lean();
 
     return Response.json({

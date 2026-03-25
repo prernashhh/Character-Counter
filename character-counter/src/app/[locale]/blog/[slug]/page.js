@@ -60,9 +60,10 @@ export default async function BlogPostPage({ params }) {
           <p className="text-lg text-slate-700 mb-6 font-medium">{post.excerpt}</p>
         )}
 
-        <div className="prose prose-slate max-w-none whitespace-pre-line text-slate-700">
-          {post.content}
-        </div>
+        <div
+          className="prose prose-slate max-w-none text-slate-700"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
       </article>
     </main>
   );

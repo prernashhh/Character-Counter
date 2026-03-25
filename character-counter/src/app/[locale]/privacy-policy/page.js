@@ -75,14 +75,7 @@ export default function PrivacyPolicyPage() {
             {loading ? (
               <p>Loading privacy policy...</p>
             ) : (
-              policyContent
-                .split('\n\n')
-                .filter((block) => block.trim())
-                .map((block, index) => (
-                  <p key={index} className="leading-relaxed mb-5 whitespace-pre-line">
-                    {block}
-                  </p>
-                ))
+              <div dangerouslySetInnerHTML={{ __html: policyContent }} />
             )}
           </div>
         </div>

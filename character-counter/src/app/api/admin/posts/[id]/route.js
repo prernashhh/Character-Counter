@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import { verifyToken } from '@/lib/auth';
+import { deleteImageFromCloudinary } from '@/lib/cloudinary';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -25,6 +26,12 @@ export async function PATCH(request, { params }) {
 
     await connectDB();
 
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return Response.json({ success: false, error: 'Post not found' }, { status: 404 });
+    }
+
     const update = {};
 
     if (body.title !== undefined) update.title = String(body.title).trim();
@@ -32,9 +39,22 @@ export async function PATCH(request, { params }) {
     if (body.excerpt !== undefined) update.excerpt = String(body.excerpt).trim();
     if (body.published !== undefined) update.published = Boolean(body.published);
 
-    const post = await Post.findByIdAndUpdate(id, update, { new: true }).lean();
+    if (body.coverImageUrl !== undefined) {
+      update.coverImageUrl = String(body.coverImageUrl || '').trim();
+    }
 
-    if (!post) {
+    if (body.coverImagePublicId !== undefined) {
+      const nextPublicId = String(body.coverImagePublicId || '').trim();
+      update.coverImagePublicId = nextPublicId;
+
+      if (post.coverImagePublicId && post.coverImagePublicId !== nextPublicId) {
+        await deleteImageFromCloudinary(post.coverImagePublicId);
+      }
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(id, update, { new: true }).lean();
+
+    if (!updatedPost) {
       return Response.json({ success: false, error: 'Post not found' }, { status: 404 });
     }
 
@@ -42,8 +62,8 @@ export async function PATCH(request, { params }) {
       success: true,
       message: 'Post updated successfully',
       post: {
-        ...post,
-        _id: post._id.toString(),
+        ...updatedPost,
+        _id: updatedPost._id.toString(),
       },
     });
   } catch (error) {
@@ -63,11 +83,17 @@ export async function DELETE(request, { params }) {
 
     await connectDB();
 
-    const deleted = await Post.findByIdAndDelete(id);
+    const deleted = await Post.findById(id);
 
     if (!deleted) {
       return Response.json({ success: false, error: 'Post not found' }, { status: 404 });
     }
+
+    if (deleted.coverImagePublicId) {
+      await deleteImageFromCloudinary(deleted.coverImagePublicId);
+    }
+
+    await Post.findByIdAndDelete(id);
 
     return Response.json({ success: true, message: 'Post deleted successfully' });
   } catch (error) {

@@ -1,10 +1,32 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
 export default function Disclaimer() {
   const t = useTranslations();
+  const [disclaimerContent, setDisclaimerContent] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDisclaimerContent = async () => {
+      try {
+        const response = await fetch('/api/settings', { cache: 'no-store' });
+        const data = await response.json();
+
+        if (data?.success && data.settings?.disclaimerContent?.trim()) {
+          setDisclaimerContent(data.settings.disclaimerContent);
+        }
+      } catch {
+        setDisclaimerContent('');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDisclaimerContent();
+  }, []);
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -25,6 +47,10 @@ export default function Disclaimer() {
           </h1>
 
           <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
+            {!loading && disclaimerContent ? (
+              <div dangerouslySetInnerHTML={{ __html: disclaimerContent }} />
+            ) : (
+              <>
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
               <p className="text-sm font-semibold text-yellow-800">
                 {t('lastUpdated')}: December 27, 2025
@@ -70,6 +96,8 @@ export default function Disclaimer() {
                 {t('disclaimerClosing')}
               </p>
             </div>
+              </>
+            )}
           </div>
         </div>
       </div>

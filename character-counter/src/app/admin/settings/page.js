@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 
 const defaultSeoSettings = {
   home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', h1: 'Character Counter', h2: 'Analyze your text with confidence', h3: 'Statistics', h4: 'About This Tool', h5: '', h6: '' },
@@ -33,19 +34,17 @@ export default function AdminSettings() {
       sections: [],
       closingText: '',
     },
-    aboutUsContacts: {
-      instagramUrl: '',
-      gmail: '',
-      linkedinUrl: '',
-    },
     socialLinks: {
       instagramUrl: 'https://instagram.com/prerna.9_',
-      twitterUrl: 'https://twitter.com/prerna.9_',
+      linkedinUrl: 'https://linkedin.com/in/prerna.9_',
       emailAddress: 'prerna.9_@gmail.com',
     },
     instagramHandle: '',
     instagramUrl: '',
     privacyPolicyContent: '',
+    contactUsContent: '',
+    termsConditionsContent: '',
+    disclaimerContent: '',
     footerCopyrightYear: new Date().getFullYear(),
     headingSettings: {
       h1Text: 'Character Counter',
@@ -88,13 +87,7 @@ export default function AdminSettings() {
       const response = await fetch('/api/settings');
       const data = await response.json();
       if (data.success) {
-        // Ensure aboutUsContent has the proper structure
         const aboutUsContent = data.settings.aboutUsContent || { sections: [], closingText: '' };
-        const aboutUsContacts = data.settings.aboutUsContacts || {
-          instagramUrl: '',
-          gmail: '',
-          linkedinUrl: '',
-        };
         const headingSettings = data.settings.headingSettings || {
           h1Text: 'Character Counter',
           h2Text: 'Analyze your text with confidence',
@@ -102,21 +95,13 @@ export default function AdminSettings() {
           h4Text: 'About This Tool',
           tone: 'professional',
         };
-        const socialLinks = data.settings.socialLinks || {
-          instagramUrl: 'https://instagram.com/prerna.9_',
-          twitterUrl: 'https://twitter.com/prerna.9_',
-          emailAddress: 'prerna.9_@gmail.com',
-        };
+        const socialLinks = data.settings.socialLinks || {};
+        const aboutUsContacts = data.settings.aboutUsContacts || {};
         setSettings({
           ...data.settings,
           aboutUsContent: {
             sections: aboutUsContent.sections || [],
             closingText: aboutUsContent.closingText || '',
-          },
-          aboutUsContacts: {
-            instagramUrl: aboutUsContacts.instagramUrl || '',
-            gmail: aboutUsContacts.gmail || '',
-            linkedinUrl: aboutUsContacts.linkedinUrl || '',
           },
           footerCopyrightYear: data.settings.footerCopyrightYear || new Date().getFullYear(),
           headingSettings: {
@@ -127,10 +112,13 @@ export default function AdminSettings() {
             tone: headingSettings.tone || 'professional',
           },
           socialLinks: {
-            instagramUrl: socialLinks.instagramUrl || 'https://instagram.com/prerna.9_',
-            twitterUrl: socialLinks.twitterUrl || 'https://twitter.com/prerna.9_',
-            emailAddress: socialLinks.emailAddress || 'prerna.9_@gmail.com',
+            instagramUrl: socialLinks.instagramUrl || aboutUsContacts.instagramUrl || 'https://instagram.com/prerna.9_',
+            linkedinUrl: socialLinks.linkedinUrl || aboutUsContacts.linkedinUrl || 'https://linkedin.com/in/prerna.9_',
+            emailAddress: socialLinks.emailAddress || aboutUsContacts.gmail || 'prerna.9_@gmail.com',
           },
+          contactUsContent: data.settings.contactUsContent || '',
+          termsConditionsContent: data.settings.termsConditionsContent || '',
+          disclaimerContent: data.settings.disclaimerContent || '',
           seoSettings: {
             ...defaultSeoSettings,
             ...(data.settings.seoSettings || {}),
@@ -414,12 +402,11 @@ export default function AdminSettings() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 About Content (shown on homepage)
               </label>
-              <textarea
-                rows={12}
+              <RichTextEditor
                 value={settings.aboutContent}
-                onChange={(e) => setSettings({ ...settings, aboutContent: e.target.value })}
+                onChange={(value) => setSettings({ ...settings, aboutContent: value })}
+                minHeightClass="min-h-80"
                 placeholder="Enter the about content that will be displayed on the homepage..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none text-gray-900"
               />
             </div>
           </div>
@@ -469,12 +456,11 @@ export default function AdminSettings() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Content
                       </label>
-                      <textarea
-                        rows={4}
+                      <RichTextEditor
                         value={section.content}
-                        onChange={(e) => updateAboutUsSection(index, 'content', e.target.value)}
+                        onChange={(value) => updateAboutUsSection(index, 'content', value)}
+                        minHeightClass="min-h-44"
                         placeholder="Enter the content for this section..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                       />
                     </div>
                   </div>
@@ -498,12 +484,11 @@ export default function AdminSettings() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Closing Text (displayed at the end)
               </label>
-              <textarea
-                rows={3}
+              <RichTextEditor
                 value={settings.aboutUsContent.closingText}
-                onChange={(e) => updateAboutUsClosingText(e.target.value)}
+                onChange={updateAboutUsClosingText}
+                minHeightClass="min-h-40"
                 placeholder="Enter a thank you message or closing text..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
               />
             </div>
           </div>
@@ -511,70 +496,67 @@ export default function AdminSettings() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2h2m10 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 0H7" />
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            About Us Contacts
+            Social Media Links
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            These links appear in the About Us page contact section.
+            Used across About Us and homepage Connect with us section. Update once here.
           </p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Instagram URL
               </label>
               <input
                 type="url"
-                value={settings.aboutUsContacts.instagramUrl}
+                value={settings.socialLinks?.instagramUrl || ''}
                 onChange={(e) => setSettings({
                   ...settings,
-                  aboutUsContacts: {
-                    ...settings.aboutUsContacts,
+                  socialLinks: {
+                    ...settings.socialLinks,
                     instagramUrl: e.target.value,
                   },
                 })}
                 placeholder="https://instagram.com/yourusername"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Gmail Address
-              </label>
-              <input
-                type="email"
-                value={settings.aboutUsContacts.gmail}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  aboutUsContacts: {
-                    ...settings.aboutUsContacts,
-                    gmail: e.target.value,
-                  },
-                })}
-                placeholder="youremail@gmail.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 LinkedIn URL
               </label>
               <input
                 type="url"
-                value={settings.aboutUsContacts.linkedinUrl}
+                value={settings.socialLinks?.linkedinUrl || ''}
                 onChange={(e) => setSettings({
                   ...settings,
-                  aboutUsContacts: {
-                    ...settings.aboutUsContacts,
+                  socialLinks: {
+                    ...settings.socialLinks,
                     linkedinUrl: e.target.value,
                   },
                 })}
                 placeholder="https://linkedin.com/in/yourprofile"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={settings.socialLinks?.emailAddress || ''}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  socialLinks: {
+                    ...settings.socialLinks,
+                    emailAddress: e.target.value,
+                  },
+                })}
+                placeholder="youremail@example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               />
             </div>
           </div>
@@ -583,16 +565,28 @@ export default function AdminSettings() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Us Section</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Contact page SEO and heading controls are available in the dedicated SEO section below.
-            </p>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">Contact Us Content</label>
+              <RichTextEditor
+                value={settings.contactUsContent}
+                onChange={(value) => setSettings({ ...settings, contactUsContent: value })}
+                minHeightClass="min-h-64"
+                placeholder="Enter contact page content..."
+              />
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Terms & Conditions Section</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Terms & Conditions page SEO and heading controls are available in the dedicated SEO section below.
-            </p>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">Terms & Conditions Content</label>
+              <RichTextEditor
+                value={settings.termsConditionsContent}
+                onChange={(value) => setSettings({ ...settings, termsConditionsContent: value })}
+                minHeightClass="min-h-64"
+                placeholder="Enter terms and conditions content..."
+              />
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -607,12 +601,11 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Privacy Policy Content
                 </label>
-                <textarea
-                  rows={6}
+                <RichTextEditor
                   value={settings.privacyPolicyContent}
-                  onChange={(e) => setSettings({ ...settings, privacyPolicyContent: e.target.value })}
+                  onChange={(value) => setSettings({ ...settings, privacyPolicyContent: value })}
+                  minHeightClass="min-h-64"
                   placeholder="Enter your privacy policy content..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-gray-900"
                 />
               </div>
             </div>
@@ -620,9 +613,15 @@ export default function AdminSettings() {
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Disclaimer Section</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Disclaimer page SEO and heading controls are available in the dedicated SEO section below.
-            </p>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">Disclaimer Content</label>
+              <RichTextEditor
+                value={settings.disclaimerContent}
+                onChange={(value) => setSettings({ ...settings, disclaimerContent: value })}
+                minHeightClass="min-h-64"
+                placeholder="Enter disclaimer content..."
+              />
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
@@ -820,74 +819,6 @@ export default function AdminSettings() {
                     </button>
                   </div>
                 </form>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              Sidebar Social Links
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              These links are used by Instagram, Twitter, and Email icons in the homepage left sidebar.
-            </p>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Instagram URL
-                </label>
-                <input
-                  type="url"
-                  value={settings.socialLinks?.instagramUrl || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    socialLinks: {
-                      ...settings.socialLinks,
-                      instagramUrl: e.target.value,
-                    },
-                  })}
-                  placeholder="https://instagram.com/yourusername"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Twitter URL
-                </label>
-                <input
-                  type="url"
-                  value={settings.socialLinks?.twitterUrl || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    socialLinks: {
-                      ...settings.socialLinks,
-                      twitterUrl: e.target.value,
-                    },
-                  })}
-                  placeholder="https://twitter.com/yourusername"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={settings.socialLinks?.emailAddress || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    socialLinks: {
-                      ...settings.socialLinks,
-                      emailAddress: e.target.value,
-                    },
-                  })}
-                  placeholder="youremail@example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                />
               </div>
             </div>
           </div>

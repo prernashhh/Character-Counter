@@ -26,12 +26,15 @@ export async function GET(request) {
         },
         socialLinks: {
           instagramUrl: 'https://instagram.com/prerna.9_',
-          twitterUrl: 'https://twitter.com/prerna.9_',
+          linkedinUrl: 'https://linkedin.com/in/prerna.9_',
           emailAddress: 'prerna.9_@gmail.com',
         },
         instagramHandle: '',
         instagramUrl: '',
         privacyPolicyContent: '',
+        contactUsContent: '',
+        termsConditionsContent: '',
+        disclaimerContent: '',
         footerCopyrightYear: new Date().getFullYear(),
         headingSettings: {
           h1Text: 'Character Counter',
@@ -65,7 +68,7 @@ export async function GET(request) {
           },
           socialLinks: settings.socialLinks ?? {
             instagramUrl: 'https://instagram.com/prerna.9_',
-            twitterUrl: 'https://twitter.com/prerna.9_',
+            linkedinUrl: 'https://linkedin.com/in/prerna.9_',
             emailAddress: 'prerna.9_@gmail.com',
           },
         },
@@ -97,6 +100,9 @@ export async function PUT(request) {
       instagramHandle,
       instagramUrl,
       privacyPolicyContent,
+      contactUsContent,
+      termsConditionsContent,
+      disclaimerContent,
       footerCopyrightYear,
       headingSettings,
       seoSettings,
@@ -113,6 +119,9 @@ export async function PUT(request) {
         instagramHandle,
         instagramUrl,
         privacyPolicyContent,
+        contactUsContent,
+        termsConditionsContent,
+        disclaimerContent,
         footerCopyrightYear: footerCopyrightYear ?? new Date().getFullYear(),
         headingSettings: headingSettings ?? {
           h1Text: 'Character Counter',
@@ -131,6 +140,9 @@ export async function PUT(request) {
       if (instagramHandle !== undefined) settings.instagramHandle = instagramHandle;
       if (instagramUrl !== undefined) settings.instagramUrl = instagramUrl;
       if (privacyPolicyContent !== undefined) settings.privacyPolicyContent = privacyPolicyContent;
+      if (contactUsContent !== undefined) settings.contactUsContent = contactUsContent;
+      if (termsConditionsContent !== undefined) settings.termsConditionsContent = termsConditionsContent;
+      if (disclaimerContent !== undefined) settings.disclaimerContent = disclaimerContent;
       if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
       if (headingSettings !== undefined) settings.headingSettings = headingSettings;
       if (seoSettings !== undefined) settings.seoSettings = normalizeSeoSettings(seoSettings);

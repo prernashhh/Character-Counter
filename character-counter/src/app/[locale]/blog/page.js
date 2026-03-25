@@ -22,6 +22,10 @@ async function getPublishedPosts() {
   }
 }
 
+function stripHtml(html = '') {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 export default async function BlogPage({ params }) {
   const { locale } = await params;
   const posts = await getPublishedPosts();
@@ -54,8 +58,8 @@ export default async function BlogPage({ params }) {
                 <article key={post._id} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                   <h2 className="text-xl font-semibold text-slate-900 mb-3">{post.title}</h2>
                   <p className="text-slate-600 mb-4">
-                    {post.excerpt || post.content?.slice(0, 140) || 'Read this post to explore more details.'}
-                    {post.content && post.content.length > 140 ? '...' : ''}
+                    {post.excerpt || stripHtml(post.content).slice(0, 140) || 'Read this post to explore more details.'}
+                    {stripHtml(post.content).length > 140 ? '...' : ''}
                   </p>
                   <div className="flex items-center justify-between text-sm text-slate-500">
                     <span>

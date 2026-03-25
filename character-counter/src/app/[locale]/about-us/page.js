@@ -12,7 +12,7 @@ const contactIcons = {
       <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
     </svg>
   ),
-  gmail: (
+  email: (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M3 6.5h18v11H3z" />
       <path d="M3 7l9 7 9-7" />
@@ -52,9 +52,9 @@ function ContactRow({ icon, label, href, value, external = false }) {
 export default function AboutUs() {
   const t = useTranslations();
   const [aboutUsContent, setAboutUsContent] = useState(null);
-  const [aboutUsContacts, setAboutUsContacts] = useState({
+  const [socialLinks, setSocialLinks] = useState({
     instagramUrl: '',
-    gmail: '',
+    emailAddress: '',
     linkedinUrl: '',
   });
   const [loading, setLoading] = useState(true);
@@ -69,18 +69,18 @@ export default function AboutUs() {
       const data = await response.json();
       if (data.success && data.settings.aboutUsContent) {
         const content = data.settings.aboutUsContent;
-        // Check if we have structured content with sections
         if (content.sections && content.sections.length > 0) {
           setAboutUsContent(content);
         }
       }
 
-      const contacts = data?.settings?.aboutUsContacts;
-      if (contacts) {
-        setAboutUsContacts({
-          instagramUrl: contacts.instagramUrl || '',
-          gmail: contacts.gmail || '',
-          linkedinUrl: contacts.linkedinUrl || '',
+      const links = data?.settings?.socialLinks;
+      const contacts = data?.settings?.aboutUsContacts || {};
+      if (links || contacts) {
+        setSocialLinks({
+          instagramUrl: links?.instagramUrl || contacts.instagramUrl || '',
+          emailAddress: links?.emailAddress || contacts.gmail || '',
+          linkedinUrl: links?.linkedinUrl || contacts.linkedinUrl || '',
         });
       }
     } catch (error) {
@@ -91,7 +91,7 @@ export default function AboutUs() {
   };
 
   const hasAnyContact = Boolean(
-    aboutUsContacts.instagramUrl || aboutUsContacts.gmail || aboutUsContacts.linkedinUrl
+    socialLinks.instagramUrl || socialLinks.emailAddress || socialLinks.linkedinUrl
   );
 
   return (
@@ -127,9 +127,7 @@ export default function AboutUs() {
                     </h2>
                   )}
                   {section.content && (
-                    <p className="leading-relaxed whitespace-pre-wrap">
-                      {section.content}
-                    </p>
+                    <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: section.content }} />
                   )}
                 </div>
               ))}
@@ -137,38 +135,36 @@ export default function AboutUs() {
               {/* Render closing text if available */}
               {aboutUsContent.closingText && (
                 <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                  <p className="text-center text-gray-700 italic">
-                    {aboutUsContent.closingText}
-                  </p>
+                  <div className="text-center text-gray-700 italic" dangerouslySetInnerHTML={{ __html: aboutUsContent.closingText }} />
                 </div>
               )}
 
               <div className="mt-8 rounded-xl p-6 border border-slate-200 bg-slate-50">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Connect With Us</h2>
                 <div className="space-y-3 text-base">
-                  {aboutUsContacts.instagramUrl && (
+                  {socialLinks.instagramUrl && (
                     <ContactRow
                       icon={contactIcons.instagram}
                       label="Instagram"
-                      href={aboutUsContacts.instagramUrl}
-                      value={aboutUsContacts.instagramUrl}
+                      href={socialLinks.instagramUrl}
+                      value={socialLinks.instagramUrl}
                       external
                     />
                   )}
-                  {aboutUsContacts.gmail && (
+                  {socialLinks.emailAddress && (
                     <ContactRow
-                      icon={contactIcons.gmail}
-                      label="Gmail"
-                      href={`mailto:${aboutUsContacts.gmail}`}
-                      value={aboutUsContacts.gmail}
+                      icon={contactIcons.email}
+                      label="Email"
+                      href={`mailto:${socialLinks.emailAddress}`}
+                      value={socialLinks.emailAddress}
                     />
                   )}
-                  {aboutUsContacts.linkedinUrl && (
+                  {socialLinks.linkedinUrl && (
                     <ContactRow
                       icon={contactIcons.linkedin}
                       label="LinkedIn"
-                      href={aboutUsContacts.linkedinUrl}
-                      value={aboutUsContacts.linkedinUrl}
+                      href={socialLinks.linkedinUrl}
+                      value={socialLinks.linkedinUrl}
                       external
                     />
                   )}
@@ -214,29 +210,29 @@ export default function AboutUs() {
               <div className="mt-8 rounded-xl p-6 border border-slate-200 bg-slate-50">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Connect With Us</h2>
                 <div className="space-y-3 text-base">
-                  {aboutUsContacts.instagramUrl && (
+                  {socialLinks.instagramUrl && (
                     <ContactRow
                       icon={contactIcons.instagram}
                       label="Instagram"
-                      href={aboutUsContacts.instagramUrl}
-                      value={aboutUsContacts.instagramUrl}
+                      href={socialLinks.instagramUrl}
+                      value={socialLinks.instagramUrl}
                       external
                     />
                   )}
-                  {aboutUsContacts.gmail && (
+                  {socialLinks.emailAddress && (
                     <ContactRow
-                      icon={contactIcons.gmail}
-                      label="Gmail"
-                      href={`mailto:${aboutUsContacts.gmail}`}
-                      value={aboutUsContacts.gmail}
+                      icon={contactIcons.email}
+                      label="Email"
+                      href={`mailto:${socialLinks.emailAddress}`}
+                      value={socialLinks.emailAddress}
                     />
                   )}
-                  {aboutUsContacts.linkedinUrl && (
+                  {socialLinks.linkedinUrl && (
                     <ContactRow
                       icon={contactIcons.linkedin}
                       label="LinkedIn"
-                      href={aboutUsContacts.linkedinUrl}
-                      value={aboutUsContacts.linkedinUrl}
+                      href={socialLinks.linkedinUrl}
+                      value={socialLinks.linkedinUrl}
                       external
                     />
                   )}

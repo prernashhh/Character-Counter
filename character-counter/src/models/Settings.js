@@ -42,9 +42,9 @@ const SocialLinksSchema = new mongoose.Schema({
     type: String,
     default: 'https://instagram.com/prerna.9_',
   },
-  twitterUrl: {
+  linkedinUrl: {
     type: String,
-    default: 'https://twitter.com/prerna.9_',
+    default: 'https://linkedin.com/in/prerna.9_',
   },
   emailAddress: {
     type: String,
@@ -115,7 +115,7 @@ const SettingsSchema = new mongoose.Schema(
       type: SocialLinksSchema,
       default: () => ({
         instagramUrl: 'https://instagram.com/prerna.9_',
-        twitterUrl: 'https://twitter.com/prerna.9_',
+        linkedinUrl: 'https://linkedin.com/in/prerna.9_',
         emailAddress: 'prerna.9_@gmail.com',
       }),
     },
@@ -128,6 +128,18 @@ const SettingsSchema = new mongoose.Schema(
       default: '',
     },
     privacyPolicyContent: {
+      type: String,
+      default: '',
+    },
+    contactUsContent: {
+      type: String,
+      default: '',
+    },
+    termsConditionsContent: {
+      type: String,
+      default: '',
+    },
+    disclaimerContent: {
       type: String,
       default: '',
     },

@@ -34,7 +34,7 @@ export async function GET() {
 
     const posts = await Post.find({})
       .sort({ createdAt: -1 })
-      .select('title slug excerpt published createdAt updatedAt')
+      .select('title slug excerpt coverImageUrl coverImagePublicId publishDate published createdAt updatedAt')
       .lean();
 
     return Response.json({
@@ -61,7 +61,19 @@ export async function POST(request) {
     const title = (body.title || '').trim();
     const content = (body.content || '').trim();
     const excerpt = (body.excerpt || '').trim();
+    const coverImageUrl = (body.coverImageUrl || '').trim();
+    const coverImagePublicId = (body.coverImagePublicId || '').trim();
+    const publishDateInput = body.publishDate ? String(body.publishDate).trim() : '';
     const published = Boolean(body.published);
+
+    let publishDate = new Date();
+    if (publishDateInput) {
+      const parsedDate = new Date(publishDateInput);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return Response.json({ success: false, error: 'Invalid publish date' }, { status: 400 });
+      }
+      publishDate = parsedDate;
+    }
 
     if (!title || !content) {
       return Response.json({ success: false, error: 'Title and content are required' }, { status: 400 });
@@ -88,6 +100,9 @@ export async function POST(request) {
       slug,
       content,
       excerpt,
+      coverImageUrl,
+      coverImagePublicId,
+      publishDate,
       published,
     });
 
@@ -99,6 +114,9 @@ export async function POST(request) {
         title: post.title,
         slug: post.slug,
         excerpt: post.excerpt,
+        coverImageUrl: post.coverImageUrl,
+        coverImagePublicId: post.coverImagePublicId,
+        publishDate: post.publishDate,
         published: post.published,
         createdAt: post.createdAt,
       },

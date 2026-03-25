@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 
-// Language configurations
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "af", name: "Afrikaans", flag: "🇿🇦" },
@@ -95,7 +94,7 @@ export default function Home() {
     });
     const [socialLinks, setSocialLinks] = useState({
       instagramUrl: 'https://instagram.com/prerna.9_',
-      twitterUrl: 'https://twitter.com/prerna.9_',
+      linkedinUrl: 'https://linkedin.com/in/prerna.9_',
       emailAddress: 'prerna.9_@gmail.com',
     });
 
@@ -144,7 +143,7 @@ export default function Home() {
         }
         setSocialLinks({
           instagramUrl: data.settings.socialLinks?.instagramUrl || 'https://instagram.com/prerna.9_',
-          twitterUrl: data.settings.socialLinks?.twitterUrl || 'https://twitter.com/prerna.9_',
+          linkedinUrl: data.settings.socialLinks?.linkedinUrl || 'https://linkedin.com/in/prerna.9_',
           emailAddress: data.settings.socialLinks?.emailAddress || 'prerna.9_@gmail.com',
         });
       } else {
@@ -515,14 +514,14 @@ export default function Home() {
                 </svg>
               </a>
               <a
-                href={socialLinks.twitterUrl}
+                href={socialLinks.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Twitter"
-                className="group w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md hover:bg-sky-600 transition-all duration-200"
+                aria-label="LinkedIn"
+                className="group w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md hover:bg-blue-700 transition-all duration-200"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.847h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.933zm-1.292 19.49h2.039L6.486 3.24H4.298l13.311 17.404z" />
+                  <path d="M6.94 8.5a1.56 1.56 0 110-3.12 1.56 1.56 0 010 3.12zM5.5 9.75h2.88V19H5.5V9.75zm4.6 0h2.76v1.27h.04c.38-.73 1.33-1.5 2.74-1.5 2.93 0 3.47 1.93 3.47 4.44V19h-2.88v-3.95c0-.94-.02-2.15-1.31-2.15-1.32 0-1.52 1.03-1.52 2.08V19H10.1V9.75z" />
                 </svg>
               </a>
               <a
@@ -601,12 +600,7 @@ export default function Home() {
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
                 {aboutContent ? (
-                  aboutContent.split('\n').map((line, index) => {
-                    if (line.match(/^\*\*.*\*\*$/)) {
-                      return <p key={index} className="font-bold mt-3">{line.replace(/\*\*/g, '')}</p>;
-                    }
-                    return line ? <p key={index} className="mb-2">{line}</p> : <div key={index} className="h-2" />;
-                  })
+                  <div dangerouslySetInnerHTML={{ __html: aboutContent }} />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-6">
                     <img src="/Charater Count Favicon Logo.png" alt="Character Counter" className="w-12 h-12 mb-3 opacity-50" />

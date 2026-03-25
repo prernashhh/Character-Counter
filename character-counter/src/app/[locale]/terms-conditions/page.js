@@ -1,10 +1,32 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
 export default function TermsConditions() {
   const t = useTranslations();
+  const [termsContent, setTermsContent] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTermsContent = async () => {
+      try {
+        const response = await fetch('/api/settings', { cache: 'no-store' });
+        const data = await response.json();
+
+        if (data?.success && data.settings?.termsConditionsContent?.trim()) {
+          setTermsContent(data.settings.termsConditionsContent);
+        }
+      } catch {
+        setTermsContent('');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTermsContent();
+  }, []);
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -25,6 +47,10 @@ export default function TermsConditions() {
           </h1>
 
           <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
+            {!loading && termsContent ? (
+              <div dangerouslySetInnerHTML={{ __html: termsContent }} />
+            ) : (
+              <>
             <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
               <p className="text-sm font-semibold text-blue-800">
                 {t('lastUpdated')}: December 27, 2025
@@ -101,6 +127,8 @@ export default function TermsConditions() {
                 {t('termsClosing')}
               </p>
             </div>
+              </>
+            )}
           </div>
         </div>
       </div>

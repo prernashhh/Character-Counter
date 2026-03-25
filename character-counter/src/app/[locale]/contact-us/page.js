@@ -2,16 +2,37 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function ContactUs() {
   const t = useTranslations();
+  const [contactUsContent, setContactUsContent] = useState('');
+  const [contentLoading, setContentLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch('/api/settings', { cache: 'no-store' });
+        const data = await response.json();
+
+        if (data?.success && data.settings?.contactUsContent?.trim()) {
+          setContactUsContent(data.settings.contactUsContent);
+        }
+      } catch {
+        setContactUsContent('');
+      } finally {
+        setContentLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,7 +66,13 @@ export default function ContactUs() {
           </h1>
 
           <div className="mb-8 text-center text-gray-700">
-            <p className="text-lg">{t('contactUsIntro')}</p>
+            {contentLoading ? (
+              <p className="text-lg">{t('contactUsIntro')}</p>
+            ) : contactUsContent ? (
+              <div className="prose prose-slate max-w-none mx-auto text-left" dangerouslySetInnerHTML={{ __html: contactUsContent }} />
+            ) : (
+              <p className="text-lg">{t('contactUsIntro')}</p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

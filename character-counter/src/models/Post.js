@@ -18,6 +18,18 @@ const PostSchema = new mongoose.Schema(
     excerpt: {
       type: String,
     },
+    coverImageUrl: {
+      type: String,
+      default: '',
+    },
+    coverImagePublicId: {
+      type: String,
+      default: '',
+    },
+    publishDate: {
+      type: Date,
+      default: Date.now,
+    },
     published: {
       type: Boolean,
       default: false,
