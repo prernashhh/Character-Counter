@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { routing } from "@/i18n/routing";
-import { getPageSeoServer } from "@/lib/seo-server";
+import { getSEO } from "@/lib/seo";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -20,27 +20,40 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata() {
-  const seo = await getPageSeoServer('home');
+  const seo = await getSEO("home");
+
   return {
-    title: seo.metaTitle,
-    description: seo.metaDescription,
+    title: seo?.title || "Free Character Counter Tool",
+    description:
+      seo?.description ||
+      "Count characters, words, and text length instantly with this free online tool.",
     icons: {
       icon: {
-        url: '/Charater Count Favicon Logo.png',
-        sizes: '192x192 256x256 512x512',
-        type: 'image/png',
+        url: "/Charater Count Favicon Logo.png",
+        sizes: "192x192 256x256 512x512",
+        type: "image/png",
       },
-      shortcut: '/Charater Count Favicon Logo.png',
+      shortcut: "/Charater Count Favicon Logo.png",
       apple: {
-        url: '/Charater Count Favicon Logo.png',
-        sizes: '180x180',
-        type: 'image/png',
+        url: "/Charater Count Favicon Logo.png",
+        sizes: "180x180",
+        type: "image/png",
       },
     },
     openGraph: {
-      title: seo.metaTitle,
-      description: seo.metaDescription,
-      images: ['/Charater Count Favicon Logo.png'],
+      title: seo?.title || "Free Character Counter Tool",
+      description:
+        seo?.description ||
+        "Count characters, words, and text length instantly with this free online tool.",
+      images: [seo?.ogImage || "/og-image.svg"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo?.title || "Free Character Counter Tool",
+      description:
+        seo?.description ||
+        "Count characters, words, and text length instantly with this free online tool.",
+      images: [seo?.ogImage || "/og-image.svg"],
     },
   };
 }

@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getSEO } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,52 +12,48 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  metadataBase: new URL("https://charactercountonlinetool.com"),
-  
-  title: {
-    default: "Free Character Counter Tool",
-    template: "%s | Character Counter Tool"
-  },
-  
-  description: "Count characters, words, and text length instantly with this free online tool.",
-  
-  openGraph: {
-    title: "Free Character Counter Tool",
-    description: "Count characters, words, and text length instantly with this free online tool.",
-    url: "https://charactercountonlinetool.com",
-    siteName: "Character Counter Tool",
-    images: [
-      {
-        url: "/og-image.svg",
-        width: 1200,
-        height: 630
-      }
-    ],
-    type: "website"
-  },
-  
-  twitter: {
-    card: "summary_large_image",
-    title: "Free Character Counter Tool",
-    description: "Count characters and words instantly.",
-    images: ["/og-image.svg"]
-  },
-  
-  icons: {
-    icon: {
-      url: '/Charater Count Favicon Logo.png',
-      sizes: '192x192 256x256 512x512',
-      type: 'image/png',
+export async function generateMetadata() {
+  const seo = await getSEO("home");
+
+  return {
+    metadataBase: new URL("https://charactercountonlinetool.com"),
+    title: seo?.title || "Free Character Counter Tool",
+    description:
+      seo?.description ||
+      "Count characters, words, and text length instantly with this free online tool.",
+    openGraph: {
+      title: seo?.title || "Free Character Counter Tool",
+      description:
+        seo?.description ||
+        "Count characters, words, and text length instantly with this free online tool.",
+      url: "https://charactercountonlinetool.com",
+      siteName: "Character Counter Tool",
+      images: [seo?.ogImage || "/og-image.svg"],
+      type: "website",
     },
-    shortcut: '/Charater Count Favicon Logo.png',
-    apple: {
-      url: '/Charater Count Favicon Logo.png',
-      sizes: '180x180',
-      type: 'image/png',
+    twitter: {
+      card: "summary_large_image",
+      title: seo?.title || "Free Character Counter Tool",
+      description:
+        seo?.description ||
+        "Count characters, words, and text length instantly with this free online tool.",
+      images: [seo?.ogImage || "/og-image.svg"],
     },
-  },
-};
+    icons: {
+      icon: {
+        url: "/Charater Count Favicon Logo.png",
+        sizes: "192x192 256x256 512x512",
+        type: "image/png",
+      },
+      shortcut: "/Charater Count Favicon Logo.png",
+      apple: {
+        url: "/Charater Count Favicon Logo.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    },
+  };
+}
 
 export default function RootLayout({ children }) {
   return children;
