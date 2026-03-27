@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 
 const defaultSeoSettings = {
-  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', h1: 'Character Counter', h2: '', h3: 'Statistics', h4: 'About This Tool', h5: '', h6: '' },
-  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', h1: 'About Us', h2: '', h3: '', h4: '', h5: '', h6: '' },
-  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', h1: 'Contact Us', h2: '', h3: '', h4: '', h5: '', h6: '' },
-  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', h1: 'Terms and Conditions', h2: '', h3: '', h4: '', h5: '', h6: '' },
-  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', h1: 'Disclaimer', h2: '', h3: '', h4: '', h5: '', h6: '' },
-  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', h1: 'Privacy Policy', h2: '', h3: '', h4: '', h5: '', h6: '' },
-  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', h1: 'Blog Posts', h2: '', h3: '', h4: '', h5: '', h6: '' },
+  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', ogImage: '/og-image.png' },
+  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', ogImage: '/og-image.png' },
+  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', ogImage: '/og-image.png' },
+  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', ogImage: '/og-image.png' },
+  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', ogImage: '/og-image.png' },
+  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', ogImage: '/og-image.png' },
+  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', ogImage: '/og-image.png' },
 };
 
 const pageSeoOptions = [
@@ -23,11 +23,23 @@ const pageSeoOptions = [
   { key: 'blog', label: 'Blog Page' },
 ];
 
-const headingTagOptions = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+const DB_PAGE_BY_UI = {
+  home: 'home',
+  aboutUs: 'aboutus',
+  contactUs: 'contactus',
+  termsConditions: 'termsconditions',
+  privacyPolicy: 'privacypolicy',
+  disclaimer: 'disclaimer',
+  blog: 'blog',
+};
+
+const UI_PAGE_BY_DB = Object.entries(DB_PAGE_BY_UI).reduce((acc, [uiKey, dbKey]) => {
+  acc[dbKey] = uiKey;
+  return acc;
+}, {});
 
 export default function AdminSettings() {
   const [selectedSeoPage, setSelectedSeoPage] = useState('contactUs');
-  const [selectedHeadingTag, setSelectedHeadingTag] = useState('h1');
   const [settings, setSettings] = useState({
     aboutContent: '',
     aboutUsContent: {
@@ -84,8 +96,14 @@ export default function AdminSettings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/settings');
-      const data = await response.json();
+      const [settingsResponse, seoResponse] = await Promise.all([
+        fetch('/api/settings'),
+        fetch('/api/seo'),
+      ]);
+
+      const data = await settingsResponse.json();
+      const seoData = await seoResponse.json();
+
       if (data.success) {
         const aboutUsContent = data.settings.aboutUsContent || { sections: [], closingText: '' };
         const headingSettings = data.settings.headingSettings || {
@@ -97,6 +115,19 @@ export default function AdminSettings() {
         };
         const socialLinks = data.settings.socialLinks || {};
         const aboutUsContacts = data.settings.aboutUsContacts || {};
+        const seoFromDb = Array.isArray(seoData?.seo)
+          ? seoData.seo.reduce((acc, item) => {
+              const uiPageKey = UI_PAGE_BY_DB[item.page] || item.page;
+              if (!defaultSeoSettings[uiPageKey]) return acc;
+              acc[uiPageKey] = {
+                metaTitle: item.title || defaultSeoSettings[uiPageKey].metaTitle,
+                metaDescription: item.description || defaultSeoSettings[uiPageKey].metaDescription,
+                ogImage: item.ogImage || defaultSeoSettings[uiPageKey].ogImage,
+              };
+              return acc;
+            }, {})
+          : {};
+
         setSettings({
           ...data.settings,
           aboutUsContent: {
@@ -121,7 +152,7 @@ export default function AdminSettings() {
           disclaimerContent: data.settings.disclaimerContent || '',
           seoSettings: {
             ...defaultSeoSettings,
-            ...(data.settings.seoSettings || {}),
+            ...seoFromDb,
           },
         });
       }
@@ -347,19 +378,34 @@ export default function AdminSettings() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/settings', {
+      const { seoSettings, ...nonSeoSettings } = settings;
+      const selectedSeo = seoSettings?.[selectedSeoPage] || defaultSeoSettings[selectedSeoPage];
+
+      const settingsResponse = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(nonSeoSettings),
       });
 
-      const data = await response.json();
+      const seoResponse = await fetch('/api/seo', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page: DB_PAGE_BY_UI[selectedSeoPage] || selectedSeoPage,
+          title: selectedSeo.metaTitle || '',
+          description: selectedSeo.metaDescription || '',
+          ogImage: selectedSeo.ogImage || '',
+        }),
+      });
 
-      if (data.success) {
+      const data = await settingsResponse.json();
+      const seoData = await seoResponse.json();
+
+      if (data.success && seoData.success) {
         setMessage('Settings saved successfully!');
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('Error: ' + data.error);
+        setMessage('Error: ' + (data.error || seoData.error || 'Unable to save settings'));
       }
     } catch (error) {
       setMessage('Error saving settings');
@@ -627,7 +673,7 @@ export default function AdminSettings() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Settings</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Manage SEO title, description, and heading tags from one place.
+              Manage SEO title, description, and OG image from one place.
             </p>
 
             <div className="space-y-4">
@@ -667,35 +713,15 @@ export default function AdminSettings() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
-                <p className="text-sm font-medium text-indigo-900">Heading Tag Editor</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Heading Level</label>
-                    <select
-                      value={selectedHeadingTag}
-                      onChange={(e) => setSelectedHeadingTag(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                    >
-                      {headingTagOptions.map((tag) => (
-                        <option key={tag} value={tag}>{tag.toUpperCase()}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {selectedHeadingTag.toUpperCase()} Text
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.seoSettings?.[selectedSeoPage]?.[selectedHeadingTag] || ''}
-                      onChange={(e) => updateSeoField(selectedSeoPage, selectedHeadingTag, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                      placeholder={`Enter ${selectedHeadingTag.toUpperCase()} text for selected page`}
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">OG Image URL</label>
+                <input
+                  type="text"
+                  value={settings.seoSettings?.[selectedSeoPage]?.ogImage || ''}
+                  onChange={(e) => updateSeoField(selectedSeoPage, 'ogImage', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  placeholder="/og-image.png or https://example.com/og-image.png"
+                />
               </div>
             </div>
           </div>

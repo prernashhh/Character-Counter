@@ -18,26 +18,20 @@ export async function generateMetadata() {
   return {
     metadataBase: new URL("https://charactercountonlinetool.com"),
     title: seo?.title || "Free Character Counter Tool",
-    description:
-      seo?.description ||
-      "Count characters, words, and text length instantly with this free online tool.",
+    description: seo?.description || "Default description",
     openGraph: {
       title: seo?.title || "Free Character Counter Tool",
-      description:
-        seo?.description ||
-        "Count characters, words, and text length instantly with this free online tool.",
+      description: seo?.description || "Default description",
       url: "https://charactercountonlinetool.com",
       siteName: "Character Counter Tool",
-      images: [seo?.ogImage || "/og-image.svg"],
+      images: [seo?.ogImage || "/og-image.png"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: seo?.title || "Free Character Counter Tool",
-      description:
-        seo?.description ||
-        "Count characters, words, and text length instantly with this free online tool.",
-      images: [seo?.ogImage || "/og-image.svg"],
+      description: seo?.description || "Default description",
+      images: [seo?.ogImage || "/og-image.png"],
     },
     icons: {
       icon: {

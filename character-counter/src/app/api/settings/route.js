@@ -1,6 +1,5 @@
 import connectDB from '@/lib/db';
 import Settings from '@/models/Settings';
-import { normalizeSeoSettings } from '@/lib/seo-settings';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,12 +42,9 @@ export async function GET(request) {
           h4Text: 'About This Tool',
           tone: 'professional',
         },
-        seoSettings: normalizeSeoSettings({}),
       });
       settings = createdSettings.toObject();
     }
-
-    settings.seoSettings = normalizeSeoSettings(settings.seoSettings || {});
 
     if (scope === 'home') {
       return Response.json(
@@ -63,9 +59,6 @@ export async function GET(request) {
               h3Text: 'Statistics',
               h4Text: 'About This Tool',
               tone: 'professional',
-            },
-            seoSettings: {
-              home: settings.seoSettings.home,
             },
             socialLinks: settings.socialLinks ?? {
               instagramUrl: 'https://instagram.com/prerna.9_',
@@ -82,9 +75,12 @@ export async function GET(request) {
       );
     }
 
+    const settingsWithoutSeo = { ...settings };
+    delete settingsWithoutSeo.seoSettings;
+
     return Response.json({
       success: true,
-      settings,
+      settings: settingsWithoutSeo,
     });
   } catch (error) {
     return Response.json({
@@ -112,7 +108,6 @@ export async function PUT(request) {
       disclaimerContent,
       footerCopyrightYear,
       headingSettings,
-      seoSettings,
     } = body;
 
     let settings = await Settings.findOne();
@@ -137,7 +132,6 @@ export async function PUT(request) {
           h4Text: 'About This Tool',
           tone: 'professional',
         },
-        seoSettings: normalizeSeoSettings(seoSettings || {}),
       });
     } else {
       if (aboutContent !== undefined) settings.aboutContent = aboutContent;
@@ -152,17 +146,18 @@ export async function PUT(request) {
       if (disclaimerContent !== undefined) settings.disclaimerContent = disclaimerContent;
       if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
       if (headingSettings !== undefined) settings.headingSettings = headingSettings;
-      if (seoSettings !== undefined) settings.seoSettings = normalizeSeoSettings(seoSettings);
 
       await settings.save();
     }
 
-    settings.seoSettings = normalizeSeoSettings(settings.seoSettings || {});
+    const settingsObject = typeof settings?.toObject === 'function' ? settings.toObject() : settings;
+    const settingsWithoutSeo = { ...settingsObject };
+    delete settingsWithoutSeo.seoSettings;
 
     return Response.json({
       success: true,
       message: 'Settings updated successfully',
-      settings,
+      settings: settingsWithoutSeo,
     });
   } catch (error) {
     return Response.json({
