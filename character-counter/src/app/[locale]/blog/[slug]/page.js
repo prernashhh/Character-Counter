@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
+import { getBlogUi } from '@/lib/blog-ui-text';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,16 +29,17 @@ async function getPostBySlug(slug) {
 export default async function BlogPostPage({ params }) {
   const { locale, slug } = await params;
   const post = await getPostBySlug(slug);
+  const blogUi = getBlogUi(locale);
 
   if (!post) {
     return (
       <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
           <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors">
-            Back to Blog
+            {blogUi.backToBlog}
           </Link>
-          <h1 className="text-3xl font-bold text-slate-900">Post not found</h1>
-          <p className="mt-3 text-slate-600">The requested post is unavailable or unpublished.</p>
+          <h1 className="text-3xl font-bold text-slate-900">{blogUi.postNotFound}</h1>
+          <p className="mt-3 text-slate-600">{blogUi.postUnavailable}</p>
         </div>
       </main>
     );
@@ -47,7 +49,7 @@ export default async function BlogPostPage({ params }) {
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <article className="max-w-3xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
         <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors">
-          Back to Blog
+          {blogUi.backToBlog}
         </Link>
 
         <h1 className="text-4xl font-extrabold text-slate-900 mb-4">{post.title}</h1>
@@ -61,7 +63,7 @@ export default async function BlogPostPage({ params }) {
         )}
 
         <div
-          className="prose prose-slate max-w-none text-slate-700"
+          className="prose prose-slate max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:my-4 [&_ol]:my-4 [&_li]:my-1"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </article>

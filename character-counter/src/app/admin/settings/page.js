@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 
 const defaultSeoSettings = {
-  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', h1: 'Character Counter', h2: 'Analyze your text with confidence', h3: 'Statistics', h4: 'About This Tool', h5: '', h6: '' },
+  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', h1: 'Character Counter', h2: '', h3: 'Statistics', h4: 'About This Tool', h5: '', h6: '' },
   aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', h1: 'About Us', h2: '', h3: '', h4: '', h5: '', h6: '' },
   contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', h1: 'Contact Us', h2: '', h3: '', h4: '', h5: '', h6: '' },
   termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', h1: 'Terms and Conditions', h2: '', h3: '', h4: '', h5: '', h6: '' },
@@ -48,7 +48,7 @@ export default function AdminSettings() {
     footerCopyrightYear: new Date().getFullYear(),
     headingSettings: {
       h1Text: 'Character Counter',
-      h2Text: 'Analyze your text with confidence',
+      h2Text: '',
       h3Text: 'Statistics',
       h4Text: 'About This Tool',
       tone: 'professional',
@@ -90,7 +90,7 @@ export default function AdminSettings() {
         const aboutUsContent = data.settings.aboutUsContent || { sections: [], closingText: '' };
         const headingSettings = data.settings.headingSettings || {
           h1Text: 'Character Counter',
-          h2Text: 'Analyze your text with confidence',
+          h2Text: '',
           h3Text: 'Statistics',
           h4Text: 'About This Tool',
           tone: 'professional',
@@ -106,7 +106,7 @@ export default function AdminSettings() {
           footerCopyrightYear: data.settings.footerCopyrightYear || new Date().getFullYear(),
           headingSettings: {
             h1Text: headingSettings.h1Text || 'Character Counter',
-            h2Text: headingSettings.h2Text || 'Analyze your text with confidence',
+            h2Text: headingSettings.h2Text || '',
             h3Text: headingSettings.h3Text || 'Statistics',
             h4Text: headingSettings.h4Text || 'About This Tool',
             tone: headingSettings.tone || 'professional',

@@ -1,3 +1,4 @@
+  "analyzeYourText": "Analysoi tekstisi luottavaisin mielin",
 {
   "menu": "Valikko",
   "language": "Kieli",
@@ -11,6 +12,7 @@
   "sentences": "Lauseet",
   "paragraphs": "Kappaleet",
   "spaces": "Välilyönnit",
+  "specialCharacters": "Erikoismerkit",
   "wordDensity": "Sanatiheys",
   "startTyping": "Aloita kirjoittaminen nähdäksesi sanatiheyden",
   "characterCounter": "Merkkilaskuri",
@@ -44,6 +46,7 @@
   "messagePlaceholder": "Kerro meille, mitä mielessäsi on...",
   "sendMessage": "Lähetä viesti",
   "messageSent": "Kiitos! Viestisi on lähetetty onnistuneesti.",
+  "connectWithUs": "Ota meihin yhteyttä",
   "otherWaysToReach": "Muut yhteydenottotavat",
   "emailUs": "Lähetä meille sähköpostia",
   "followUs": "Seuraa meitä",

@@ -1,3 +1,4 @@
+  "analyzeYourText": "حلّل نصك بثقة",
 {
   "menu": "القائمة",
   "language": "اللغة",
@@ -11,6 +12,7 @@
   "sentences": "الجمل",
   "paragraphs": "الفقرات",
   "spaces": "المسافات",
+  "specialCharacters": "الأحرف الخاصة",
   "wordDensity": "كثافة الكلمات",
   "startTyping": "ابدأ الكتابة لرؤية كثافة الكلمات",
   "characterCounter": "عداد الحروف",
@@ -44,6 +46,7 @@
   "messagePlaceholder": "أخبرنا بما يدور في ذهنك...",
   "sendMessage": "إرسال الرسالة",
   "messageSent": "شكرًا لك! تم إرسال رسالتك بنجاح.",
+  "connectWithUs": "تواصل معنا",
   "otherWaysToReach": "طرق أخرى للوصول إلينا",
   "emailUs": "راسلنا عبر البريد الإلكتروني",
   "followUs": "تابعنا",

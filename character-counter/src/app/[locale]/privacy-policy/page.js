@@ -4,6 +4,34 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
+const escapeHtml = (value) => value
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/\"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const formatPolicyContent = (content) => {
+  if (!content?.trim()) return '';
+
+  const hasHtmlTags = /<\/?[a-z][\s\S]*>/i.test(content);
+  if (hasHtmlTags) {
+    return content;
+  }
+
+  return content
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => {
+      const safeText = escapeHtml(paragraph)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br/>');
+      return `<p>${safeText}</p>`;
+    })
+    .join('');
+};
+
 const defaultPrivacyPolicy = `At Character Count Online Tool, we respect your privacy and are committed to protecting your information.
 
 1. Information We Process
@@ -31,6 +59,7 @@ export default function PrivacyPolicyPage() {
   const t = useTranslations();
   const [policyContent, setPolicyContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const formattedPolicyContent = formatPolicyContent(policyContent);
 
   useEffect(() => {
     const fetchPrivacyPolicy = async () => {
@@ -71,11 +100,11 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
 
-          <div className="prose prose-lg max-w-none text-gray-700">
+          <div className="prose prose-lg max-w-none text-gray-700 [&_p]:mb-5 [&_p]:leading-8 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:my-4 [&_ol]:my-4 [&_li]:my-1">
             {loading ? (
               <p>Loading privacy policy...</p>
             ) : (
-              <div dangerouslySetInnerHTML={{ __html: policyContent }} />
+              <div dangerouslySetInnerHTML={{ __html: formattedPolicyContent }} />
             )}
           </div>
         </div>

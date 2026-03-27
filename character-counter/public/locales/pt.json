@@ -1,3 +1,4 @@
+  "analyzeYourText": "Analise seu texto com confiança",
 {
   "menu": "Menu",
   "language": "Idioma",
@@ -11,6 +12,7 @@
   "sentences": "Frases",
   "paragraphs": "Parágrafos",
   "spaces": "Espaços",
+  "specialCharacters": "Caracteres especiais",
   "wordDensity": "Densidade de palavras",
   "startTyping": "Comece a digitar para ver a densidade de palavras",
   "characterCounter": "Contador de caracteres",
@@ -44,6 +46,7 @@
   "messagePlaceholder": "Conte-nos o que está pensando...",
   "sendMessage": "Enviar mensagem",
   "messageSent": "Obrigado! Sua mensagem foi enviada com sucesso.",
+  "connectWithUs": "Conecte-se Conosco",
   "otherWaysToReach": "Outras formas de contato",
   "emailUs": "Envie-nos um e-mail",
   "followUs": "Siga-nos",

@@ -12,6 +12,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://charactercountonlinetool.com"),
+  
+  title: {
+    default: "Free Character Counter Tool",
+    template: "%s | Character Counter Tool"
+  },
+  
+  description: "Count characters, words, and text length instantly with this free online tool.",
+  
+  openGraph: {
+    title: "Free Character Counter Tool",
+    description: "Count characters, words, and text length instantly with this free online tool.",
+    url: "https://charactercountonlinetool.com",
+    siteName: "Character Counter Tool",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630
+      }
+    ],
+    type: "website"
+  },
+  
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Character Counter Tool",
+    description: "Count characters and words instantly.",
+    images: ["/og-image.svg"]
+  },
+  
   icons: {
     icon: {
       url: '/Charater Count Favicon Logo.png',

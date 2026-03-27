@@ -1,6 +1,8 @@
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { getBlogUi } from '@/lib/blog-ui-text';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +31,8 @@ function stripHtml(html = '') {
 export default async function BlogPage({ params }) {
   const { locale } = await params;
   const posts = await getPublishedPosts();
+  const t = await getTranslations({ locale });
+  const blogUi = getBlogUi(locale);
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -41,16 +45,16 @@ export default async function BlogPage({ params }) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Home
+            {t('backToHome')}
           </a>
 
           <h1 className="text-4xl font-extrabold text-center mb-8 bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Blog Posts
+            {blogUi.blogTitle}
           </h1>
 
           {posts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-lg text-slate-600">No blog posts published yet.</p>
+              <p className="text-lg text-slate-600">{blogUi.noPosts}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -71,7 +75,7 @@ export default async function BlogPage({ params }) {
                       href={`/${locale}/blog/${post.slug}`}
                       className="font-medium text-indigo-600 hover:text-indigo-800"
                     >
-                      Read more
+                      {blogUi.readMore}
                     </Link>
                   </div>
                 </article>

@@ -38,7 +38,7 @@ export async function GET(request) {
         footerCopyrightYear: new Date().getFullYear(),
         headingSettings: {
           h1Text: 'Character Counter',
-          h2Text: 'Analyze your text with confidence',
+          h2Text: '',
           h3Text: 'Statistics',
           h4Text: 'About This Tool',
           tone: 'professional',
@@ -51,28 +51,35 @@ export async function GET(request) {
     settings.seoSettings = normalizeSeoSettings(settings.seoSettings || {});
 
     if (scope === 'home') {
-      return Response.json({
-        success: true,
-        settings: {
-          aboutContent: settings.aboutContent ?? '',
-          footerCopyrightYear: settings.footerCopyrightYear ?? new Date().getFullYear(),
-          headingSettings: settings.headingSettings ?? {
-            h1Text: 'Character Counter',
-            h2Text: 'Analyze your text with confidence',
-            h3Text: 'Statistics',
-            h4Text: 'About This Tool',
-            tone: 'professional',
-          },
-          seoSettings: {
-            home: settings.seoSettings.home,
-          },
-          socialLinks: settings.socialLinks ?? {
-            instagramUrl: 'https://instagram.com/prerna.9_',
-            linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-            emailAddress: 'prerna.9_@gmail.com',
+      return Response.json(
+        {
+          success: true,
+          settings: {
+            aboutContent: settings.aboutContent ?? '',
+            footerCopyrightYear: settings.footerCopyrightYear ?? new Date().getFullYear(),
+            headingSettings: settings.headingSettings ?? {
+              h1Text: 'Character Counter',
+              h2Text: '',
+              h3Text: 'Statistics',
+              h4Text: 'About This Tool',
+              tone: 'professional',
+            },
+            seoSettings: {
+              home: settings.seoSettings.home,
+            },
+            socialLinks: settings.socialLinks ?? {
+              instagramUrl: 'https://instagram.com/prerna.9_',
+              linkedinUrl: 'https://linkedin.com/in/prerna.9_',
+              emailAddress: 'prerna.9_@gmail.com',
+            },
           },
         },
-      });
+        {
+          headers: {
+            'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+          },
+        }
+      );
     }
 
     return Response.json({
@@ -125,7 +132,7 @@ export async function PUT(request) {
         footerCopyrightYear: footerCopyrightYear ?? new Date().getFullYear(),
         headingSettings: headingSettings ?? {
           h1Text: 'Character Counter',
-          h2Text: 'Analyze your text with confidence',
+          h2Text: '',
           h3Text: 'Statistics',
           h4Text: 'About This Tool',
           tone: 'professional',

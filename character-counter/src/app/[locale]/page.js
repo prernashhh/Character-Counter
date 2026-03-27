@@ -66,6 +66,120 @@ const getWordDensity = (text) => {
   return Object.entries(frequency).sort((a, b) => b[1] - a[1]);
 };
 
+const escapeHtml = (value) => value
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const formatAboutContent = (content) => {
+  if (!content?.trim()) return '';
+
+  const hasHtmlTags = /<\/?[a-z][\s\S]*>/i.test(content);
+  if (hasHtmlTags) {
+    return content;
+  }
+
+  const headingPatterns = [
+    /^what('?s| is)\s+/i,
+    /^why\s+use\s+/i,
+    /^how\s+it\s+works$/i,
+    /^character\s+count\s+and\s+readability$/i,
+    /^the\s+psychology\s+behind\s+character\s+limits$/i,
+    /^smarter\s+writing\s+with\s+character\s+counter$/i,
+    /^frequently\s+asked\s+questions\s*\(faq\)$/i,
+    /^faq$/i,
+  ];
+
+  const shouldEmphasizeLine = (line) => {
+    const normalizedLine = line.trim().replace(/\*\*/g, '');
+    if (!normalizedLine) return false;
+    if (headingPatterns.some((pattern) => pattern.test(normalizedLine))) return true;
+    if (/^\d+\.\s+.+\?$/.test(normalizedLine)) return true;
+    return false;
+  };
+
+  return content
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => {
+      const lines = paragraph.split('\n').map((line) => line.trim()).filter(Boolean);
+      const renderedLines = lines.map((line) => {
+        const safeLine = escapeHtml(line).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        return shouldEmphasizeLine(line) ? `<strong>${safeLine}</strong>` : safeLine;
+      });
+      return `<p>${renderedLines.join('<br/>')}</p>`;
+    })
+    .join('');
+};
+
+const HOME_SETTINGS_CACHE_KEY = 'homeSettingsCacheV1';
+
+const getDefaultHeadingSettings = () => ({
+  h1Text: 'Character Counter',
+  h2Text: '',
+  h3Text: 'Statistics',
+  h4Text: 'About This Tool',
+  tone: 'professional',
+});
+
+const getDefaultHomeSeo = () => ({
+  h1: 'Character Counter',
+  h2: '',
+  h3: 'Statistics',
+  h4: 'About This Tool',
+  h5: '',
+  h6: '',
+});
+
+const getDefaultSocialLinks = () => ({
+  instagramUrl: 'https://instagram.com/prerna.9_',
+  linkedinUrl: 'https://linkedin.com/in/prerna.9_',
+  emailAddress: 'prerna.9_@gmail.com',
+});
+
+const translateWithFallback = (translator, key, fallback) => {
+  try {
+    const translated = translator(key);
+    if (typeof translated !== 'string') return fallback;
+
+    const normalized = translated.trim();
+    if (!normalized || normalized === key) {
+      return fallback;
+    }
+
+    return translated;
+  } catch {
+    return fallback;
+  }
+};
+
+const resolveLocalizedHeading = (value, localizedFallback, englishDefaults = []) => {
+  const normalizedValue = (value || '').trim();
+  if (!normalizedValue) return localizedFallback;
+
+  const lowerValue = normalizedValue.toLowerCase();
+  const matchesEnglishDefault = englishDefaults.some(
+    (defaultValue) => defaultValue.toLowerCase() === lowerValue
+  );
+
+  return matchesEnglishDefault ? localizedFallback : normalizedValue;
+};
+
+const HOME_H1_ENGLISH_DEFAULTS = [
+  'Character Counter',
+  'Character Count Online Tool',
+  'Free Online Character Counter Tool',
+  'Free Online Character Count Tool',
+];
+
+const HOME_H2_ENGLISH_DEFAULTS = [
+  'Analyze your text with confidence',
+  'Analyze your text',
+];
+
 export default function Home() {
     const t = useTranslations();
     const locale = useLocale();
@@ -77,26 +191,10 @@ export default function Home() {
     const [showMenu, setShowMenu] = useState(false);
     const [aboutContent, setAboutContent] = useState(defaultAboutContent);
     const [footerYear, setFooterYear] = useState(new Date().getFullYear());
-    const [homeSeo, setHomeSeo] = useState({
-      h1: 'Character Counter',
-      h2: 'Analyze your text with confidence',
-      h3: 'Statistics',
-      h4: 'About This Tool',
-      h5: '',
-      h6: '',
-    });
-    const [headingSettings, setHeadingSettings] = useState({
-      h1Text: 'Character Counter',
-      h2Text: 'Analyze your text with confidence',
-      h3Text: 'Statistics',
-      h4Text: 'About This Tool',
-      tone: 'professional',
-    });
-    const [socialLinks, setSocialLinks] = useState({
-      instagramUrl: 'https://instagram.com/prerna.9_',
-      linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-      emailAddress: 'prerna.9_@gmail.com',
-    });
+    const [homeSeo, setHomeSeo] = useState(getDefaultHomeSeo);
+    const [headingSettings, setHeadingSettings] = useState(getDefaultHeadingSettings);
+    const [socialLinks, setSocialLinks] = useState(getDefaultSocialLinks);
+    const formattedAboutContent = useMemo(() => formatAboutContent(aboutContent), [aboutContent]);
 
     useEffect(() => {
     const savedText = localStorage.getItem("textAnalyzerContent");
@@ -110,42 +208,79 @@ export default function Home() {
         router.replace(pathname, { locale: savedLanguage });
     }
 
+    const cachedSettings = localStorage.getItem(HOME_SETTINGS_CACHE_KEY);
+    if (cachedSettings) {
+      try {
+        const parsed = JSON.parse(cachedSettings);
+        if (parsed.aboutContent) {
+          setAboutContent(parsed.aboutContent);
+        }
+        if (Number.isInteger(parsed.footerCopyrightYear)) {
+          setFooterYear(parsed.footerCopyrightYear);
+        }
+        if (parsed.headingSettings) {
+          setHeadingSettings({
+            ...getDefaultHeadingSettings(),
+            ...parsed.headingSettings,
+          });
+        }
+        if (parsed.homeSeo) {
+          setHomeSeo({
+            ...getDefaultHomeSeo(),
+            ...parsed.homeSeo,
+          });
+        }
+        if (parsed.socialLinks) {
+          setSocialLinks({
+            ...getDefaultSocialLinks(),
+            ...parsed.socialLinks,
+          });
+        }
+      } catch {
+      }
+    }
+
     fetchAboutContent();
     }, []);
 
   const fetchAboutContent = async () => {
     try {
-      const response = await fetch('/api/settings?scope=home');
+      const response = await fetch('/api/settings?scope=home', { cache: 'force-cache' });
       const data = await response.json();
       if (data.success && data.settings) {
-        setAboutContent(data.settings.aboutContent || defaultAboutContent);
-        if (Number.isInteger(data.settings.footerCopyrightYear)) {
-          setFooterYear(data.settings.footerCopyrightYear);
-        }
-        if (data.settings.headingSettings) {
-          setHeadingSettings({
-            h1Text: data.settings.headingSettings.h1Text || 'Character Counter',
-            h2Text: data.settings.headingSettings.h2Text || 'Analyze your text with confidence',
-            h3Text: data.settings.headingSettings.h3Text || 'Statistics',
-            h4Text: data.settings.headingSettings.h4Text || 'About This Tool',
-            tone: data.settings.headingSettings.tone || 'professional',
-          });
-        }
-        if (data.settings.seoSettings?.home) {
-          setHomeSeo({
-            h1: data.settings.seoSettings.home.h1 || 'Character Counter',
-            h2: data.settings.seoSettings.home.h2 || 'Analyze your text with confidence',
-            h3: data.settings.seoSettings.home.h3 || 'Statistics',
-            h4: data.settings.seoSettings.home.h4 || 'About This Tool',
-            h5: data.settings.seoSettings.home.h5 || '',
-            h6: data.settings.seoSettings.home.h6 || '',
-          });
-        }
-        setSocialLinks({
-          instagramUrl: data.settings.socialLinks?.instagramUrl || 'https://instagram.com/prerna.9_',
-          linkedinUrl: data.settings.socialLinks?.linkedinUrl || 'https://linkedin.com/in/prerna.9_',
-          emailAddress: data.settings.socialLinks?.emailAddress || 'prerna.9_@gmail.com',
-        });
+        const nextAboutContent = data.settings.aboutContent || defaultAboutContent;
+        const nextFooterYear = Number.isInteger(data.settings.footerCopyrightYear)
+          ? data.settings.footerCopyrightYear
+          : new Date().getFullYear();
+        const nextHeadingSettings = {
+          ...getDefaultHeadingSettings(),
+          ...(data.settings.headingSettings || {}),
+        };
+        const nextHomeSeo = {
+          ...getDefaultHomeSeo(),
+          ...(data.settings.seoSettings?.home || {}),
+        };
+        const nextSocialLinks = {
+          ...getDefaultSocialLinks(),
+          ...(data.settings.socialLinks || {}),
+        };
+
+        setAboutContent(nextAboutContent);
+        setFooterYear(nextFooterYear);
+        setHeadingSettings(nextHeadingSettings);
+        setHomeSeo(nextHomeSeo);
+        setSocialLinks(nextSocialLinks);
+
+        localStorage.setItem(
+          HOME_SETTINGS_CACHE_KEY,
+          JSON.stringify({
+            aboutContent: nextAboutContent,
+            footerCopyrightYear: nextFooterYear,
+            headingSettings: nextHeadingSettings,
+            homeSeo: nextHomeSeo,
+            socialLinks: nextSocialLinks,
+          })
+        );
       } else {
         setAboutContent(defaultAboutContent);
       }
@@ -195,19 +330,35 @@ export default function Home() {
   }, [text]);
 
   const isProfessionalTone = headingSettings.tone === 'professional';
+  const connectWithUsLabel = translateWithFallback(
+    t,
+    'connectWithUs',
+    translateWithFallback(t, 'socialMedia', 'Connect with us')
+  );
+  const specialCharactersLabel = translateWithFallback(
+    t,
+    'specialCharacters',
+    `Special ${translateWithFallback(t, 'characters', 'Characters')}`
+  );
   const introBlock = (
     <div className="w-full flex flex-col items-center gap-1 shrink-0 py-2">
-      <img src="/Charater Count Favicon Logo.png" alt="Character Count Online Tool logo" className="w-20 h-20 sm:w-24 sm:h-24" />
-      <div className="relative text-center">
+      <img
+        src="/Charater Count Favicon Logo.png"
+        alt="Character Count Online Tool logo"
+        className="order-1 block w-20 h-20 sm:w-24 sm:h-24 mx-auto"
+        loading="eager"
+        decoding="sync"
+      />
+      <div className="order-2 relative text-center">
         <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
-          Character Counter
+          {resolveLocalizedHeading(homeSeo.h1, t('characterCounter'), HOME_H1_ENGLISH_DEFAULTS)}
         </h1>
       </div>
-      <h2 className={`text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
-        {homeSeo.h2 || 'Analyze your text with confidence'}
+      <h2 className={`order-3 text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
+        {resolveLocalizedHeading(homeSeo.h2, t('analyzeYourText'), HOME_H2_ENGLISH_DEFAULTS)}
       </h2>
-      {homeSeo.h5 && <h5 className="text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
-      {homeSeo.h6 && <h6 className="text-center text-xs text-slate-500">{homeSeo.h6}</h6>}
+      {homeSeo.h5 && <h5 className="order-4 text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
+      {homeSeo.h6 && <h6 className="order-5 text-center text-xs text-slate-500">{homeSeo.h6}</h6>}
     </div>
   );
 
@@ -296,7 +447,7 @@ export default function Home() {
                   <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9h8M8 13h6m-9 8h14a2 2 0 002-2V7a2 2 0 00-2-2h-3.586a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 0012.586 3h-1.172a1 1 0 00-.707.293L9.293 4.707A1 1 0 018.586 5H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Privacy Policy
+                  {t('privacyData')}
                 </button>
                 <button 
                   onClick={() => {
@@ -453,7 +604,7 @@ export default function Home() {
                 <p className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                   {specialCharCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">Special Characters</p>
+                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{specialCharactersLabel}</p>
               </div>
             </div>
           </div>
@@ -498,7 +649,7 @@ export default function Home() {
           </div>
 
           <div className="bg-white/80 rounded-xl p-4 border border-indigo-100 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">Connect with us</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</p>
             <div className="flex items-center justify-center gap-3">
               <a
                 href={socialLinks.instagramUrl}
@@ -570,16 +721,16 @@ export default function Home() {
               <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
               <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
                 <a href={`/${locale}/about-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-                  About Us
+                  {t('aboutUs')}
                 </a>
                 <a href={`/${locale}/contact-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-                  Contact
+                  {t('contactUs')}
                 </a>
                 <a href={`/${locale}/privacy-policy`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-                  Privacy Policy
+                  {t('privacyData')}
                 </a>
                 <a href={`/${locale}/terms-conditions`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-                  Terms
+                  {t('termsConditions')}
                 </a>
               </div>
             </div>
@@ -599,8 +750,11 @@ export default function Home() {
             </h4>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
-                {aboutContent ? (
-                  <div dangerouslySetInnerHTML={{ __html: aboutContent }} />
+                {formattedAboutContent ? (
+                  <div
+                    className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_h1]:text-xl [&_h2]:text-lg [&_h3]:text-base"
+                    dangerouslySetInnerHTML={{ __html: formattedAboutContent }}
+                  />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-6">
                     <img src="/Charater Count Favicon Logo.png" alt="Character Counter" className="w-12 h-12 mb-3 opacity-50" />
@@ -621,16 +775,16 @@ export default function Home() {
           <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
             <a href={`/${locale}/about-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-              About Us
+              {t('aboutUs')}
             </a>
             <a href={`/${locale}/contact-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-              Contact
+              {t('contactUs')}
             </a>
             <a href={`/${locale}/privacy-policy`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-              Privacy Policy
+              {t('privacyData')}
             </a>
             <a href={`/${locale}/terms-conditions`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
-              Terms
+              {t('termsConditions')}
             </a>
           </div>
         </div>

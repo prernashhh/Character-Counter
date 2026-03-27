@@ -59,7 +59,7 @@ const HeadingSettingsSchema = new mongoose.Schema({
   },
   h2Text: {
     type: String,
-    default: 'Analyze your text with confidence',
+    default: '',
   },
   h3Text: {
     type: String,

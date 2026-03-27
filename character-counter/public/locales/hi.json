@@ -1,5 +1,6 @@
 {
   "menu": "मेनू",
+  "analyzeYourText": "अपने पाठ का आत्मविश्वास के साथ विश्लेषण करें",
   "language": "भाषा",
   "aboutUs": "हमारे बारे में",
   "contactUs": "संपर्क करें",
@@ -11,6 +12,7 @@
   "sentences": "वाक्य",
   "paragraphs": "पैराग्राफ",
   "spaces": "रिक्त स्थान",
+  "specialCharacters": "विशेष अक्षर",
   "wordDensity": "शब्द घनत्व",
   "startTyping": "शब्द घनत्व देखने के लिए टाइप करना शुरू करें",
   "characterCounter": "वर्ण गणक",
@@ -44,6 +46,7 @@
   "messagePlaceholder": "हमें बताएं कि आपके मन में क्या है...",
   "sendMessage": "संदेश भेजें",
   "messageSent": "धन्यवाद! आपका संदेश सफलतापूर्वक भेजा गया है।",
+  "connectWithUs": "हमसे जुड़ें",
   "otherWaysToReach": "हमसे संपर्क करने के अन्य तरीके",
   "emailUs": "हमें ईमेल करें",
   "followUs": "हमें फॉलो करें",
