@@ -13,6 +13,16 @@ function ensureAdmin(token) {
   return valid;
 }
 
+function makeSlug(input) {
+  return String(input || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 export async function PATCH(request, { params }) {
   try {
     const token = (await cookies()).get('admin_token')?.value;
@@ -38,6 +48,34 @@ export async function PATCH(request, { params }) {
     if (body.content !== undefined) update.content = String(body.content).trim();
     if (body.excerpt !== undefined) update.excerpt = String(body.excerpt).trim();
     if (body.published !== undefined) update.published = Boolean(body.published);
+
+    if (body.slug !== undefined) {
+      const nextSlug = makeSlug(body.slug);
+      if (!nextSlug) {
+        return Response.json({ success: false, error: 'Invalid slug' }, { status: 400 });
+      }
+
+      const duplicate = await Post.exists({ slug: nextSlug, _id: { $ne: id } });
+      if (duplicate) {
+        return Response.json({ success: false, error: 'Slug already in use' }, { status: 400 });
+      }
+
+      update.slug = nextSlug;
+    }
+
+    if (body.publishDate !== undefined) {
+      const nextDate = String(body.publishDate || '').trim();
+      if (!nextDate) {
+        return Response.json({ success: false, error: 'Publish date is required' }, { status: 400 });
+      }
+
+      const parsedDate = new Date(nextDate);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return Response.json({ success: false, error: 'Invalid publish date' }, { status: 400 });
+      }
+
+      update.publishDate = parsedDate;
+    }
 
     if (body.coverImageUrl !== undefined) {
       update.coverImageUrl = String(body.coverImageUrl || '').trim();

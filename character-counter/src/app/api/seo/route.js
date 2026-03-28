@@ -1,5 +1,6 @@
 import connectDB from '@/lib/db';
 import SeoSetting from '@/models/SeoSetting';
+import { deleteImageFromCloudinary } from '@/lib/cloudinary';
 
 export async function GET() {
   try {
@@ -20,22 +21,22 @@ export async function PUT(request) {
     const title = String(body?.title || '').trim();
     const description = String(body?.description || '').trim();
     const ogImage = String(body?.ogImage || '').trim();
+    const ogImagePublicId = String(body?.ogImagePublicId || '').trim();
 
     if (!page) {
       return Response.json({ success: false, error: 'page is required' }, { status: 400 });
     }
 
+    const existing = await SeoSetting.findOne({ page }).lean();
+
+    if (existing?.ogImagePublicId && existing.ogImagePublicId !== ogImagePublicId) {
+      await deleteImageFromCloudinary(existing.ogImagePublicId);
+    }
+
     const seo = await SeoSetting.findOneAndUpdate(
       { page },
-      {
-        $set: {
-          page,
-          title,
-          description,
-          ogImage,
-        },
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { title, description, ogImage, ogImagePublicId },
+      { upsert: true, new: true }
     ).lean();
 
     return Response.json({ success: true, seo });

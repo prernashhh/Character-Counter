@@ -58,13 +58,27 @@ For privacy-related questions, please use the Contact Us page.`;
 export default function PrivacyPolicyPage() {
   const t = useTranslations();
   const [policyContent, setPolicyContent] = useState('');
+  const [pageClosingText, setPageClosingText] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
   const [loading, setLoading] = useState(true);
   const formattedPolicyContent = formatPolicyContent(policyContent);
+
+  const formatDate = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   useEffect(() => {
     const fetchPrivacyPolicy = async () => {
       try {
-        const response = await fetch('/api/settings', { cache: 'no-store' });
+        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
         const data = await response.json();
 
         if (data?.success && data.settings?.privacyPolicyContent?.trim()) {
@@ -72,6 +86,15 @@ export default function PrivacyPolicyPage() {
         } else {
           setPolicyContent(defaultPrivacyPolicy);
         }
+        setPageClosingText(data?.settings?.pageClosingTexts?.privacyPolicy || '');
+
+        setLastUpdated(
+          formatDate(
+            data?.settings?.staticPagesLastUpdated?.privacyPolicy ||
+            data?.settings?.updatedAt ||
+            data?.settings?.createdAt
+          )
+        );
       } catch {
         setPolicyContent(defaultPrivacyPolicy);
       } finally {
@@ -100,11 +123,26 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
 
+          {lastUpdated && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+              <p className="text-sm font-semibold text-blue-800">
+                {t('lastUpdated')}: {lastUpdated}
+              </p>
+            </div>
+          )}
+
           <div className="prose prose-lg max-w-none text-gray-700 [&_p]:mb-5 [&_p]:leading-8 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:my-4 [&_ol]:my-4 [&_li]:my-1">
             {loading ? (
               <p>Loading privacy policy...</p>
             ) : (
-              <div dangerouslySetInnerHTML={{ __html: formattedPolicyContent }} />
+              <>
+                <div dangerouslySetInnerHTML={{ __html: formattedPolicyContent }} />
+                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+                  <p className="text-center text-gray-700 font-semibold">
+                    {pageClosingText || 'Your privacy matters to us and we are committed to protecting your data.'}
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </div>

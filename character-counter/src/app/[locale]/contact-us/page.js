@@ -7,23 +7,47 @@ import { useEffect, useState } from 'react';
 export default function ContactUs() {
   const t = useTranslations();
   const [contactUsContent, setContactUsContent] = useState('');
+  const [contactUsEmail, setContactUsEmail] = useState('iamdineshswami@gmail.com');
+  const [pageClosingText, setPageClosingText] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
   const [contentLoading, setContentLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
+
+  const formatDate = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const response = await fetch('/api/settings', { cache: 'no-store' });
+        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
         const data = await response.json();
 
         if (data?.success && data.settings?.contactUsContent?.trim()) {
           setContactUsContent(data.settings.contactUsContent);
         }
+
+        setContactUsEmail(
+          data?.settings?.contactUsEmail ||
+          data?.settings?.socialLinks?.emailAddress ||
+          'iamdineshswami@gmail.com'
+        );
+        setPageClosingText(data?.settings?.pageClosingTexts?.contactUs || '');
+
+        setLastUpdated(
+          formatDate(
+            data?.settings?.staticPagesLastUpdated?.contactUs ||
+            data?.settings?.updatedAt ||
+            data?.settings?.createdAt
+          )
+        );
       } catch {
         setContactUsContent('');
       } finally {
@@ -34,21 +58,8 @@ export default function ContactUs() {
     fetchContent();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here
-    alert(t('messageSent'));
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
   return (
-    <main className="min-h-screen bg-liinear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
           <Link 
@@ -61,119 +72,64 @@ export default function ContactUs() {
             {t('backToHome')}
           </Link>
 
-          <h1 className="text-4xl font-extrabold text-center mb-8 bg-liinear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-extrabold text-center mb-8 bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             {t('contactUsTitle')}
           </h1>
+
+          {lastUpdated && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+              <p className="text-sm font-semibold text-blue-800">
+                {t('lastUpdated')}: {lastUpdated}
+              </p>
+            </div>
+          )}
 
           <div className="mb-8 text-center text-gray-700">
             {contentLoading ? (
               <p className="text-lg">{t('contactUsIntro')}</p>
             ) : contactUsContent ? (
-              <div className="prose prose-slate max-w-none mx-auto text-left" dangerouslySetInnerHTML={{ __html: contactUsContent }} />
+              <div className="prose prose-slate max-w-none mx-auto text-left">
+                <div dangerouslySetInnerHTML={{ __html: contactUsContent }} />
+                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+                  <p className="text-center text-gray-700 font-semibold">
+                    {pageClosingText || 'Thank you for reaching out. We appreciate your time and feedback.'}
+                  </p>
+                </div>
+              </div>
             ) : (
-              <p className="text-lg">{t('contactUsIntro')}</p>
+              <div className="prose prose-lg max-w-none text-gray-700 space-y-6 text-left">
+                <p className="text-lg leading-relaxed">{t('contactUsIntro')}</p>
+
+                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">How to Reach Us</h2>
+                <p className="leading-relaxed">
+                  You can contact us directly by email for support, suggestions, and collaboration related queries.
+                  We check messages regularly and respond as quickly as possible.
+                </p>
+
+                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">What We Can Help With</h2>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li>Feature requests and product improvements</li>
+                  <li>Bug reports and technical issues</li>
+                  <li>Policy and content clarification</li>
+                  <li>General feedback and partnership discussions</li>
+                </ul>
+
+                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">Direct Email</h2>
+                <p className="leading-relaxed">
+                  Email us at{' '}
+                  <a href={`mailto:${contactUsEmail}`} className="text-indigo-600 hover:text-indigo-800 underline">
+                    {contactUsEmail}
+                  </a>
+                  {' '}and our team will get back to you soon.
+                </p>
+
+                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+                  <p className="text-center text-gray-700 font-semibold">
+                    {pageClosingText || 'Thank you for reaching out. We appreciate your time and feedback.'}
+                  </p>
+                </div>
+              </div>
             )}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('nameLabel')}
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
-                placeholder={t('namePlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('emailLabel')}
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
-                placeholder={t('emailPlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('subjectLabel')}
-              </label>
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
-                placeholder={t('subjectPlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('messageLabel')}
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                rows="6"
-                className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 transition-all resize-none"
-                placeholder={t('messagePlaceholder')}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-liinear-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
-            >
-              {t('sendMessage')}
-            </button>
-          </form>
-
-          <div className="mt-8 pt-8 border-t border-indigo-200">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">{t('otherWaysToReach')}</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-liinear-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200">
-                <div className="flex items-center gap-3">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <div>
-                    <p className="font-semibold text-gray-700">{t('emailUs')}</p>
-                    <p className="text-sm text-gray-600">support@charactercounter.com</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-liinear-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-                <div className="flex items-center gap-3">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                  </svg>
-                  <div>
-                    <p className="font-semibold text-gray-700">{t('followUs')}</p>
-                    <p className="text-sm text-gray-600">{t('socialMedia')}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

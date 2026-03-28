@@ -7,17 +7,40 @@ import { Link } from '@/i18n/routing';
 export default function TermsConditions() {
   const t = useTranslations();
   const [termsContent, setTermsContent] = useState('');
+  const [pageClosingText, setPageClosingText] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const formatDate = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   useEffect(() => {
     const fetchTermsContent = async () => {
       try {
-        const response = await fetch('/api/settings', { cache: 'no-store' });
+        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
         const data = await response.json();
 
         if (data?.success && data.settings?.termsConditionsContent?.trim()) {
           setTermsContent(data.settings.termsConditionsContent);
         }
+        setPageClosingText(data?.settings?.pageClosingTexts?.termsConditions || '');
+
+        setLastUpdated(
+          formatDate(
+            data?.settings?.staticPagesLastUpdated?.termsConditions ||
+            data?.settings?.updatedAt ||
+            data?.settings?.createdAt
+          )
+        );
       } catch {
         setTermsContent('');
       } finally {
@@ -46,17 +69,26 @@ export default function TermsConditions() {
             {t('termsConditionsTitle')}
           </h1>
 
-          <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
-            {!loading && termsContent ? (
-              <div dangerouslySetInnerHTML={{ __html: termsContent }} />
-            ) : (
-              <>
+          {lastUpdated && (
             <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
               <p className="text-sm font-semibold text-blue-800">
-                {t('lastUpdated')}: December 27, 2025
+                {t('lastUpdated')}: {lastUpdated}
               </p>
             </div>
+          )}
 
+          <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
+            {!loading && termsContent ? (
+              <>
+                <div dangerouslySetInnerHTML={{ __html: termsContent }} />
+                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+                  <p className="text-center text-gray-700 font-semibold">
+                    {pageClosingText || t('termsClosing')}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
             <p className="text-lg leading-relaxed">
               {t('termsIntro')}
             </p>
@@ -124,7 +156,7 @@ export default function TermsConditions() {
 
             <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
               <p className="text-center text-gray-700 font-semibold">
-                {t('termsClosing')}
+                {pageClosingText || t('termsClosing')}
               </p>
             </div>
               </>

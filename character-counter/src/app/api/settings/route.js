@@ -12,6 +12,7 @@ export async function GET(request) {
     let settings = await Settings.findOne().lean();
 
     if (!settings) {
+      const now = new Date();
       const createdSettings = await Settings.create({
         aboutContent: '',
         aboutUsContent: {
@@ -26,12 +27,13 @@ export async function GET(request) {
         socialLinks: {
           instagramUrl: 'https://instagram.com/prerna.9_',
           linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-          emailAddress: 'prerna.9_@gmail.com',
+          emailAddress: 'iamdineshswami@gmail.com',
         },
         instagramHandle: '',
         instagramUrl: '',
         privacyPolicyContent: '',
         contactUsContent: '',
+        contactUsEmail: 'iamdineshswami@gmail.com',
         termsConditionsContent: '',
         disclaimerContent: '',
         footerCopyrightYear: new Date().getFullYear(),
@@ -42,9 +44,33 @@ export async function GET(request) {
           h4Text: 'About This Tool',
           tone: 'professional',
         },
+        staticPagesLastUpdated: {
+          aboutUs: now,
+          contactUs: now,
+          termsConditions: now,
+          privacyPolicy: now,
+          disclaimer: now,
+        },
+        pageClosingTexts: {
+          aboutUs: 'We value your trust and will keep improving this tool for you.',
+          contactUs: 'Thank you for reaching out. We appreciate your time and feedback.',
+          termsConditions: 'By continuing to use this service, you agree to these terms and conditions.',
+          privacyPolicy: 'Your privacy matters to us and we are committed to protecting your data.',
+          disclaimer: 'Please use this tool responsibly and review this disclaimer regularly.',
+          blog: 'Thanks for reading. Check back soon for more helpful updates.',
+        },
       });
       settings = createdSettings.toObject();
     }
+
+    const fallbackDate = settings.updatedAt || settings.createdAt || new Date();
+    settings.staticPagesLastUpdated = {
+      aboutUs: settings.staticPagesLastUpdated?.aboutUs || fallbackDate,
+      contactUs: settings.staticPagesLastUpdated?.contactUs || fallbackDate,
+      termsConditions: settings.staticPagesLastUpdated?.termsConditions || fallbackDate,
+      privacyPolicy: settings.staticPagesLastUpdated?.privacyPolicy || fallbackDate,
+      disclaimer: settings.staticPagesLastUpdated?.disclaimer || fallbackDate,
+    };
 
     if (scope === 'home') {
       return Response.json(
@@ -63,13 +89,45 @@ export async function GET(request) {
             socialLinks: settings.socialLinks ?? {
               instagramUrl: 'https://instagram.com/prerna.9_',
               linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-              emailAddress: 'prerna.9_@gmail.com',
+              emailAddress: 'iamdineshswami@gmail.com',
             },
           },
         },
         {
           headers: {
             'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+          },
+        }
+      );
+    }
+
+    if (scope === 'public-pages') {
+      return Response.json(
+        {
+          success: true,
+          settings: {
+            aboutUsContent: settings.aboutUsContent ?? { sections: [], closingText: '' },
+            contactUsContent: settings.contactUsContent ?? '',
+            contactUsEmail: settings.contactUsEmail ?? settings.socialLinks?.emailAddress ?? 'iamdineshswami@gmail.com',
+            termsConditionsContent: settings.termsConditionsContent ?? '',
+            privacyPolicyContent: settings.privacyPolicyContent ?? '',
+            disclaimerContent: settings.disclaimerContent ?? '',
+            pageClosingTexts: settings.pageClosingTexts ?? {
+              aboutUs: 'We value your trust and will keep improving this tool for you.',
+              contactUs: 'Thank you for reaching out. We appreciate your time and feedback.',
+              termsConditions: 'By continuing to use this service, you agree to these terms and conditions.',
+              privacyPolicy: 'Your privacy matters to us and we are committed to protecting your data.',
+              disclaimer: 'Please use this tool responsibly and review this disclaimer regularly.',
+              blog: 'Thanks for reading. Check back soon for more helpful updates.',
+            },
+            staticPagesLastUpdated: settings.staticPagesLastUpdated,
+            updatedAt: settings.updatedAt,
+            createdAt: settings.createdAt,
+          },
+        },
+        {
+          headers: {
+            'Cache-Control': 'public, max-age=120, stale-while-revalidate=600',
           },
         }
       );
@@ -104,11 +162,27 @@ export async function PUT(request) {
       instagramUrl,
       privacyPolicyContent,
       contactUsContent,
+      contactUsEmail,
       termsConditionsContent,
       disclaimerContent,
+      pageClosingTexts,
       footerCopyrightYear,
       headingSettings,
     } = body;
+
+    const toComparable = (value) => {
+      if (value && typeof value.toObject === 'function') {
+        return value.toObject();
+      }
+
+      return value ?? null;
+    };
+
+    const hasChanged = (currentValue, nextValue) => {
+      return JSON.stringify(toComparable(currentValue)) !== JSON.stringify(toComparable(nextValue));
+    };
+
+    const now = new Date();
 
     let settings = await Settings.findOne();
 
@@ -122,6 +196,7 @@ export async function PUT(request) {
         instagramUrl,
         privacyPolicyContent,
         contactUsContent,
+        contactUsEmail,
         termsConditionsContent,
         disclaimerContent,
         footerCopyrightYear: footerCopyrightYear ?? new Date().getFullYear(),
@@ -132,18 +207,86 @@ export async function PUT(request) {
           h4Text: 'About This Tool',
           tone: 'professional',
         },
+        staticPagesLastUpdated: {
+          aboutUs: now,
+          contactUs: now,
+          termsConditions: now,
+          privacyPolicy: now,
+          disclaimer: now,
+        },
+        pageClosingTexts,
       });
     } else {
+      if (!settings.staticPagesLastUpdated) {
+        settings.staticPagesLastUpdated = {
+          aboutUs: now,
+          contactUs: now,
+          termsConditions: now,
+          privacyPolicy: now,
+          disclaimer: now,
+        };
+      }
+
       if (aboutContent !== undefined) settings.aboutContent = aboutContent;
-      if (aboutUsContent !== undefined) settings.aboutUsContent = aboutUsContent;
+      if (aboutUsContent !== undefined) {
+        if (hasChanged(settings.aboutUsContent, aboutUsContent)) {
+          settings.staticPagesLastUpdated.aboutUs = now;
+        }
+        settings.aboutUsContent = aboutUsContent;
+      }
       if (aboutUsContacts !== undefined) settings.aboutUsContacts = aboutUsContacts;
       if (socialLinks !== undefined) settings.socialLinks = socialLinks;
       if (instagramHandle !== undefined) settings.instagramHandle = instagramHandle;
       if (instagramUrl !== undefined) settings.instagramUrl = instagramUrl;
-      if (privacyPolicyContent !== undefined) settings.privacyPolicyContent = privacyPolicyContent;
-      if (contactUsContent !== undefined) settings.contactUsContent = contactUsContent;
-      if (termsConditionsContent !== undefined) settings.termsConditionsContent = termsConditionsContent;
-      if (disclaimerContent !== undefined) settings.disclaimerContent = disclaimerContent;
+      if (privacyPolicyContent !== undefined) {
+        if (hasChanged(settings.privacyPolicyContent, privacyPolicyContent)) {
+          settings.staticPagesLastUpdated.privacyPolicy = now;
+        }
+        settings.privacyPolicyContent = privacyPolicyContent;
+      }
+      if (contactUsContent !== undefined) {
+        if (hasChanged(settings.contactUsContent, contactUsContent)) {
+          settings.staticPagesLastUpdated.contactUs = now;
+        }
+        settings.contactUsContent = contactUsContent;
+      }
+      if (contactUsEmail !== undefined) {
+        if (hasChanged(settings.contactUsEmail, contactUsEmail)) {
+          settings.staticPagesLastUpdated.contactUs = now;
+        }
+        settings.contactUsEmail = contactUsEmail;
+      }
+      if (termsConditionsContent !== undefined) {
+        if (hasChanged(settings.termsConditionsContent, termsConditionsContent)) {
+          settings.staticPagesLastUpdated.termsConditions = now;
+        }
+        settings.termsConditionsContent = termsConditionsContent;
+      }
+      if (disclaimerContent !== undefined) {
+        if (hasChanged(settings.disclaimerContent, disclaimerContent)) {
+          settings.staticPagesLastUpdated.disclaimer = now;
+        }
+        settings.disclaimerContent = disclaimerContent;
+      }
+      if (pageClosingTexts !== undefined) {
+        if (hasChanged(settings.pageClosingTexts?.aboutUs, pageClosingTexts.aboutUs)) {
+          settings.staticPagesLastUpdated.aboutUs = now;
+        }
+        if (hasChanged(settings.pageClosingTexts?.contactUs, pageClosingTexts.contactUs)) {
+          settings.staticPagesLastUpdated.contactUs = now;
+        }
+        if (hasChanged(settings.pageClosingTexts?.termsConditions, pageClosingTexts.termsConditions)) {
+          settings.staticPagesLastUpdated.termsConditions = now;
+        }
+        if (hasChanged(settings.pageClosingTexts?.privacyPolicy, pageClosingTexts.privacyPolicy)) {
+          settings.staticPagesLastUpdated.privacyPolicy = now;
+        }
+        if (hasChanged(settings.pageClosingTexts?.disclaimer, pageClosingTexts.disclaimer)) {
+          settings.staticPagesLastUpdated.disclaimer = now;
+        }
+
+        settings.pageClosingTexts = pageClosingTexts;
+      }
       if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
       if (headingSettings !== undefined) settings.headingSettings = headingSettings;
 

@@ -26,17 +26,26 @@ function ensureCloudinaryConfig() {
 export async function uploadImageToCloudinary(buffer, type = 'blog-content') {
   ensureCloudinaryConfig();
 
-  const folder = type === 'blog-cover' ? 'character-counter/blog-covers' : 'character-counter/blog-content';
+  const folder = type === 'blog-cover'
+    ? 'character-counter/blog-covers'
+    : type === 'seo-og'
+      ? 'character-counter/seo-og'
+      : 'character-counter/blog-content';
 
   const transformation = type === 'blog-cover'
     ? [
         { width: 1600, height: 900, crop: 'fill', gravity: 'auto' },
         { quality: 'auto', fetch_format: 'auto' },
       ]
-    : [
-        { width: 1400, crop: 'limit' },
-        { quality: 'auto', fetch_format: 'auto' },
-      ];
+    : type === 'seo-og'
+      ? [
+          { width: 1200, height: 630, crop: 'fill', gravity: 'auto' },
+          { quality: 'auto', fetch_format: 'auto' },
+        ]
+      : [
+          { width: 1400, crop: 'limit' },
+          { quality: 'auto', fetch_format: 'auto' },
+        ];
 
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(

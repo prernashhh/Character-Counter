@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { Link, useRouter, usePathname } from '@/i18n/routing';
+import { getBlogUi } from '@/lib/blog-ui-text';
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
@@ -137,7 +138,7 @@ const getDefaultHomeSeo = () => ({
 const getDefaultSocialLinks = () => ({
   instagramUrl: 'https://instagram.com/prerna.9_',
   linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-  emailAddress: 'prerna.9_@gmail.com',
+  emailAddress: 'iamdineshswami@gmail.com',
 });
 
 const translateWithFallback = (translator, key, fallback) => {
@@ -183,6 +184,7 @@ const HOME_H2_ENGLISH_DEFAULTS = [
 export default function Home() {
     const t = useTranslations();
     const locale = useLocale();
+  const blogUi = useMemo(() => getBlogUi(locale), [locale]);
     const router = useRouter();
     const pathname = usePathname();
     const defaultAboutContent = t('aboutContent');
@@ -242,6 +244,15 @@ export default function Home() {
 
     fetchAboutContent();
     }, []);
+
+  useEffect(() => {
+    const menuRoutes = ['/about-us', '/contact-us', '/blog', '/terms-conditions', '/privacy-policy', '/disclaimer'];
+
+    // Warm route bundles in the background for snappier menu navigation.
+    menuRoutes.forEach((route) => {
+      router.prefetch(route, { locale });
+    });
+  }, [router, locale]);
 
   const fetchAboutContent = async () => {
     try {
@@ -342,19 +353,26 @@ export default function Home() {
   );
   const introBlock = (
     <div className="w-full flex flex-col items-center gap-1 shrink-0 py-2">
-      <img
-        src="/Charater Count Favicon Logo.png"
-        alt="Character Count Online Tool logo"
-        className="order-1 block w-20 h-20 sm:w-24 sm:h-24 mx-auto"
-        loading="eager"
-        decoding="sync"
-      />
+      <Link
+        href="/"
+        locale={locale}
+        className="order-1 block mx-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full"
+        aria-label="Open Character Counter"
+      >
+        <img
+          src="/Charater Count Favicon Logo.png"
+          alt="Character Count Online Tool logo"
+          className="block w-20 h-20 sm:w-24 sm:h-24 lg:w-20 lg:h-20"
+          loading="eager"
+          decoding="sync"
+        />
+      </Link>
       <div className="order-2 relative text-center">
-        <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
+        <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
           {resolveLocalizedHeading(homeSeo.h1, t('characterCounter'), HOME_H1_ENGLISH_DEFAULTS)}
         </h1>
       </div>
-      <h2 className={`order-3 text-center text-base sm:text-lg ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
+      <h2 className={`order-3 text-center text-base sm:text-lg lg:text-base ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
         {resolveLocalizedHeading(homeSeo.h2, t('analyzeYourText'), HOME_H2_ENGLISH_DEFAULTS)}
       </h2>
       {homeSeo.h5 && <h5 className="order-4 text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
@@ -423,7 +441,7 @@ export default function Home() {
                   <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
-                  Blogs
+                  {blogUi.blogTitle}
                 </button>
                 <button 
                   onClick={() => {
@@ -692,13 +710,13 @@ export default function Home() {
 
       {/* Center Text Analyzer Section */}
       <section className="hidden lg:flex flex-1 flex-col px-4 sm:px-6 lg:px-8 py-4 overflow-hidden">
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col gap-3">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto h-full flex flex-col gap-3">
           <div className="w-full">
             {introBlock}
           </div>
 
           {/* Text Input Section */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-indigo-100 flex-1 flex flex-col min-h-0">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-indigo-100 flex-1 flex flex-col min-h-0 lg:min-h-104">
             <label
               htmlFor="text-input"
               className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide shrink-0"

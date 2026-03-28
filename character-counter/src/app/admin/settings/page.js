@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 
 const defaultSeoSettings = {
-  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', ogImage: '/og-image.png' },
-  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', ogImage: '/og-image.png' },
-  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', ogImage: '/og-image.png' },
-  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', ogImage: '/og-image.png' },
-  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', ogImage: '/og-image.png' },
-  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', ogImage: '/og-image.png' },
-  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', ogImage: '/og-image.png' },
+  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
 };
 
 const pageSeoOptions = [
@@ -49,14 +49,23 @@ export default function AdminSettings() {
     socialLinks: {
       instagramUrl: 'https://instagram.com/prerna.9_',
       linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-      emailAddress: 'prerna.9_@gmail.com',
+      emailAddress: 'iamdineshswami@gmail.com',
     },
     instagramHandle: '',
     instagramUrl: '',
     privacyPolicyContent: '',
     contactUsContent: '',
+    contactUsEmail: 'iamdineshswami@gmail.com',
     termsConditionsContent: '',
     disclaimerContent: '',
+    pageClosingTexts: {
+      aboutUs: 'We value your trust and will keep improving this tool for you.',
+      contactUs: 'Thank you for reaching out. We appreciate your time and feedback.',
+      termsConditions: 'By continuing to use this service, you agree to these terms and conditions.',
+      privacyPolicy: 'Your privacy matters to us and we are committed to protecting your data.',
+      disclaimer: 'Please use this tool responsibly and review this disclaimer regularly.',
+      blog: 'Thanks for reading. Check back soon for more helpful updates.',
+    },
     footerCopyrightYear: new Date().getFullYear(),
     headingSettings: {
       h1Text: 'Character Counter',
@@ -88,6 +97,8 @@ export default function AdminSettings() {
   });
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
+  const [aboutToolEditorValue, setAboutToolEditorValue] = useState('');
+  const [ogUploading, setOgUploading] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -123,6 +134,7 @@ export default function AdminSettings() {
                 metaTitle: item.title || defaultSeoSettings[uiPageKey].metaTitle,
                 metaDescription: item.description || defaultSeoSettings[uiPageKey].metaDescription,
                 ogImage: item.ogImage || defaultSeoSettings[uiPageKey].ogImage,
+                ogImagePublicId: item.ogImagePublicId || '',
               };
               return acc;
             }, {})
@@ -145,11 +157,20 @@ export default function AdminSettings() {
           socialLinks: {
             instagramUrl: socialLinks.instagramUrl || aboutUsContacts.instagramUrl || 'https://instagram.com/prerna.9_',
             linkedinUrl: socialLinks.linkedinUrl || aboutUsContacts.linkedinUrl || 'https://linkedin.com/in/prerna.9_',
-            emailAddress: socialLinks.emailAddress || aboutUsContacts.gmail || 'prerna.9_@gmail.com',
+            emailAddress: socialLinks.emailAddress || aboutUsContacts.gmail || 'iamdineshswami@gmail.com',
           },
           contactUsContent: data.settings.contactUsContent || '',
+          contactUsEmail: data.settings.contactUsEmail || socialLinks.emailAddress || 'iamdineshswami@gmail.com',
           termsConditionsContent: data.settings.termsConditionsContent || '',
           disclaimerContent: data.settings.disclaimerContent || '',
+          pageClosingTexts: {
+            aboutUs: data.settings.pageClosingTexts?.aboutUs || 'We value your trust and will keep improving this tool for you.',
+            contactUs: data.settings.pageClosingTexts?.contactUs || 'Thank you for reaching out. We appreciate your time and feedback.',
+            termsConditions: data.settings.pageClosingTexts?.termsConditions || 'By continuing to use this service, you agree to these terms and conditions.',
+            privacyPolicy: data.settings.pageClosingTexts?.privacyPolicy || 'Your privacy matters to us and we are committed to protecting your data.',
+            disclaimer: data.settings.pageClosingTexts?.disclaimer || 'Please use this tool responsibly and review this disclaimer regularly.',
+            blog: data.settings.pageClosingTexts?.blog || 'Thanks for reading. Check back soon for more helpful updates.',
+          },
           seoSettings: {
             ...defaultSeoSettings,
             ...seoFromDb,
@@ -212,27 +233,56 @@ export default function AdminSettings() {
     });
   };
 
-  const updateAboutUsClosingText = (value) => {
-    setSettings({
-      ...settings,
-      aboutUsContent: {
-        ...settings.aboutUsContent,
-        closingText: value,
-      },
-    });
-  };
-
   const updateSeoField = (pageKey, field, value) => {
-    setSettings({
-      ...settings,
+    setSettings((prev) => ({
+      ...prev,
       seoSettings: {
-        ...settings.seoSettings,
+        ...prev.seoSettings,
         [pageKey]: {
-          ...settings.seoSettings[pageKey],
+          ...prev.seoSettings[pageKey],
           [field]: value,
         },
       },
-    });
+    }));
+  };
+
+  const handleSeoOgUpload = async (file) => {
+    if (!file) return;
+
+    setOgUploading(true);
+    setMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'seo-og');
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setMessage(`Error: ${data.error || 'Failed to upload OG image'}`);
+        return;
+      }
+
+      updateSeoField(selectedSeoPage, 'ogImage', data.url || '');
+      updateSeoField(selectedSeoPage, 'ogImagePublicId', data.public_id || '');
+      setMessage('OG image uploaded. Click Save Settings to apply this change.');
+    } catch {
+      setMessage('Error: Failed to upload OG image');
+    } finally {
+      setOgUploading(false);
+    }
+  };
+
+  const handleRemoveSeoOg = () => {
+    updateSeoField(selectedSeoPage, 'ogImage', '');
+    updateSeoField(selectedSeoPage, 'ogImagePublicId', '');
+    setMessage('OG image removed for selected page. Click Save Settings to apply this change.');
   };
 
   const handleVerifyCurrentPassword = async (e) => {
@@ -395,6 +445,7 @@ export default function AdminSettings() {
           title: selectedSeo.metaTitle || '',
           description: selectedSeo.metaDescription || '',
           ogImage: selectedSeo.ogImage || '',
+          ogImagePublicId: selectedSeo.ogImagePublicId || '',
         }),
       });
 
@@ -437,25 +488,17 @@ export default function AdminSettings() {
 
       <div className="space-y-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            About This Tool Content
-          </h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                About Content (shown on homepage)
-              </label>
-              <RichTextEditor
-                value={settings.aboutContent}
-                onChange={(value) => setSettings({ ...settings, aboutContent: value })}
-                minHeightClass="min-h-80"
-                placeholder="Enter the about content that will be displayed on the homepage..."
-              />
-            </div>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">About This Tool</h3>
+          <label className="block text-sm font-medium text-gray-700 mb-2">About This Tool Content</label>
+          <RichTextEditor
+            value={aboutToolEditorValue}
+            onChange={(value) => {
+              setAboutToolEditorValue(value);
+              setSettings({ ...settings, aboutContent: value });
+            }}
+            minHeightClass="min-h-64"
+            placeholder="Enter about this tool content..."
+          />
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -513,29 +556,21 @@ export default function AdminSettings() {
                 </div>
               ))}
               
-              <button
-                type="button"
-                onClick={addAboutUsSection}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add New Section
-              </button>
-            </div>
-
-            {/* Closing Text */}
-            <div className="border-t border-gray-200 pt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Closing Text (displayed at the end)
-              </label>
-              <RichTextEditor
-                value={settings.aboutUsContent.closingText}
-                onChange={updateAboutUsClosingText}
-                minHeightClass="min-h-40"
-                placeholder="Enter a thank you message or closing text..."
-              />
+              <div className="border-t border-gray-200 pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">About Us Closing Text</label>
+                <textarea
+                  rows={2}
+                  value={settings.pageClosingTexts?.aboutUs || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    pageClosingTexts: {
+                      ...settings.pageClosingTexts,
+                      aboutUs: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -612,6 +647,17 @@ export default function AdminSettings() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Us Section</h3>
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Contact Email (used on Contact Us page)</label>
+                <input
+                  type="email"
+                  value={settings.contactUsEmail || ''}
+                  onChange={(e) => setSettings({ ...settings, contactUsEmail: e.target.value })}
+                  placeholder="iamdineshswami@gmail.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                />
+              </div>
+
               <label className="block text-sm font-medium text-gray-700">Contact Us Content</label>
               <RichTextEditor
                 value={settings.contactUsContent}
@@ -619,6 +665,22 @@ export default function AdminSettings() {
                 minHeightClass="min-h-64"
                 placeholder="Enter contact page content..."
               />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Contact Us Closing Text</label>
+                <textarea
+                  rows={2}
+                  value={settings.pageClosingTexts?.contactUs || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    pageClosingTexts: {
+                      ...settings.pageClosingTexts,
+                      contactUs: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                />
+              </div>
             </div>
           </div>
 
@@ -632,6 +694,22 @@ export default function AdminSettings() {
                 minHeightClass="min-h-64"
                 placeholder="Enter terms and conditions content..."
               />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions Closing Text</label>
+                <textarea
+                  rows={2}
+                  value={settings.pageClosingTexts?.termsConditions || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    pageClosingTexts: {
+                      ...settings.pageClosingTexts,
+                      termsConditions: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                />
+              </div>
             </div>
           </div>
 
@@ -654,6 +732,22 @@ export default function AdminSettings() {
                   placeholder="Enter your privacy policy content..."
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Privacy Policy Closing Text</label>
+                <textarea
+                  rows={2}
+                  value={settings.pageClosingTexts?.privacyPolicy || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    pageClosingTexts: {
+                      ...settings.pageClosingTexts,
+                      privacyPolicy: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                />
+              </div>
             </div>
           </div>
 
@@ -667,6 +761,22 @@ export default function AdminSettings() {
                 minHeightClass="min-h-64"
                 placeholder="Enter disclaimer content..."
               />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Disclaimer Closing Text</label>
+                <textarea
+                  rows={2}
+                  value={settings.pageClosingTexts?.disclaimer || ''}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    pageClosingTexts: {
+                      ...settings.pageClosingTexts,
+                      disclaimer: e.target.value,
+                    },
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                />
+              </div>
             </div>
           </div>
 
@@ -713,15 +823,47 @@ export default function AdminSettings() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">OG Image URL</label>
-                <input
-                  type="text"
-                  value={settings.seoSettings?.[selectedSeoPage]?.ogImage || ''}
-                  onChange={(e) => updateSeoField(selectedSeoPage, 'ogImage', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                  placeholder="/og-image.png or https://example.com/og-image.png"
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">OG Image Upload</label>
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleSeoOgUpload(file);
+                      e.target.value = '';
+                    }}
+                    className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-100 file:px-3 file:py-2 file:text-indigo-700 hover:file:bg-indigo-200"
+                  />
+                  {settings.seoSettings?.[selectedSeoPage]?.ogImage && settings.seoSettings?.[selectedSeoPage]?.ogImage !== '/og-image.svg' && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveSeoOg}
+                      className="px-3 py-2 text-sm rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </div>
+
+                {ogUploading && (
+                  <p className="text-xs text-slate-500">Uploading OG image...</p>
+                )}
+
+                <p className="text-xs text-slate-500">
+                  Recommended aspect ratio: 1200x630 for social sharing previews.
+                </p>
+
+                <img
+                  src={settings.seoSettings?.[selectedSeoPage]?.ogImage || '/og-image.svg'}
+                  alt={`${selectedSeoPage} OG preview`}
+                  className="w-full max-w-md h-auto rounded-lg border border-gray-200 bg-white"
                 />
+
+                <p className="text-xs text-slate-500 break-all">
+                  {settings.seoSettings?.[selectedSeoPage]?.ogImage || '/og-image.svg'}
+                </p>
               </div>
             </div>
           </div>

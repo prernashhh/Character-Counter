@@ -22,7 +22,11 @@ export async function POST(request) {
     const formData = await request.formData();
     const file = formData.get('file');
     const requestedType = String(formData.get('type') || 'blog-content').trim();
-    const type = requestedType === 'blog-cover' ? 'blog-cover' : 'blog-content';
+    const type = requestedType === 'blog-cover'
+      ? 'blog-cover'
+      : requestedType === 'seo-og'
+        ? 'seo-og'
+        : 'blog-content';
 
     if (!(file instanceof File)) {
       return Response.json({ success: false, error: 'Image file is required' }, { status: 400 });
@@ -32,7 +36,9 @@ export async function POST(request) {
       return Response.json({ success: false, error: 'Only image uploads are allowed' }, { status: 400 });
     }
 
-    const maxSizeInBytes = type === 'blog-cover' ? 8 * 1024 * 1024 : 5 * 1024 * 1024;
+    const maxSizeInBytes = type === 'blog-cover' || type === 'seo-og'
+      ? 8 * 1024 * 1024
+      : 5 * 1024 * 1024;
 
     if (file.size > maxSizeInBytes) {
       return Response.json({ success: false, error: 'Image is too large' }, { status: 400 });

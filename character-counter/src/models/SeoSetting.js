@@ -21,6 +21,10 @@ const SeoSettingSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    ogImagePublicId: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,

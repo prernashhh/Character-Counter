@@ -2,9 +2,34 @@
 
 import { useEffect, useState } from 'react';
 
+function getIstGreeting() {
+  const hourInIst = Number(
+    new Intl.DateTimeFormat('en-IN', {
+      hour: 'numeric',
+      hour12: false,
+      timeZone: 'Asia/Kolkata',
+    }).format(new Date())
+  );
+
+  if (hourInIst >= 5 && hourInIst < 12) return 'Good Morning!';
+  if (hourInIst >= 12 && hourInIst < 17) return 'Good Afternoon!';
+  if (hourInIst >= 17 && hourInIst < 21) return 'Good Evening!';
+  return 'Good Night!';
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, published: 0, drafts: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [greeting, setGreeting] = useState(getIstGreeting);
+
+  useEffect(() => {
+    const updateGreeting = () => setGreeting(getIstGreeting());
+    updateGreeting();
+
+    const intervalId = setInterval(updateGreeting, 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -33,8 +58,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">Welcome to Admin Dashboard</h2>
-        <p className="mt-2 text-gray-600">Manage your content and settings from here</p>
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900">{greeting}</h2>
+        <p className="mt-2 text-base sm:text-lg font-medium text-gray-600">Here&apos;s what&apos;s happening today.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

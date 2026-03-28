@@ -48,7 +48,7 @@ const SocialLinksSchema = new mongoose.Schema({
   },
   emailAddress: {
     type: String,
-    default: 'prerna.9_@gmail.com',
+    default: 'iamdineshswami@gmail.com',
   },
 }, { _id: false });
 
@@ -97,6 +97,56 @@ const SeoSettingsSchema = new mongoose.Schema({
   blog: { type: SeoPageSchema, default: () => ({}) },
 }, { _id: false });
 
+const StaticPagesLastUpdatedSchema = new mongoose.Schema({
+  aboutUs: {
+    type: Date,
+    default: Date.now,
+  },
+  contactUs: {
+    type: Date,
+    default: Date.now,
+  },
+  termsConditions: {
+    type: Date,
+    default: Date.now,
+  },
+  privacyPolicy: {
+    type: Date,
+    default: Date.now,
+  },
+  disclaimer: {
+    type: Date,
+    default: Date.now,
+  },
+}, { _id: false });
+
+const PageClosingTextsSchema = new mongoose.Schema({
+  aboutUs: {
+    type: String,
+    default: 'We value your trust and will keep improving this tool for you.',
+  },
+  contactUs: {
+    type: String,
+    default: 'Thank you for reaching out. We appreciate your time and feedback.',
+  },
+  termsConditions: {
+    type: String,
+    default: 'By continuing to use this service, you agree to these terms and conditions.',
+  },
+  privacyPolicy: {
+    type: String,
+    default: 'Your privacy matters to us and we are committed to protecting your data.',
+  },
+  disclaimer: {
+    type: String,
+    default: 'Please use this tool responsibly and review this disclaimer regularly.',
+  },
+  blog: {
+    type: String,
+    default: 'Thanks for reading. Check back soon for more helpful updates.',
+  },
+}, { _id: false });
+
 const SettingsSchema = new mongoose.Schema(
   {
     aboutContent: {
@@ -116,7 +166,7 @@ const SettingsSchema = new mongoose.Schema(
       default: () => ({
         instagramUrl: 'https://instagram.com/prerna.9_',
         linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-        emailAddress: 'prerna.9_@gmail.com',
+        emailAddress: 'iamdineshswami@gmail.com',
       }),
     },
     instagramHandle: {
@@ -134,6 +184,10 @@ const SettingsSchema = new mongoose.Schema(
     contactUsContent: {
       type: String,
       default: '',
+    },
+    contactUsEmail: {
+      type: String,
+      default: 'iamdineshswami@gmail.com',
     },
     termsConditionsContent: {
       type: String,
@@ -160,6 +214,27 @@ const SettingsSchema = new mongoose.Schema(
     seoSettings: {
       type: SeoSettingsSchema,
       default: () => ({}),
+    },
+    staticPagesLastUpdated: {
+      type: StaticPagesLastUpdatedSchema,
+      default: () => ({
+        aboutUs: new Date(),
+        contactUs: new Date(),
+        termsConditions: new Date(),
+        privacyPolicy: new Date(),
+        disclaimer: new Date(),
+      }),
+    },
+    pageClosingTexts: {
+      type: PageClosingTextsSchema,
+      default: () => ({
+        aboutUs: 'We value your trust and will keep improving this tool for you.',
+        contactUs: 'Thank you for reaching out. We appreciate your time and feedback.',
+        termsConditions: 'By continuing to use this service, you agree to these terms and conditions.',
+        privacyPolicy: 'Your privacy matters to us and we are committed to protecting your data.',
+        disclaimer: 'Please use this tool responsibly and review this disclaimer regularly.',
+        blog: 'Thanks for reading. Check back soon for more helpful updates.',
+      }),
     },
   },
   {

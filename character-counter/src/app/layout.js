@@ -24,14 +24,14 @@ export async function generateMetadata() {
       description: seo?.description || "Default description",
       url: "https://charactercountonlinetool.com",
       siteName: "Character Counter Tool",
-      images: [seo?.ogImage || "/og-image.png"],
+      images: [seo?.ogImage || "/og-image.svg"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: seo?.title || "Free Character Counter Tool",
       description: seo?.description || "Default description",
-      images: [seo?.ogImage || "/og-image.png"],
+      images: [seo?.ogImage || "/og-image.svg"],
     },
     icons: {
       icon: {

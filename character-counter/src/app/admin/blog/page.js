@@ -20,7 +20,9 @@ export default function AdminBlog() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [message, setMessage] = useState('');
+  const [editingPostId, setEditingPostId] = useState('');
   const [slugTouched, setSlugTouched] = useState(false);
   const editorContainerRef = useRef(null);
   const quillInstanceRef = useRef(null);
@@ -31,8 +33,32 @@ export default function AdminBlog() {
     publishDate: getTodayDate(),
     excerpt: '',
     content: '',
+    coverImageUrl: '',
+    coverImagePublicId: '',
     published: true,
   });
+
+  const formatDateForInput = (value) => {
+    if (!value) return getTodayDate();
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return getTodayDate();
+    return date.toISOString().split('T')[0];
+  };
+
+  const resetForm = () => {
+    setForm({
+      title: '',
+      slug: '',
+      publishDate: getTodayDate(),
+      excerpt: '',
+      content: '',
+      coverImageUrl: '',
+      coverImagePublicId: '',
+      published: true,
+    });
+    setSlugTouched(false);
+    setEditingPostId('');
+  };
 
   const uploadImage = async (file, type) => {
     const data = new FormData();
@@ -146,14 +172,18 @@ export default function AdminBlog() {
     }
   };
 
-  const handleCreate = async (e) => {
+  const handleSavePost = async (e) => {
     e.preventDefault();
     setSaving(true);
     setMessage('');
 
     try {
-      const response = await fetch('/api/admin/posts', {
-        method: 'POST',
+      const isEditing = Boolean(editingPostId);
+      const endpoint = isEditing ? `/api/admin/posts/${editingPostId}` : '/api/admin/posts';
+      const method = isEditing ? 'PATCH' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
@@ -161,27 +191,67 @@ export default function AdminBlog() {
       const data = await response.json();
 
       if (!data.success) {
-        setMessage(data.error || 'Failed to create post');
+        setMessage(data.error || 'Failed to save post');
         setSaving(false);
         return;
       }
 
-      setForm({
-        title: '',
-        slug: '',
-        publishDate: getTodayDate(),
-        excerpt: '',
-        content: '',
-        published: true,
-      });
-      setSlugTouched(false);
-      setMessage('Post created successfully');
+      resetForm();
+      setMessage(isEditing ? 'Post updated successfully' : 'Post created successfully');
       await fetchPosts();
     } catch {
-      setMessage('Failed to create post');
+      setMessage('Failed to save post');
     } finally {
       setSaving(false);
     }
+  };
+
+  const startEditing = (post) => {
+    setEditingPostId(post._id);
+    setSlugTouched(true);
+    setMessage('');
+    setForm({
+      title: post.title || '',
+      slug: post.slug || '',
+      publishDate: formatDateForInput(post.publishDate || post.createdAt),
+      excerpt: post.excerpt || '',
+      content: post.content || '',
+      coverImageUrl: post.coverImageUrl || '',
+      coverImagePublicId: post.coverImagePublicId || '',
+      published: Boolean(post.published),
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const uploadCoverImage = async (file) => {
+    setUploadingCover(true);
+    setMessage('');
+
+    try {
+      const result = await uploadImage(file, 'blog-cover');
+      if (!result.success) {
+        setMessage(result.error || 'Cover image upload failed');
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        coverImageUrl: result.url || '',
+        coverImagePublicId: result.public_id || '',
+      }));
+    } catch {
+      setMessage('Cover image upload failed');
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const clearCoverImage = () => {
+    setForm((prev) => ({
+      ...prev,
+      coverImageUrl: '',
+      coverImagePublicId: '',
+    }));
   };
 
   const togglePublished = async (post) => {
@@ -242,8 +312,8 @@ export default function AdminBlog() {
       )}
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Post</h3>
-        <form className="grid grid-cols-1 lg:grid-cols-10 gap-6" onSubmit={handleCreate}>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{editingPostId ? 'Edit Post' : 'Create New Post'}</h3>
+        <form className="grid grid-cols-1 lg:grid-cols-10 gap-6" onSubmit={handleSavePost}>
           <div className="lg:col-span-7 space-y-5">
             <div className="rounded-xl border border-slate-200 p-4 sm:p-5 space-y-4">
               <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Top Section</h4>
@@ -287,6 +357,39 @@ export default function AdminBlog() {
             <div className="rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3">
               <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Next Section</h4>
 
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Thumbnail Image</label>
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadCoverImage(file);
+                      e.target.value = '';
+                    }}
+                    className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-100 file:px-3 file:py-2 file:text-indigo-700 hover:file:bg-indigo-200"
+                  />
+                  {form.coverImageUrl && (
+                    <button
+                      type="button"
+                      onClick={clearCoverImage}
+                      className="px-3 py-2 text-sm rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </div>
+                {uploadingCover && <p className="text-xs text-slate-500">Uploading cover image...</p>}
+                {form.coverImageUrl && (
+                  <img
+                    src={form.coverImageUrl}
+                    alt="Cover preview"
+                    className="w-full max-w-sm h-44 object-cover rounded-lg border border-gray-200"
+                  />
+                )}
+              </div>
+
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700">Short Description</label>
                 <textarea
@@ -326,8 +429,18 @@ export default function AdminBlog() {
                 disabled={saving}
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60"
               >
-                {saving ? 'Saving...' : 'Create Post'}
+                {saving ? 'Saving...' : editingPostId ? 'Update Post' : 'Create Post'}
               </button>
+
+              {editingPostId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="w-full px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                >
+                  Cancel Edit
+                </button>
+              )}
             </div>
           </aside>
         </form>
@@ -348,9 +461,22 @@ export default function AdminBlog() {
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900">{post.title}</h4>
                     <p className="text-sm text-gray-500">/{post.slug}</p>
+                    {post.coverImageUrl && (
+                      <img
+                        src={post.coverImageUrl}
+                        alt={post.title}
+                        className="mt-2 w-28 h-16 object-cover rounded-md border border-slate-200"
+                      />
+                    )}
                     {post.excerpt && <p className="text-sm text-gray-700 mt-2">{post.excerpt}</p>}
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => startEditing(post)}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors"
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() => togglePublished(post)}
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${post.published ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
