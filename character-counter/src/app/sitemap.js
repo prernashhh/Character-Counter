@@ -1,20 +1,14 @@
-export default function sitemap() {
-  const baseUrl = "https://character-counter-gray.vercel.app";
-  const blogSlugs = [
-    "instagram-character-limit-explained-2026-guide",
-    "twitter-character-limit-everything-you-need-to-know",
-    "how-many-words-is-1000-characters",
-    "best-character-count-for-seo-content",
-  ];
+const BASE_URL = "https://charactercountonlinetool.com";
 
+export default function sitemap() {
   return [
     {
-      url: baseUrl,
+      url: `${BASE_URL}/en`,
       lastModified: new Date(),
     },
-    ...blogSlugs.map((slug) => ({
-      url: `${baseUrl}/blog/${slug}`,
+    {
+      url: `${BASE_URL}/en/blog`,
       lastModified: new Date(),
-    })),
+    },
   ];
 }

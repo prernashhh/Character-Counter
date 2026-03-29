@@ -1,6 +1,14 @@
+import { cookies } from 'next/headers';
 import connectDB from '@/lib/db';
 import SeoSetting from '@/models/SeoSetting';
 import { deleteImageFromCloudinary } from '@/lib/cloudinary';
+import { verifyToken } from '@/lib/auth';
+
+function ensureAdmin(token) {
+  if (!token) return false;
+  const { valid } = verifyToken(token);
+  return valid;
+}
 
 export async function GET() {
   try {
@@ -14,6 +22,12 @@ export async function GET() {
 
 export async function PUT(request) {
   try {
+    const token = (await cookies()).get('admin_token')?.value;
+
+    if (!ensureAdmin(token)) {
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await request.json();
 

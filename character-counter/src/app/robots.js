@@ -1,9 +1,11 @@
+const BASE_URL = "https://charactercountonlinetool.com";
+
 export default function robots() {
   return {
     rules: {
       userAgent: "*",
-      allow: "/"
+      allow: "/",
     },
-    sitemap: "https://character-counter-gray.vercel.app/sitemap.xml"
+    sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }

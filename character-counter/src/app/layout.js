@@ -12,26 +12,51 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = "https://charactercountonlinetool.com";
+
+function resolvePublicOgImageUrl(value) {
+  const raw = String(value || "").trim();
+
+  if (!raw) {
+    return `${baseUrl}/og-image.png`;
+  }
+
+  if (/^https:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  if (/^http:\/\//i.test(raw)) {
+    return raw.replace(/^http:\/\//i, "https://");
+  }
+
+  if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)/i.test(raw)) {
+    return `${baseUrl}/og-image.png`;
+  }
+
+  return `${baseUrl}${raw.startsWith("/") ? raw : `/${raw}`}`;
+}
+
 export async function generateMetadata() {
   const seo = await getSEO("home");
+  const ogImageUrl = resolvePublicOgImageUrl(seo?.ogImage);
 
   return {
-    metadataBase: new URL("https://charactercountonlinetool.com"),
+    metadataBase: new URL(baseUrl),
     title: seo?.title || "Free Character Counter Tool",
     description: seo?.description || "Default description",
     openGraph: {
       title: seo?.title || "Free Character Counter Tool",
       description: seo?.description || "Default description",
-      url: "https://charactercountonlinetool.com",
+      url: baseUrl,
       siteName: "Character Counter Tool",
-      images: [seo?.ogImage || "/og-image.svg"],
+      images: [ogImageUrl],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: seo?.title || "Free Character Counter Tool",
       description: seo?.description || "Default description",
-      images: [seo?.ogImage || "/og-image.svg"],
+      images: [ogImageUrl],
     },
     icons: {
       icon: {

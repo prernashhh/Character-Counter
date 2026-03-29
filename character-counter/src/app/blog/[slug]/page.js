@@ -177,8 +177,10 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
+  const baseUrl = "https://charactercountonlinetool.com";
   const { slug } = await params;
   const post = BLOG_POSTS[slug];
+  const ogImageUrl = `${baseUrl}/og-image.png`;
 
   if (!post) {
     return {
@@ -194,12 +196,14 @@ export async function generateMetadata({ params }) {
       title: post.title,
       description: post.description,
       type: "article",
-      url: `https://charactercountonlinetool.com/blog/${slug}`
+      url: `${baseUrl}/blog/${slug}`,
+      images: [ogImageUrl],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
-      description: post.description
+      description: post.description,
+      images: [ogImageUrl],
     }
   };
 }
