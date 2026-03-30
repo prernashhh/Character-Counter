@@ -351,8 +351,49 @@ export default function Home() {
     'specialCharacters',
     `Special ${translateWithFallback(t, 'characters', 'Characters')}`
   );
+  const socialHandlesBlock = (
+    <>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</p>
+      <div className="flex items-center justify-center gap-3">
+        <a
+          href={socialLinks.instagramUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="group w-10 h-10 rounded-full bg-linear-to-br from-fuchsia-500 via-rose-500 to-amber-500 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md transition-all duration-200"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 3h-8a5 5 0 00-5 5v8a5 5 0 005 5h8a5 5 0 005-5v-8a5 5 0 00-5-5z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.5 6.5h.01" />
+          </svg>
+        </a>
+        <a
+          href={socialLinks.linkedinUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+          className="group w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md hover:bg-blue-700 transition-all duration-200"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6.94 8.5a1.56 1.56 0 110-3.12 1.56 1.56 0 010 3.12zM5.5 9.75h2.88V19H5.5V9.75zm4.6 0h2.76v1.27h.04c.38-.73 1.33-1.5 2.74-1.5 2.93 0 3.47 1.93 3.47 4.44V19h-2.88v-3.95c0-.94-.02-2.15-1.31-2.15-1.32 0-1.52 1.03-1.52 2.08V19H10.1V9.75z" />
+          </svg>
+        </a>
+        <a
+          href={`mailto:${socialLinks.emailAddress}`}
+          aria-label="Email"
+          className="group w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md hover:bg-emerald-600 transition-all duration-200"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </a>
+      </div>
+    </>
+  );
   const introBlock = (
-    <div className="w-full flex flex-col items-center gap-1 shrink-0 py-2">
+    <div className="w-full flex flex-col items-center gap-1 shrink-0 py-1 xl:py-2">
       <Link
         href="/"
         locale={locale}
@@ -368,11 +409,11 @@ export default function Home() {
         />
       </Link>
       <div className="order-2 relative text-center">
-        <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
+        <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
           {resolveLocalizedHeading(homeSeo.h1, t('characterCounter'), HOME_H1_ENGLISH_DEFAULTS)}
         </h1>
       </div>
-      <h2 className={`order-3 text-center text-base sm:text-lg lg:text-base ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
+      <h2 className={`order-3 text-center text-base sm:text-lg lg:text-sm xl:text-base ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
         {resolveLocalizedHeading(homeSeo.h2, t('analyzeYourText'), HOME_H2_ENGLISH_DEFAULTS)}
       </h2>
       {homeSeo.h5 && <h5 className="order-4 text-center text-sm text-slate-500">{homeSeo.h5}</h5>}
@@ -666,57 +707,21 @@ export default function Home() {
             )}
           </div>
 
-          <div className="bg-white/80 rounded-xl p-4 border border-indigo-100 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</p>
-            <div className="flex items-center justify-center gap-3">
-              <a
-                href={socialLinks.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="group w-10 h-10 rounded-full bg-linear-to-br from-fuchsia-500 via-rose-500 to-amber-500 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 3h-8a5 5 0 00-5 5v8a5 5 0 005 5h8a5 5 0 005-5v-8a5 5 0 00-5-5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.5 6.5h.01" />
-                </svg>
-              </a>
-              <a
-                href={socialLinks.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="group w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md hover:bg-blue-700 transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6.94 8.5a1.56 1.56 0 110-3.12 1.56 1.56 0 010 3.12zM5.5 9.75h2.88V19H5.5V9.75zm4.6 0h2.76v1.27h.04c.38-.73 1.33-1.5 2.74-1.5 2.93 0 3.47 1.93 3.47 4.44V19h-2.88v-3.95c0-.94-.02-2.15-1.31-2.15-1.32 0-1.52 1.03-1.52 2.08V19H10.1V9.75z" />
-                </svg>
-              </a>
-              <a
-                href={`mailto:${socialLinks.emailAddress}`}
-                aria-label="Email"
-                className="group w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm hover:scale-105 hover:shadow-md hover:bg-emerald-600 transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </a>
-            </div>
+          <div className="hidden lg:block bg-white/80 rounded-xl p-4 border border-indigo-100 shadow-sm">
+            {socialHandlesBlock}
           </div>
         </div>
       </aside>
 
       {/* Center Text Analyzer Section */}
-      <section className="hidden lg:flex flex-1 flex-col px-4 sm:px-6 lg:px-8 py-4 overflow-hidden">
-        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto h-full flex flex-col gap-3">
+      <section className="hidden lg:flex flex-1 flex-col min-h-0 px-4 sm:px-6 lg:px-6 xl:px-8 py-3 xl:py-4 overflow-y-auto">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto h-full min-h-0 flex flex-col gap-2 xl:gap-3">
           <div className="w-full">
             {introBlock}
           </div>
 
           {/* Text Input Section */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-indigo-100 flex-1 flex flex-col min-h-0 lg:min-h-104">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-3 xl:p-4 border border-indigo-100 flex-1 flex flex-col min-h-0 xl:min-h-104">
             <label
               htmlFor="text-input"
               className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide shrink-0"
@@ -734,7 +739,7 @@ export default function Home() {
           </div>
 
           {/* Footer Section - Desktop Only */}
-          <div className="hidden lg:block bg-linear-to-r from-indigo-50/90 via-sky-50/90 to-violet-50/90 rounded-2xl p-3 shrink-0">
+          <div className="hidden lg:block sticky bottom-0 z-10 bg-linear-to-r from-indigo-50/95 via-sky-50/95 to-violet-50/95 rounded-2xl p-2 xl:p-3 shrink-0 backdrop-blur-sm border border-indigo-100/60">
             <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
               <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
               <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
@@ -781,6 +786,10 @@ export default function Home() {
                 )}
               </div>
             </div>
+          </div>
+
+          <div className="lg:hidden bg-white/80 rounded-xl p-4 border border-indigo-100 shadow-sm">
+            {socialHandlesBlock}
           </div>
         </div>
       </aside>
