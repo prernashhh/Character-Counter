@@ -52,6 +52,12 @@ export async function generateMetadata() {
     description:
       seo?.description ||
       "Count characters, words, and text length instantly with this free online tool.",
+    alternates: {
+      canonical: baseUrl,
+    },
+    verification: {
+      google: "8yMtIDYM7HBVAs7giq8QwDzdPNIj0ZiZ_V_P2AYaRfM",
+    },
     icons: {
       icon: {
         url: "/Charater Count Favicon Logo.png",
@@ -70,6 +76,7 @@ export async function generateMetadata() {
       description:
         seo?.description ||
         "Count characters, words, and text length instantly with this free online tool.",
+      url: baseUrl,
       images: [ogImageUrl],
     },
     twitter: {
@@ -88,14 +95,10 @@ export default async function LocaleLayout({ children, params }) {
   const messages = await getMessages({ locale });
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <div className="min-h-screen flex flex-col">
-            <main className="flex-1">{children}</main>
-          </div>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages} locale={locale}>
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1">{children}</main>
+      </div>
+    </NextIntlClientProvider>
   );
 }

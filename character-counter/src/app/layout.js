@@ -44,9 +44,6 @@ export async function generateMetadata() {
     metadataBase: new URL(baseUrl),
     title: seo?.title || "Free Character Counter Tool",
     description: seo?.description || "Default description",
-    verification: {
-      google: "8yMtIDYM7HBVAs7giq8QwDzdPNIj0ZiZ_V_P2AYaRfM",
-    },
     openGraph: {
       title: seo?.title || "Free Character Counter Tool",
       description: seo?.description || "Default description",
@@ -78,5 +75,9 @@ export async function generateMetadata() {
 }
 
 export default function RootLayout({ children }) {
-  return children;
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    </html>
+  );
 }
