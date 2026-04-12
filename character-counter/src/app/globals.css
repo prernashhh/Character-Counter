@@ -62,3 +62,20 @@ body {
 .ql-container .ql-editor.ql-blank::before {
   color: #64748b;
 }
+
+@media (max-height: 675px) {
+  .desktop-footer-short-screen {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+
+  .desktop-footer-short-screen p,
+  .desktop-footer-short-screen a {
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+  }
+
+  .desktop-footer-short-screen .desktop-footer-links {
+    gap: 0.25rem 0.75rem;
+  }
+}

@@ -24,12 +24,6 @@ async function verifyAdminToken(token) {
 export default async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === '/en' || pathname.startsWith('/en/')) {
-    const newUrl = request.nextUrl.clone();
-    newUrl.pathname = pathname.replace(/^\/en/, '') || '/';
-    return NextResponse.rewrite(newUrl);
-  }
-
   if (pathname.startsWith('/admin')) {
     if (pathname === '/admin/login') {
       return NextResponse.next();
@@ -50,6 +44,15 @@ export default async function middleware(request) {
     }
 
     return NextResponse.next();
+  }
+
+  if (pathname === '/') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/en';
+
+    return intlMiddleware(
+      new Request(url, request)
+    );
   }
 
   return intlMiddleware(request);

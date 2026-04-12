@@ -3,6 +3,7 @@ import { getMessages } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { getSEO } from "@/lib/seo";
+import { buildCanonicalUrl } from "@/lib/url";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -43,17 +44,18 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
   const seo = await getSEO("home");
   const ogImageUrl = resolvePublicOgImageUrl(seo?.ogImage);
+  const canonicalUrl = buildCanonicalUrl("", locale);
 
   return {
+    metadataBase: new URL(baseUrl),
     title: seo?.title || "Free Character Counter Tool",
-    description:
-      seo?.description ||
-      "Count characters, words, and text length instantly with this free online tool.",
+    description: seo?.description || "Default description",
     alternates: {
-      canonical: baseUrl,
+      canonical: canonicalUrl,
     },
     verification: {
       google: "8yMtIDYM7HBVAs7giq8QwDzdPNIj0ZiZ_V_P2AYaRfM",
@@ -76,7 +78,7 @@ export async function generateMetadata() {
       description:
         seo?.description ||
         "Count characters, words, and text length instantly with this free online tool.",
-      url: baseUrl,
+      url: canonicalUrl,
       images: [ogImageUrl],
     },
     twitter: {

@@ -3,8 +3,9 @@ import { buildCanonicalUrl } from '@/lib/url';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
-  const seo = await getPageSeoServer('termsConditions');
-  const canonicalUrl = buildCanonicalUrl('/terms-conditions', locale);
+  const seo = await getPageSeoServer('privacyPolicy');
+  const canonicalUrl = buildCanonicalUrl('/privacy-policy', locale);
+
   return {
     title: seo.metaTitle,
     description: seo.metaDescription,
@@ -25,6 +26,6 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function TermsConditionsLayout({ children }) {
+export default function PrivacyPolicyLayout({ children }) {
   return children;
 }

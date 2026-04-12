@@ -1,11 +1,38 @@
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import Settings from '@/models/Settings';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getBlogUi } from '@/lib/blog-ui-text';
+import { getPageSeoServer } from '@/lib/seo-server';
+import { buildCanonicalUrl } from '@/lib/url';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const seo = await getPageSeoServer('blog');
+  const canonicalUrl = buildCanonicalUrl('/blog', locale);
+
+  return {
+    title: seo.metaTitle,
+    description: seo.metaDescription,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: seo.metaTitle,
+      description: seo.metaDescription,
+      url: canonicalUrl,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo.metaTitle,
+      description: seo.metaDescription,
+    },
+  };
+}
 
 async function getPublishedPosts() {
   try {
@@ -62,15 +89,15 @@ export default async function BlogPage({ params }) {
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
-          <a
-            href={`/${locale}`}
+          <Link
+            href="/"
             className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             {t('backToHome')}
-          </a>
+          </Link>
 
           <h1 className="text-4xl font-extrabold text-center mb-8 bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             {blogUi.blogTitle}
@@ -93,7 +120,7 @@ export default async function BlogPage({ params }) {
               {posts.map((post) => (
                 <Link
                   key={post._id}
-                  href={`/${locale}/blog/${post.slug}`}
+                  href={`/blog/${post.slug}`}
                   className="block group"
                   aria-label={post.title}
                 >

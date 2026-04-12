@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter, usePathname } from '@/i18n/routing';
+import { Link, useRouter, usePathname } from '@/i18n/navigation';
 import { getBlogUi } from '@/lib/blog-ui-text';
 
 const languages = [
@@ -394,9 +394,8 @@ export default function Home() {
   );
   const introBlock = (
     <div className="w-full flex flex-col items-center gap-1 shrink-0 py-1 xl:py-2">
-      <Link
-        href="/"
-        locale={locale}
+      <a
+        href="https://charactercountonlinetool.com/"
         className="order-1 block mx-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full"
         aria-label="Open Character Counter"
       >
@@ -407,7 +406,7 @@ export default function Home() {
           loading="eager"
           decoding="sync"
         />
-      </Link>
+      </a>
       <div className="order-2 relative text-center">
         <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
           {resolveLocalizedHeading(homeSeo.h1, t('characterCounter'), HOME_H1_ENGLISH_DEFAULTS)}
@@ -721,7 +720,7 @@ export default function Home() {
           </div>
 
           {/* Text Input Section */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-3 xl:p-4 border border-indigo-100 flex-1 flex flex-col min-h-0 xl:min-h-104">
+          <div className=" desktop-text-input-short-screen bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-3 xl:p-4 border border-indigo-100 flex-1 flex flex-col min-h-0 xl:min-h-104 pb-3 xl:pb-4">
             <label
               htmlFor="text-input"
               className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide shrink-0"
@@ -733,28 +732,28 @@ export default function Home() {
               value={text}
               onChange={handleTextChange}
               placeholder={t('placeholder')}
-              className="w-full flex-1 p-4 border-2 border-indigo-200 rounded-xl resize-none focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 text-black text-base lg:text-lg transition-all duration-200 bg-white/50 backdrop-blur-sm overflow-y-auto"
+              className="desktop-textarea-short-screen w-full flex-1 p-4 border-2 border-indigo-200 rounded-xl resize-none focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-400 text-black text-base lg:text-lg transition-all duration-200 bg-white/50 backdrop-blur-sm overflow-y-auto"
               aria-label="Text input for analysis"
             />
           </div>
 
           {/* Footer Section - Desktop Only */}
-          <div className="hidden lg:block sticky bottom-0 z-10 bg-linear-to-r from-indigo-50/95 via-sky-50/95 to-violet-50/95 rounded-2xl p-2 xl:p-3 shrink-0 backdrop-blur-sm border border-indigo-100/60">
+          <div className="desktop-footer-short-screen hidden lg:block xl:sticky xl:bottom-0 z-10 bg-linear-to-r from-indigo-50/95 via-sky-50/95 to-violet-50/95 rounded-2xl p-2 xl:p-3 shrink-0 backdrop-blur-sm border border-indigo-100/60">
             <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
               <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
-              <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
-                <a href={`/${locale}/about-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+              <div className="desktop-footer-links flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+                <Link href="/about-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('aboutUs')}
-                </a>
-                <a href={`/${locale}/contact-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                </Link>
+                <Link href="/contact-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('contactUs')}
-                </a>
-                <a href={`/${locale}/privacy-policy`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                </Link>
+                <Link href="/privacy-policy" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('privacyData')}
-                </a>
-                <a href={`/${locale}/terms-conditions`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                </Link>
+                <Link href="/terms-conditions" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('termsConditions')}
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -801,18 +800,18 @@ export default function Home() {
         <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
           <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
-            <a href={`/${locale}/about-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            <Link href="/about-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('aboutUs')}
-            </a>
-            <a href={`/${locale}/contact-us`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            </Link>
+            <Link href="/contact-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('contactUs')}
-            </a>
-            <a href={`/${locale}/privacy-policy`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            </Link>
+            <Link href="/privacy-policy" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('privacyData')}
-            </a>
-            <a href={`/${locale}/terms-conditions`} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            </Link>
+            <Link href="/terms-conditions" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('termsConditions')}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

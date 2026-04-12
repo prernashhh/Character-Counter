@@ -1,7 +1,8 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import connectDB from '@/lib/db';
 import Post from '@/models/Post';
 import { getBlogUi } from '@/lib/blog-ui-text';
+import { buildCanonicalUrl } from '@/lib/url';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,35 @@ async function getPostBySlug(slug) {
   }
 }
 
+export async function generateMetadata({ params }) {
+  const { locale, slug } = await params;
+  const post = await getPostBySlug(slug);
+  const canonicalUrl = buildCanonicalUrl(`/blog/${slug}`, locale);
+  const title = post?.title || 'Blog Post Not Found';
+  const description =
+    post?.excerpt ||
+    (post?.content ? post.content.slice(0, 160) : 'The requested blog post could not be found.');
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
+
 export default async function BlogPostPage({ params }) {
   const { locale, slug } = await params;
   const post = await getPostBySlug(slug);
@@ -35,7 +65,7 @@ export default async function BlogPostPage({ params }) {
     return (
       <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
-          <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors">
+          <Link href="/blog" className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors">
             {blogUi.backToBlog}
           </Link>
           <h1 className="text-3xl font-bold text-slate-900">{blogUi.postNotFound}</h1>
@@ -48,7 +78,7 @@ export default async function BlogPostPage({ params }) {
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <article className="max-w-3xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
-        <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors">
+        <Link href="/blog" className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors">
           {blogUi.backToBlog}
         </Link>
 

@@ -1,58 +1,48 @@
-"use client";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { formatLastUpdated, getPublicPageSettings } from "@/lib/public-page-content";
 
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+const DEFAULT_ABOUT_SECTIONS = [
+  {
+    heading: "Who We Are",
+    content:
+      "Character Count Online Tool is a simple writing utility built for people who need accurate text metrics quickly. We help students, marketers, writers, and teams check character count, word count, sentence count, and readability in one place.",
+  },
+  {
+    heading: "What We Do",
+    content:
+      "Our character counter and word count tool is designed for real publishing workflows. You can validate social post limits, trim metadata for SEO, prepare assignments, and clean up long drafts without switching between multiple apps.",
+  },
+  {
+    heading: "Why It Matters",
+    content:
+      "Clear writing performs better. Whether you are publishing a blog post, ad copy, caption, or email, clean structure and accurate length checks save time and reduce revision loops. Our goal is to make that process faster and more reliable.",
+  },
+  {
+    heading: "Our Commitment",
+    content:
+      "We focus on speed, clarity, and maintainability. We continuously improve the product based on real feedback so you can rely on it as part of your daily writing process.",
+  },
+];
 
-export default function AboutUs() {
-  const t = useTranslations();
-  const [aboutUsContent, setAboutUsContent] = useState(null);
-  const [pageClosingText, setPageClosingText] = useState('');
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [loading, setLoading] = useState(true);
+export default async function AboutUsPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  const settings = await getPublicPageSettings();
 
-  const formatDate = (value) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
+  const configuredSections = settings?.aboutUsContent?.sections;
+  const aboutSections = Array.isArray(configuredSections) && configuredSections.length > 0
+    ? configuredSections
+    : DEFAULT_ABOUT_SECTIONS;
 
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  const pageClosingText =
+    settings?.pageClosingTexts?.aboutUs ||
+    "We value your trust and keep improving this character counter so writing stays easier for everyone.";
 
-  useEffect(() => {
-    fetchAboutUsContent();
-  }, []);
-
-  const fetchAboutUsContent = async () => {
-    try {
-      const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
-      const data = await response.json();
-      if (data.success && data.settings.aboutUsContent) {
-        const content = data.settings.aboutUsContent;
-        if (content.sections && content.sections.length > 0) {
-          setAboutUsContent(content);
-        }
-      }
-
-      setPageClosingText(data?.settings?.pageClosingTexts?.aboutUs || '');
-
-      setLastUpdated(
-        formatDate(
-          data?.settings?.staticPagesLastUpdated?.aboutUs ||
-          data?.settings?.updatedAt ||
-          data?.settings?.createdAt
-        )
-      );
-    } catch (error) {
-      console.error('Error fetching about us content:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const lastUpdated = formatLastUpdated(
+    settings?.staticPagesLastUpdated?.aboutUs || settings?.updatedAt || settings?.createdAt,
+    locale
+  );
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -80,94 +70,30 @@ export default function AboutUs() {
             </div>
           )}
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-gray-600">Loading...</div>
+          <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
+            {aboutSections.map((section, index) => (
+              <section key={`${section.heading || "section"}-${index}`}>
+                {section.heading ? (
+                  <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{section.heading}</h2>
+                ) : null}
+                {section.content ? (
+                  <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: section.content }} />
+                ) : null}
+              </section>
+            ))}
+
+            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">Why People Use Our Tool</h2>
+            <ul className="list-disc list-inside space-y-2 pl-4">
+              <li>Fast character count and word count analysis</li>
+              <li>Useful for SEO snippets, social posts, and assignments</li>
+              <li>Clear layout with practical writing stats</li>
+              <li>Works smoothly on desktop and mobile</li>
+            </ul>
+
+            <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+              <p className="text-center text-gray-700 italic">{pageClosingText}</p>
             </div>
-          ) : aboutUsContent ? (
-            <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
-              {aboutUsContent.sections.map((section, index) => (
-                <div key={index}>
-                  {section.heading && (
-                    <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">
-                      {section.heading}
-                    </h2>
-                  )}
-                  {section.content && (
-                    <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: section.content }} />
-                  )}
-                </div>
-              ))}
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('whyChooseUs')}</h2>
-              <p className="leading-relaxed">
-                {t('aboutUsContent3')}
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">Our Vision</h2>
-              <p className="leading-relaxed">
-                Our vision is to make everyday writing tools simple, trustworthy, and available to everyone,
-                whether you are a student, creator, marketer, or professional.
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">How We Improve</h2>
-              <p className="leading-relaxed">
-                We continuously review user feedback, improve usability, and refine performance so the tool
-                stays fast, accurate, and easy to use on every device.
-              </p>
-
-              <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                <p className="text-center text-gray-700 italic">{pageClosingText || t('aboutUsClosing')}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
-              <p className="text-lg leading-relaxed">
-                {t('aboutUsContent1')}
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('ourMission')}</h2>
-              <p className="leading-relaxed">
-                {t('aboutUsContent2')}
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('features')}</h2>
-              <ul className="list-disc list-inside space-y-2 pl-4">
-                <li>{t('feature1')}</li>
-                <li>{t('feature2')}</li>
-                <li>{t('feature3')}</li>
-                <li>{t('feature4')}</li>
-                <li>{t('feature5')}</li>
-              </ul>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">Our Commitment</h2>
-              <p className="leading-relaxed">
-                We continuously improve this tool based on user feedback so you can write faster,
-                stay within limits, and create cleaner content across every platform.
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">Our Vision</h2>
-              <p className="leading-relaxed">
-                We believe writing tools should be accessible, accurate, and helpful for everyone.
-                Our goal is to support better communication for users across all languages and use cases.
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">How We Improve</h2>
-              <p className="leading-relaxed">
-                We regularly refine performance, readability, and user experience based on real feedback,
-                so the platform continues to evolve with your needs.
-              </p>
-
-              <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('whyChooseUs')}</h2>
-              <p className="leading-relaxed">
-                {t('aboutUsContent3')}
-              </p>
-
-              <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                <p className="text-center text-gray-700 italic">{pageClosingText || t('aboutUsClosing')}</p>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </main>

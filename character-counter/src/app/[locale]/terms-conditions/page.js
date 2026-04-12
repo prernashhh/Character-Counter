@@ -1,55 +1,52 @@
-"use client";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import {
+  formatLastUpdated,
+  formatPlainTextAsHtml,
+  getPublicPageSettings,
+} from "@/lib/public-page-content";
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+const DEFAULT_TERMS_CONTENT = `These Terms and Conditions explain how you may use Character Count Online Tool.
 
-export default function TermsConditions() {
-  const t = useTranslations();
-  const [termsContent, setTermsContent] = useState('');
-  const [pageClosingText, setPageClosingText] = useState('');
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [loading, setLoading] = useState(true);
+1. Acceptance of Terms
+By using this website, you agree to these terms. If you do not agree, please stop using the service.
 
-  const formatDate = (value) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
+2. Service Scope
+Our website provides a character counter, word count tool, and related writing statistics for informational and productivity purposes.
 
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+3. Fair Use
+You agree not to misuse the service, interfere with site performance, or attempt unauthorized access to systems or data.
 
-  useEffect(() => {
-    const fetchTermsContent = async () => {
-      try {
-        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
-        const data = await response.json();
+4. Content Responsibility
+You are responsible for any text you enter or publish. Please review your content before submission or distribution.
 
-        if (data?.success && data.settings?.termsConditionsContent?.trim()) {
-          setTermsContent(data.settings.termsConditionsContent);
-        }
-        setPageClosingText(data?.settings?.pageClosingTexts?.termsConditions || '');
+5. Intellectual Property
+The platform design, branding, and original site materials are protected by applicable intellectual property laws.
 
-        setLastUpdated(
-          formatDate(
-            data?.settings?.staticPagesLastUpdated?.termsConditions ||
-            data?.settings?.updatedAt ||
-            data?.settings?.createdAt
-          )
-        );
-      } catch {
-        setTermsContent('');
-      } finally {
-        setLoading(false);
-      }
-    };
+6. Availability
+We aim to keep the service available and accurate, but we do not guarantee uninterrupted operation at all times.
 
-    fetchTermsContent();
-  }, []);
+7. Changes to Terms
+We may update these terms to reflect product, legal, or operational changes. Continued use means you accept the revised terms.
+
+8. Contact
+For questions about these terms, please use the Contact Us page.`;
+
+export default async function TermsConditionsPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  const settings = await getPublicPageSettings();
+
+  const termsContent = settings?.termsConditionsContent?.trim() || DEFAULT_TERMS_CONTENT;
+  const formattedTermsContent = formatPlainTextAsHtml(termsContent);
+  const pageClosingText =
+    settings?.pageClosingTexts?.termsConditions ||
+    "By continuing to use this service, you agree to these terms and conditions.";
+
+  const lastUpdated = formatLastUpdated(
+    settings?.staticPagesLastUpdated?.termsConditions || settings?.updatedAt || settings?.createdAt,
+    locale
+  );
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -77,90 +74,11 @@ export default function TermsConditions() {
             </div>
           )}
 
-          <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
-            {!loading && termsContent ? (
-              <>
-                <div dangerouslySetInnerHTML={{ __html: termsContent }} />
-                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                  <p className="text-center text-gray-700 font-semibold">
-                    {pageClosingText || t('termsClosing')}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-            <p className="text-lg leading-relaxed">
-              {t('termsIntro')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">1. {t('acceptanceTerms')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent1')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">2. {t('useOfService')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent2')}
-            </p>
-            <ul className="list-disc list-inside space-y-2 pl-4 mt-3">
-              <li>{t('termsUse1')}</li>
-              <li>{t('termsUse2')}</li>
-              <li>{t('termsUse3')}</li>
-              <li>{t('termsUse4')}</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">3. {t('privacyData')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent3')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">4. {t('intellectualProperty')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent4')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">5. {t('userContent')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent5')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">6. {t('prohibitedActivities')}</h2>
-            <p className="leading-relaxed">{t('termsContent6')}</p>
-            <ul className="list-disc list-inside space-y-2 pl-4 mt-3">
-              <li>{t('prohibited1')}</li>
-              <li>{t('prohibited2')}</li>
-              <li>{t('prohibited3')}</li>
-              <li>{t('prohibited4')}</li>
-              <li>{t('prohibited5')}</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">7. {t('termination')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent7')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">8. {t('modificationsToService')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent8')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">9. {t('governingLaw')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent9')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">10. {t('contactInfo')}</h2>
-            <p className="leading-relaxed">
-              {t('termsContent10')}
-            </p>
-
+          <div className="prose prose-lg max-w-none text-gray-700 [&_p]:mb-5 [&_p]:leading-8 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:my-4 [&_ol]:my-4 [&_li]:my-1">
+            <div dangerouslySetInnerHTML={{ __html: formattedTermsContent }} />
             <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-              <p className="text-center text-gray-700 font-semibold">
-                {pageClosingText || t('termsClosing')}
-              </p>
+              <p className="text-center text-gray-700 font-semibold">{pageClosingText}</p>
             </div>
-              </>
-            )}
           </div>
         </div>
       </div>

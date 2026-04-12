@@ -1,55 +1,43 @@
-"use client";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import {
+  formatLastUpdated,
+  formatPlainTextAsHtml,
+  getPublicPageSettings,
+} from "@/lib/public-page-content";
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+const DEFAULT_DISCLAIMER_CONTENT = `The information provided by Character Count Online Tool is for general informational and productivity purposes only.
 
-export default function Disclaimer() {
-  const t = useTranslations();
-  const [disclaimerContent, setDisclaimerContent] = useState('');
-  const [pageClosingText, setPageClosingText] = useState('');
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [loading, setLoading] = useState(true);
+1. General Information
+The character counter and word count tool are offered "as is" without guarantees of uninterrupted availability.
 
-  const formatDate = (value) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
+2. Accuracy
+We work to keep calculations accurate, but we do not guarantee that all outputs are error-free in every context.
 
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+3. Professional Use
+This website does not provide legal, financial, academic, or professional advice. Please verify critical information independently.
 
-  useEffect(() => {
-    const fetchDisclaimerContent = async () => {
-      try {
-        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
-        const data = await response.json();
+4. External Links
+If the site links to third-party resources, we are not responsible for their content, security, or policies.
 
-        if (data?.success && data.settings?.disclaimerContent?.trim()) {
-          setDisclaimerContent(data.settings.disclaimerContent);
-        }
-        setPageClosingText(data?.settings?.pageClosingTexts?.disclaimer || '');
+5. Updates
+We may update this disclaimer at any time as features or legal requirements change.`;
 
-        setLastUpdated(
-          formatDate(
-            data?.settings?.staticPagesLastUpdated?.disclaimer ||
-            data?.settings?.updatedAt ||
-            data?.settings?.createdAt
-          )
-        );
-      } catch {
-        setDisclaimerContent('');
-      } finally {
-        setLoading(false);
-      }
-    };
+export default async function DisclaimerPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  const settings = await getPublicPageSettings();
 
-    fetchDisclaimerContent();
-  }, []);
+  const disclaimerContent = settings?.disclaimerContent?.trim() || DEFAULT_DISCLAIMER_CONTENT;
+  const formattedDisclaimerContent = formatPlainTextAsHtml(disclaimerContent);
+  const pageClosingText =
+    settings?.pageClosingTexts?.disclaimer ||
+    "Please review this disclaimer periodically to stay informed about updates.";
+
+  const lastUpdated = formatLastUpdated(
+    settings?.staticPagesLastUpdated?.disclaimer || settings?.updatedAt || settings?.createdAt,
+    locale
+  );
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -77,59 +65,11 @@ export default function Disclaimer() {
             </div>
           )}
 
-          <div className="prose prose-lg max-w-none text-gray-700 space-y-6">
-            {!loading && disclaimerContent ? (
-              <>
-                <div dangerouslySetInnerHTML={{ __html: disclaimerContent }} />
-                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                  <p className="text-center text-gray-700 font-semibold">
-                    {pageClosingText || t('disclaimerClosing')}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-            <p className="text-lg leading-relaxed">
-              {t('disclaimerIntro')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('noWarranty')}</h2>
-            <p className="leading-relaxed">
-              {t('disclaimerContent1')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('accuracyOfInfo')}</h2>
-            <p className="leading-relaxed">
-              {t('disclaimerContent2')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('limitationLiability')}</h2>
-            <p className="leading-relaxed">
-              {t('disclaimerContent3')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('userResponsibility')}</h2>
-            <p className="leading-relaxed">
-              {t('disclaimerContent4')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('thirdPartyLinks')}</h2>
-            <p className="leading-relaxed">
-              {t('disclaimerContent5')}
-            </p>
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{t('changesToDisclaimer')}</h2>
-            <p className="leading-relaxed">
-              {t('disclaimerContent6')}
-            </p>
-
+          <div className="prose prose-lg max-w-none text-gray-700 [&_p]:mb-5 [&_p]:leading-8 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:my-4 [&_ol]:my-4 [&_li]:my-1">
+            <div dangerouslySetInnerHTML={{ __html: formattedDisclaimerContent }} />
             <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-              <p className="text-center text-gray-700 font-semibold">
-                {pageClosingText || t('disclaimerClosing')}
-              </p>
+              <p className="text-center text-gray-700 font-semibold">{pageClosingText}</p>
             </div>
-              </>
-            )}
           </div>
         </div>
       </div>

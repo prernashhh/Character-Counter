@@ -1,62 +1,30 @@
-"use client";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import {
+  formatLastUpdated,
+  formatPlainTextAsHtml,
+  getPublicPageSettings,
+} from "@/lib/public-page-content";
 
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import { useEffect, useState } from 'react';
+export default async function ContactUsPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  const settings = await getPublicPageSettings();
 
-export default function ContactUs() {
-  const t = useTranslations();
-  const [contactUsContent, setContactUsContent] = useState('');
-  const [contactUsEmail, setContactUsEmail] = useState('iamdineshswami@gmail.com');
-  const [pageClosingText, setPageClosingText] = useState('');
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [contentLoading, setContentLoading] = useState(true);
+  const contactUsEmail =
+    settings?.contactUsEmail ||
+    settings?.socialLinks?.emailAddress ||
+    "iamdineshswami@gmail.com";
 
-  const formatDate = (value) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
+  const contactUsContent = formatPlainTextAsHtml(settings?.contactUsContent || "");
+  const pageClosingText =
+    settings?.pageClosingTexts?.contactUs ||
+    "Thank you for contacting us. We appreciate your feedback and usually reply within one to two business days.";
 
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
-        const data = await response.json();
-
-        if (data?.success && data.settings?.contactUsContent?.trim()) {
-          setContactUsContent(data.settings.contactUsContent);
-        }
-
-        setContactUsEmail(
-          data?.settings?.contactUsEmail ||
-          data?.settings?.socialLinks?.emailAddress ||
-          'iamdineshswami@gmail.com'
-        );
-        setPageClosingText(data?.settings?.pageClosingTexts?.contactUs || '');
-
-        setLastUpdated(
-          formatDate(
-            data?.settings?.staticPagesLastUpdated?.contactUs ||
-            data?.settings?.updatedAt ||
-            data?.settings?.createdAt
-          )
-        );
-      } catch {
-        setContactUsContent('');
-      } finally {
-        setContentLoading(false);
-      }
-    };
-
-    fetchContent();
-  }, []);
+  const lastUpdated = formatLastUpdated(
+    settings?.staticPagesLastUpdated?.contactUs || settings?.updatedAt || settings?.createdAt,
+    locale
+  );
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -85,51 +53,47 @@ export default function ContactUs() {
           )}
 
           <div className="mb-8 text-center text-gray-700">
-            {contentLoading ? (
-              <p className="text-lg">{t('contactUsIntro')}</p>
-            ) : contactUsContent ? (
+            {contactUsContent ? (
               <div className="prose prose-slate max-w-none mx-auto text-left">
                 <div dangerouslySetInnerHTML={{ __html: contactUsContent }} />
-                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                  <p className="text-center text-gray-700 font-semibold">
-                    {pageClosingText || 'Thank you for reaching out. We appreciate your time and feedback.'}
-                  </p>
-                </div>
               </div>
             ) : (
               <div className="prose prose-lg max-w-none text-gray-700 space-y-6 text-left">
-                <p className="text-lg leading-relaxed">{t('contactUsIntro')}</p>
+                <p className="text-lg leading-relaxed">
+                  Contact the Character Count Online Tool team for support, feedback, and product questions.
+                  If you need help with our character counter, word count tool, or page policies, we are happy to assist.
+                </p>
 
                 <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">How to Reach Us</h2>
                 <p className="leading-relaxed">
-                  You can contact us directly by email for support, suggestions, and collaboration related queries.
-                  We check messages regularly and respond as quickly as possible.
+                  Send us an email with your request and include useful details such as your device,
+                  browser, and the issue you are seeing. Clear context helps us respond faster.
                 </p>
 
                 <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">What We Can Help With</h2>
                 <ul className="list-disc list-inside space-y-2 pl-4">
-                  <li>Feature requests and product improvements</li>
-                  <li>Bug reports and technical issues</li>
-                  <li>Policy and content clarification</li>
-                  <li>General feedback and partnership discussions</li>
+                  <li>Questions about character count, word count, and writing statistics</li>
+                  <li>Bug reports and usability improvements</li>
+                  <li>Privacy policy or terms clarification</li>
+                  <li>Suggestions for new features and workflow improvements</li>
                 </ul>
-
-                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">Direct Email</h2>
-                <p className="leading-relaxed">
-                  Email us at{' '}
-                  <a href={`mailto:${contactUsEmail}`} className="text-indigo-600 hover:text-indigo-800 underline">
-                    {contactUsEmail}
-                  </a>
-                  {' '}and our team will get back to you soon.
-                </p>
-
-                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                  <p className="text-center text-gray-700 font-semibold">
-                    {pageClosingText || 'Thank you for reaching out. We appreciate your time and feedback.'}
-                  </p>
-                </div>
               </div>
             )}
+
+            <div className="prose prose-lg max-w-none text-left mt-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">Direct Email</h2>
+              <p className="leading-relaxed text-gray-700">
+                Email us at{" "}
+                <a href={`mailto:${contactUsEmail}`} className="text-indigo-600 hover:text-indigo-800 underline">
+                  {contactUsEmail}
+                </a>
+                {" "}and we will get back to you as soon as possible.
+              </p>
+            </div>
+
+            <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+              <p className="text-center text-gray-700 font-semibold">{pageClosingText}</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,36 +1,10 @@
-"use client";
-
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-
-const escapeHtml = (value) => value
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/\"/g, '&quot;')
-  .replace(/'/g, '&#39;');
-
-const formatPolicyContent = (content) => {
-  if (!content?.trim()) return '';
-
-  const hasHtmlTags = /<\/?[a-z][\s\S]*>/i.test(content);
-  if (hasHtmlTags) {
-    return content;
-  }
-
-  return content
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-    .map((paragraph) => {
-      const safeText = escapeHtml(paragraph)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br/>');
-      return `<p>${safeText}</p>`;
-    })
-    .join('');
-};
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import {
+  formatLastUpdated,
+  formatPlainTextAsHtml,
+  getPublicPageSettings,
+} from "@/lib/public-page-content";
 
 const defaultPrivacyPolicy = `At Character Count Online Tool, we respect your privacy and are committed to protecting your information.
 
@@ -55,55 +29,21 @@ We may update this Privacy Policy from time to time. Continued use of the servic
 7. Contact
 For privacy-related questions, please use the Contact Us page.`;
 
-export default function PrivacyPolicyPage() {
-  const t = useTranslations();
-  const [policyContent, setPolicyContent] = useState('');
-  const [pageClosingText, setPageClosingText] = useState('');
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [loading, setLoading] = useState(true);
-  const formattedPolicyContent = formatPolicyContent(policyContent);
+export default async function PrivacyPolicyPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  const settings = await getPublicPageSettings();
 
-  const formatDate = (value) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
+  const policyContent = settings?.privacyPolicyContent?.trim() || defaultPrivacyPolicy;
+  const formattedPolicyContent = formatPlainTextAsHtml(policyContent);
+  const pageClosingText =
+    settings?.pageClosingTexts?.privacyPolicy ||
+    "Your privacy matters to us. We handle data responsibly and keep this policy clear and transparent.";
 
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  useEffect(() => {
-    const fetchPrivacyPolicy = async () => {
-      try {
-        const response = await fetch('/api/settings?scope=public-pages', { cache: 'no-store' });
-        const data = await response.json();
-
-        if (data?.success && data.settings?.privacyPolicyContent?.trim()) {
-          setPolicyContent(data.settings.privacyPolicyContent);
-        } else {
-          setPolicyContent(defaultPrivacyPolicy);
-        }
-        setPageClosingText(data?.settings?.pageClosingTexts?.privacyPolicy || '');
-
-        setLastUpdated(
-          formatDate(
-            data?.settings?.staticPagesLastUpdated?.privacyPolicy ||
-            data?.settings?.updatedAt ||
-            data?.settings?.createdAt
-          )
-        );
-      } catch {
-        setPolicyContent(defaultPrivacyPolicy);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPrivacyPolicy();
-  }, []);
+  const lastUpdated = formatLastUpdated(
+    settings?.staticPagesLastUpdated?.privacyPolicy || settings?.updatedAt || settings?.createdAt,
+    locale
+  );
 
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -132,18 +72,12 @@ export default function PrivacyPolicyPage() {
           )}
 
           <div className="prose prose-lg max-w-none text-gray-700 [&_p]:mb-5 [&_p]:leading-8 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_ul]:my-4 [&_ol]:my-4 [&_li]:my-1">
-            {loading ? (
-              <p>Loading privacy policy...</p>
-            ) : (
-              <>
-                <div dangerouslySetInnerHTML={{ __html: formattedPolicyContent }} />
-                <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
-                  <p className="text-center text-gray-700 font-semibold">
-                    {pageClosingText || 'Your privacy matters to us and we are committed to protecting your data.'}
-                  </p>
-                </div>
-              </>
-            )}
+            <>
+              <div dangerouslySetInnerHTML={{ __html: formattedPolicyContent }} />
+              <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
+                <p className="text-center text-gray-700 font-semibold">{pageClosingText}</p>
+              </div>
+            </>
           </div>
         </div>
       </div>
