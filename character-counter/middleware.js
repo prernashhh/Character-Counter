@@ -24,6 +24,7 @@ async function verifyAdminToken(token) {
 export default async function middleware(request) {
   const { pathname } = request.nextUrl;
 
+  // Admin protection
   if (pathname.startsWith('/admin')) {
     if (pathname === '/admin/login') {
       return NextResponse.next();
@@ -44,15 +45,6 @@ export default async function middleware(request) {
     }
 
     return NextResponse.next();
-  }
-
-  if (pathname === '/') {
-    const url = request.nextUrl.clone();
-    url.pathname = '/en';
-
-    return intlMiddleware(
-      new Request(url, request)
-    );
   }
 
   return intlMiddleware(request);
