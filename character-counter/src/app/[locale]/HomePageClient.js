@@ -806,30 +806,30 @@ export default function HomePageClient() {
             </h2>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
-                <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base">
-                  <h2>{aboutTitleText}</h2>
+                <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h3]:text-lg">
+                  <h3>{aboutTitleText}</h3>
                   <p>{aboutText}</p>
 
-                  <h2>{statisticsTitleText}</h2>
+                  <h3>{statisticsTitleText}</h3>
                   <p>{statisticsText}</p>
 
-                  <h2>{wordDensityTitleText}</h2>
+                  <h3>{wordDensityTitleText}</h3>
                   <p>{wordDensityText}</p>
 
-                  <h2>{whyUseTitle}</h2>
+                  <h3>{whyUseTitle}</h3>
                   <p>{whyUseText}</p>
 
-                  <h2>{howItWorksTitle}</h2>
+                  <h3>{howItWorksTitle}</h3>
                   <p>{howItWorksText}</p>
 
-                  <h2>{faqTitle}</h2>
-                  <h3>{faqQuestion1}</h3>
+                  <h3>{faqTitle}</h3>
+                  <h4>{faqQuestion1}</h4>
                   <p>{faqAnswer1}</p>
-                  <h3>{faqQuestion2}</h3>
+                  <h4>{faqQuestion2}</h4>
                   <p>{faqAnswer2}</p>
-                  <h3>{faqQuestion3}</h3>
+                  <h4>{faqQuestion3}</h4>
                   <p>{faqAnswer3}</p>
-                  <h3>{faqQuestion4}</h3>
+                  <h4>{faqQuestion4}</h4>
                   <p>{faqAnswer4}</p>
                 </div>
               </div>
