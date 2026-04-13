@@ -49,7 +49,7 @@ export default async function AboutUsPage({ params }) {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
           <Link 
-            href="/"
+            href={`/${locale}`}
             className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

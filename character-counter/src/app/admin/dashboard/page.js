@@ -58,8 +58,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900">{greeting}</h2>
-        <p className="mt-2 text-base sm:text-lg font-medium text-gray-600">Here&apos;s what&apos;s happening today.</p>
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#2563ea]">{greeting}</h2>
+        <p className="mt-2 text-base sm:text-lg font-medium text-[#f49e0b]">Here&apos;s what&apos;s happening today.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
