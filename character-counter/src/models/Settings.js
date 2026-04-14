@@ -147,6 +147,41 @@ const PageClosingTextsSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const LocalizedContentSchema = new mongoose.Schema({
+  aboutContent: {
+    type: String,
+    default: '',
+  },
+  aboutUsContent: {
+    type: AboutUsContentSchema,
+    default: () => ({ sections: [], closingText: '' }),
+  },
+  privacyPolicyContent: {
+    type: String,
+    default: '',
+  },
+  contactUsContent: {
+    type: String,
+    default: '',
+  },
+  contactUsEmail: {
+    type: String,
+    default: '',
+  },
+  termsConditionsContent: {
+    type: String,
+    default: '',
+  },
+  disclaimerContent: {
+    type: String,
+    default: '',
+  },
+  pageClosingTexts: {
+    type: PageClosingTextsSchema,
+    default: () => ({}),
+  },
+}, { _id: false });
+
 const SettingsSchema = new mongoose.Schema(
   {
     aboutContent: {
@@ -235,6 +270,11 @@ const SettingsSchema = new mongoose.Schema(
         disclaimer: 'Please use this tool responsibly and review this disclaimer regularly.',
         blog: 'Thanks for reading. Check back soon for more helpful updates.',
       }),
+    },
+    localizedContent: {
+      type: Map,
+      of: LocalizedContentSchema,
+      default: () => new Map(),
     },
   },
   {

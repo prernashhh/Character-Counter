@@ -32,13 +32,14 @@ For privacy-related questions, please use the Contact Us page.`;
 export default async function PrivacyPolicyPage({ params }) {
   const { locale } = await params;
   const t = await getTranslations({ locale });
-  const settings = await getPublicPageSettings();
+  const settings = await getPublicPageSettings(locale);
+  const tr = (key, fallback) => (t.has(key) ? t(key) : fallback);
 
-  const policyContent = settings?.privacyPolicyContent?.trim() || defaultPrivacyPolicy;
+  const policyContent = settings?.privacyPolicyContent?.trim() || tr('privacyDefaultContent', defaultPrivacyPolicy);
   const formattedPolicyContent = formatPlainTextAsHtml(policyContent);
   const pageClosingText =
     settings?.pageClosingTexts?.privacyPolicy ||
-    "Your privacy matters to us. We handle data responsibly and keep this policy clear and transparent.";
+    tr('privacyPageClosing', 'Your privacy matters to us. We handle data responsibly and keep this policy clear and transparent.');
 
   const lastUpdated = formatLastUpdated(
     settings?.staticPagesLastUpdated?.privacyPolicy || settings?.updatedAt || settings?.createdAt,
@@ -60,7 +61,7 @@ export default async function PrivacyPolicyPage({ params }) {
           </Link>
 
           <h1 className="text-4xl font-extrabold text-center mb-8 bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Privacy Policy
+            {tr('privacyPolicyTitle', 'Privacy Policy')}
           </h1>
 
           {lastUpdated && (

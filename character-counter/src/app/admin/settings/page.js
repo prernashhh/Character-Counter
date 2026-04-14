@@ -38,8 +38,31 @@ const UI_PAGE_BY_DB = Object.entries(DB_PAGE_BY_UI).reduce((acc, [uiKey, dbKey])
   return acc;
 }, {});
 
+const contentLocaleOptions = [
+  { code: 'en', label: 'English (Default)' },
+  { code: 'af', label: 'Afrikaans' },
+  { code: 'ar', label: 'Arabic' },
+  { code: 'bs', label: 'Bosnian' },
+  { code: 'de', label: 'German' },
+  { code: 'el', label: 'Greek' },
+  { code: 'es', label: 'Spanish' },
+  { code: 'fi', label: 'Finnish' },
+  { code: 'fr', label: 'French' },
+  { code: 'hi', label: 'Hindi' },
+  { code: 'hu', label: 'Hungarian' },
+  { code: 'id', label: 'Indonesian' },
+  { code: 'it', label: 'Italian' },
+  { code: 'nl', label: 'Dutch' },
+  { code: 'no', label: 'Norwegian' },
+  { code: 'pt', label: 'Portuguese' },
+  { code: 'sv', label: 'Swedish' },
+  { code: 'tr', label: 'Turkish' },
+  { code: 'zh', label: 'Chinese' },
+];
+
 export default function AdminSettings() {
   const [selectedSeoPage, setSelectedSeoPage] = useState('contactUs');
+  const [selectedContentLocale, setSelectedContentLocale] = useState('en');
   const [settings, setSettings] = useState({
     aboutContent: '',
     aboutUsContent: {
@@ -75,6 +98,7 @@ export default function AdminSettings() {
       tone: 'professional',
     },
     seoSettings: defaultSeoSettings,
+    localizedContent: {},
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -97,7 +121,6 @@ export default function AdminSettings() {
   });
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
-  const [aboutToolEditorValue, setAboutToolEditorValue] = useState('');
   const [ogUploading, setOgUploading] = useState(false);
 
   useEffect(() => {
@@ -175,6 +198,7 @@ export default function AdminSettings() {
             ...defaultSeoSettings,
             ...seoFromDb,
           },
+          localizedContent: data.settings.localizedContent || {},
         });
       }
     } catch (error) {
@@ -199,37 +223,181 @@ export default function AdminSettings() {
   };
 
   const addAboutUsSection = () => {
-    setSettings({
-      ...settings,
-      aboutUsContent: {
-        ...settings.aboutUsContent,
-        sections: [
-          ...settings.aboutUsContent.sections,
-          { heading: '', content: '' },
-        ],
-      },
+    setSettings((prev) => {
+      const current = getCurrentAboutUsContent(prev);
+      const nextSections = [...(current.sections || []), { heading: '', content: '' }];
+
+      if (selectedContentLocale === 'en') {
+        return {
+          ...prev,
+          aboutUsContent: {
+            ...current,
+            sections: nextSections,
+          },
+        };
+      }
+
+      const localeBlock = getCurrentLocaleBlock(prev);
+      return {
+        ...prev,
+        localizedContent: {
+          ...(prev.localizedContent || {}),
+          [selectedContentLocale]: {
+            ...localeBlock,
+            aboutUsContent: {
+              ...current,
+              sections: nextSections,
+            },
+          },
+        },
+      };
     });
   };
 
   const removeAboutUsSection = (index) => {
-    setSettings({
-      ...settings,
-      aboutUsContent: {
-        ...settings.aboutUsContent,
-        sections: settings.aboutUsContent.sections.filter((_, i) => i !== index),
-      },
+    setSettings((prev) => {
+      const current = getCurrentAboutUsContent(prev);
+      const nextSections = (current.sections || []).filter((_, i) => i !== index);
+
+      if (selectedContentLocale === 'en') {
+        return {
+          ...prev,
+          aboutUsContent: {
+            ...current,
+            sections: nextSections,
+          },
+        };
+      }
+
+      const localeBlock = getCurrentLocaleBlock(prev);
+      return {
+        ...prev,
+        localizedContent: {
+          ...(prev.localizedContent || {}),
+          [selectedContentLocale]: {
+            ...localeBlock,
+            aboutUsContent: {
+              ...current,
+              sections: nextSections,
+            },
+          },
+        },
+      };
     });
   };
 
   const updateAboutUsSection = (index, field, value) => {
-    const updatedSections = [...settings.aboutUsContent.sections];
-    updatedSections[index][field] = value;
-    setSettings({
-      ...settings,
-      aboutUsContent: {
-        ...settings.aboutUsContent,
-        sections: updatedSections,
-      },
+    setSettings((prev) => {
+      const current = getCurrentAboutUsContent(prev);
+      const updatedSections = [...(current.sections || [])];
+      updatedSections[index] = {
+        ...(updatedSections[index] || {}),
+        [field]: value,
+      };
+
+      if (selectedContentLocale === 'en') {
+        return {
+          ...prev,
+          aboutUsContent: {
+            ...current,
+            sections: updatedSections,
+          },
+        };
+      }
+
+      const localeBlock = getCurrentLocaleBlock(prev);
+      return {
+        ...prev,
+        localizedContent: {
+          ...(prev.localizedContent || {}),
+          [selectedContentLocale]: {
+            ...localeBlock,
+            aboutUsContent: {
+              ...current,
+              sections: updatedSections,
+            },
+          },
+        },
+      };
+    });
+  };
+
+  const getCurrentLocaleBlock = (source = settings) => {
+    return source.localizedContent?.[selectedContentLocale] || {};
+  };
+
+  const getCurrentAboutUsContent = (source = settings) => {
+    if (selectedContentLocale === 'en') {
+      return source.aboutUsContent || { sections: [], closingText: '' };
+    }
+
+    return getCurrentLocaleBlock(source).aboutUsContent || source.aboutUsContent || { sections: [], closingText: '' };
+  };
+
+  const getCurrentFieldValue = (field, fallback = '') => {
+    if (selectedContentLocale === 'en') {
+      return settings[field] ?? fallback;
+    }
+
+    const localeBlock = getCurrentLocaleBlock();
+    return localeBlock[field] ?? settings[field] ?? fallback;
+  };
+
+  const updateCurrentFieldValue = (field, value) => {
+    setSettings((prev) => {
+      if (selectedContentLocale === 'en') {
+        return { ...prev, [field]: value };
+      }
+
+      const localeBlock = prev.localizedContent?.[selectedContentLocale] || {};
+      return {
+        ...prev,
+        localizedContent: {
+          ...(prev.localizedContent || {}),
+          [selectedContentLocale]: {
+            ...localeBlock,
+            [field]: value,
+          },
+        },
+      };
+    });
+  };
+
+  const getCurrentClosingText = (key) => {
+    if (selectedContentLocale === 'en') {
+      return settings.pageClosingTexts?.[key] || '';
+    }
+
+    const localeClosings = getCurrentLocaleBlock().pageClosingTexts || {};
+    return localeClosings[key] ?? settings.pageClosingTexts?.[key] ?? '';
+  };
+
+  const updateCurrentClosingText = (key, value) => {
+    setSettings((prev) => {
+      if (selectedContentLocale === 'en') {
+        return {
+          ...prev,
+          pageClosingTexts: {
+            ...prev.pageClosingTexts,
+            [key]: value,
+          },
+        };
+      }
+
+      const localeBlock = prev.localizedContent?.[selectedContentLocale] || {};
+      return {
+        ...prev,
+        localizedContent: {
+          ...(prev.localizedContent || {}),
+          [selectedContentLocale]: {
+            ...localeBlock,
+            pageClosingTexts: {
+              ...(localeBlock.pageClosingTexts || {}),
+              [key]: value,
+            },
+          },
+        },
+      };
     });
   };
 
@@ -434,7 +602,10 @@ export default function AdminSettings() {
       const settingsResponse = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nonSeoSettings),
+        body: JSON.stringify({
+          ...nonSeoSettings,
+          locale: selectedContentLocale,
+        }),
       });
 
       const seoResponse = await fetch('/api/seo', {
@@ -486,15 +657,32 @@ export default function AdminSettings() {
         </div>
       )}
 
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">Content Language</label>
+          <select
+            value={selectedContentLocale}
+            onChange={(e) => setSelectedContentLocale(e.target.value)}
+            className="w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+          >
+            {contentLocaleOptions.map((option) => (
+              <option key={option.code} value={option.code}>{option.label}</option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500">
+            Changes are saved for the selected language. English remains the fallback.
+          </p>
+        </div>
+      </div>
+
       <div className="space-y-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">About This Tool</h3>
           <label className="block text-sm font-medium text-gray-700 mb-2">About This Tool Content</label>
           <RichTextEditor
-            value={aboutToolEditorValue}
+            value={getCurrentFieldValue('aboutContent', '')}
             onChange={(value) => {
-              setAboutToolEditorValue(value);
-              setSettings({ ...settings, aboutContent: value });
+              updateCurrentFieldValue('aboutContent', value);
             }}
             minHeightClass="min-h-64"
             placeholder="Enter about this tool content..."
@@ -512,7 +700,7 @@ export default function AdminSettings() {
           <div className="space-y-6">
             {/* Sections */}
             <div className="space-y-4">
-              {settings.aboutUsContent.sections.map((section, index) => (
+              {getCurrentAboutUsContent().sections.map((section, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium text-gray-700">Section {index + 1}</span>
@@ -560,14 +748,8 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">About Us Closing Text</label>
                 <textarea
                   rows={2}
-                  value={settings.pageClosingTexts?.aboutUs || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    pageClosingTexts: {
-                      ...settings.pageClosingTexts,
-                      aboutUs: e.target.value,
-                    },
-                  })}
+                  value={getCurrentClosingText('aboutUs')}
+                  onChange={(e) => updateCurrentClosingText('aboutUs', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                 />
               </div>
@@ -651,8 +833,8 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Contact Email (used on Contact Us page)</label>
                 <input
                   type="email"
-                  value={settings.contactUsEmail || ''}
-                  onChange={(e) => setSettings({ ...settings, contactUsEmail: e.target.value })}
+                  value={getCurrentFieldValue('contactUsEmail', '')}
+                  onChange={(e) => updateCurrentFieldValue('contactUsEmail', e.target.value)}
                   placeholder="iamdineshswami@gmail.com"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                 />
@@ -660,8 +842,8 @@ export default function AdminSettings() {
 
               <label className="block text-sm font-medium text-gray-700">Contact Us Content</label>
               <RichTextEditor
-                value={settings.contactUsContent}
-                onChange={(value) => setSettings({ ...settings, contactUsContent: value })}
+                value={getCurrentFieldValue('contactUsContent', '')}
+                onChange={(value) => updateCurrentFieldValue('contactUsContent', value)}
                 minHeightClass="min-h-64"
                 placeholder="Enter contact page content..."
               />
@@ -670,14 +852,8 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Contact Us Closing Text</label>
                 <textarea
                   rows={2}
-                  value={settings.pageClosingTexts?.contactUs || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    pageClosingTexts: {
-                      ...settings.pageClosingTexts,
-                      contactUs: e.target.value,
-                    },
-                  })}
+                  value={getCurrentClosingText('contactUs')}
+                  onChange={(e) => updateCurrentClosingText('contactUs', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                 />
               </div>
@@ -689,8 +865,8 @@ export default function AdminSettings() {
             <div className="space-y-4">
               <label className="block text-sm font-medium text-gray-700">Terms & Conditions Content</label>
               <RichTextEditor
-                value={settings.termsConditionsContent}
-                onChange={(value) => setSettings({ ...settings, termsConditionsContent: value })}
+                value={getCurrentFieldValue('termsConditionsContent', '')}
+                onChange={(value) => updateCurrentFieldValue('termsConditionsContent', value)}
                 minHeightClass="min-h-64"
                 placeholder="Enter terms and conditions content..."
               />
@@ -699,14 +875,8 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions Closing Text</label>
                 <textarea
                   rows={2}
-                  value={settings.pageClosingTexts?.termsConditions || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    pageClosingTexts: {
-                      ...settings.pageClosingTexts,
-                      termsConditions: e.target.value,
-                    },
-                  })}
+                  value={getCurrentClosingText('termsConditions')}
+                  onChange={(e) => updateCurrentClosingText('termsConditions', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                 />
               </div>
@@ -726,8 +896,8 @@ export default function AdminSettings() {
                   Privacy Policy Content
                 </label>
                 <RichTextEditor
-                  value={settings.privacyPolicyContent}
-                  onChange={(value) => setSettings({ ...settings, privacyPolicyContent: value })}
+                  value={getCurrentFieldValue('privacyPolicyContent', '')}
+                  onChange={(value) => updateCurrentFieldValue('privacyPolicyContent', value)}
                   minHeightClass="min-h-64"
                   placeholder="Enter your privacy policy content..."
                 />
@@ -737,14 +907,8 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Privacy Policy Closing Text</label>
                 <textarea
                   rows={2}
-                  value={settings.pageClosingTexts?.privacyPolicy || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    pageClosingTexts: {
-                      ...settings.pageClosingTexts,
-                      privacyPolicy: e.target.value,
-                    },
-                  })}
+                  value={getCurrentClosingText('privacyPolicy')}
+                  onChange={(e) => updateCurrentClosingText('privacyPolicy', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                 />
               </div>
@@ -756,8 +920,8 @@ export default function AdminSettings() {
             <div className="space-y-4">
               <label className="block text-sm font-medium text-gray-700">Disclaimer Content</label>
               <RichTextEditor
-                value={settings.disclaimerContent}
-                onChange={(value) => setSettings({ ...settings, disclaimerContent: value })}
+                value={getCurrentFieldValue('disclaimerContent', '')}
+                onChange={(value) => updateCurrentFieldValue('disclaimerContent', value)}
                 minHeightClass="min-h-64"
                 placeholder="Enter disclaimer content..."
               />
@@ -766,14 +930,8 @@ export default function AdminSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Disclaimer Closing Text</label>
                 <textarea
                   rows={2}
-                  value={settings.pageClosingTexts?.disclaimer || ''}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    pageClosingTexts: {
-                      ...settings.pageClosingTexts,
-                      disclaimer: e.target.value,
-                    },
-                  })}
+                  value={getCurrentClosingText('disclaimer')}
+                  onChange={(e) => updateCurrentClosingText('disclaimer', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                 />
               </div>

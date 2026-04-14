@@ -21,23 +21,19 @@ export default function AdminLayout({ children }) {
 
   if (isLoginPage) {
     return (
-      <html lang="en">
-        <body className="min-h-screen flex flex-col">
-          <main className="flex-1">{children}</main>
-          <footer className="border-t border-gray-200 bg-white">
-            <div className="px-4 py-4 text-center text-sm text-gray-600">
-              © {currentYear} Character Counter Admin
-            </div>
-          </footer>
-        </body>
-      </html>
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1">{children}</main>
+        <footer className="border-t border-gray-200 bg-white">
+          <div className="px-4 py-4 text-center text-sm text-gray-600">
+            © {currentYear} Character Counter Admin
+          </div>
+        </footer>
+      </div>
     );
   }
 
   return (
-    <html lang="en">
-      <body>
-        <div className="h-screen bg-gray-100 flex overflow-hidden">
+    <div className="h-screen bg-gray-100 flex overflow-hidden">
       {/* Mobile Menu Drawer */}
       {showMobileMenu && (
         <>
@@ -239,7 +235,5 @@ export default function AdminLayout({ children }) {
         </footer>
       </div>
     </div>
-    </body>
-    </html>
   );
 }

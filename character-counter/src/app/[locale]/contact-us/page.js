@@ -9,7 +9,8 @@ import {
 export default async function ContactUsPage({ params }) {
   const { locale } = await params;
   const t = await getTranslations({ locale });
-  const settings = await getPublicPageSettings();
+  const settings = await getPublicPageSettings(locale);
+  const tr = (key, fallback) => (t.has(key) ? t(key) : fallback);
 
   const contactUsEmail =
     settings?.contactUsEmail ||
@@ -19,7 +20,7 @@ export default async function ContactUsPage({ params }) {
   const contactUsContent = formatPlainTextAsHtml(settings?.contactUsContent || "");
   const pageClosingText =
     settings?.pageClosingTexts?.contactUs ||
-    "Thank you for contacting us. We appreciate your feedback and usually reply within one to two business days.";
+    tr('contactPageClosing', 'Thank you for contacting us. We appreciate your feedback and usually reply within one to two business days.');
 
   const lastUpdated = formatLastUpdated(
     settings?.staticPagesLastUpdated?.contactUs || settings?.updatedAt || settings?.createdAt,
@@ -31,7 +32,7 @@ export default async function ContactUsPage({ params }) {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-indigo-100">
           <Link 
-            href={`/${locale}`}
+            href="/"
             className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,34 +61,32 @@ export default async function ContactUsPage({ params }) {
             ) : (
               <div className="prose prose-lg max-w-none text-gray-700 space-y-6 text-left">
                 <p className="text-lg leading-relaxed">
-                  Contact the Character Count Online Tool team for support, feedback, and product questions.
-                  If you need help with our character counter, word count tool, or page policies, we are happy to assist.
+                  {tr('contactFallbackIntro', 'Contact the Character Count Online Tool team for support, feedback, and product questions. If you need help with our character counter, word count tool, or page policies, we are happy to assist.')}
                 </p>
 
-                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">How to Reach Us</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{tr('contactHowToReachTitle', 'How to Reach Us')}</h2>
                 <p className="leading-relaxed">
-                  Send us an email with your request and include useful details such as your device,
-                  browser, and the issue you are seeing. Clear context helps us respond faster.
+                  {tr('contactHowToReachText', 'Send us an email with your request and include useful details such as your device, browser, and the issue you are seeing. Clear context helps us respond faster.')}
                 </p>
 
-                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">What We Can Help With</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{tr('contactHelpWithTitle', 'What We Can Help With')}</h2>
                 <ul className="list-disc list-inside space-y-2 pl-4">
-                  <li>Questions about character count, word count, and writing statistics</li>
-                  <li>Bug reports and usability improvements</li>
-                  <li>Privacy policy or terms clarification</li>
-                  <li>Suggestions for new features and workflow improvements</li>
+                  <li>{tr('contactHelpWithItem1', 'Questions about character count, word count, and writing statistics')}</li>
+                  <li>{tr('contactHelpWithItem2', 'Bug reports and usability improvements')}</li>
+                  <li>{tr('contactHelpWithItem3', 'Privacy policy or terms clarification')}</li>
+                  <li>{tr('contactHelpWithItem4', 'Suggestions for new features and workflow improvements')}</li>
                 </ul>
               </div>
             )}
 
             <div className="prose prose-lg max-w-none text-left mt-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-3">Direct Email</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">{tr('contactDirectEmailTitle', 'Direct Email')}</h2>
               <p className="leading-relaxed text-gray-700">
-                Email us at{" "}
+                {tr('contactDirectEmailPrefix', 'Email us at')} {" "}
                 <a href={`mailto:${contactUsEmail}`} className="text-indigo-600 hover:text-indigo-800 underline">
                   {contactUsEmail}
                 </a>
-                {" "}and we will get back to you as soon as possible.
+                {" "}{tr('contactDirectEmailSuffix', 'and we will get back to you as soon as possible.')}
               </p>
             </div>
 

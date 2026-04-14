@@ -1,13 +1,26 @@
 import connectDB from "@/lib/db";
 import Settings from "@/models/Settings";
 
-export async function getPublicPageSettings() {
+function getLocaleBlock(localizedContent, locale) {
+  if (!localizedContent || !locale || locale === 'en') {
+    return null;
+  }
+
+  if (typeof localizedContent.get === 'function') {
+    return localizedContent.get(locale) || null;
+  }
+
+  return localizedContent[locale] || null;
+}
+
+export async function getPublicPageSettings(locale = 'en') {
   try {
     await connectDB();
-    return await Settings.findOne()
+    const settings = await Settings.findOne()
       .select(
         [
           "aboutUsContent",
+          "aboutContent",
           "contactUsContent",
           "contactUsEmail",
           "privacyPolicyContent",
@@ -15,12 +28,43 @@ export async function getPublicPageSettings() {
           "disclaimerContent",
           "socialLinks",
           "pageClosingTexts",
+          "localizedContent",
           "staticPagesLastUpdated",
           "updatedAt",
           "createdAt",
         ].join(" ")
       )
       .lean();
+
+    if (!settings) {
+      return null;
+    }
+
+    const normalizedLocale = String(locale || 'en').toLowerCase();
+    const isDefaultLocale = normalizedLocale === 'en';
+    const localeBlock = getLocaleBlock(settings.localizedContent, normalizedLocale) || {};
+
+    const fallbackOrNull = (localizedValue, defaultValue) =>
+      localizedValue ?? (isDefaultLocale ? defaultValue : null);
+
+    return {
+      ...settings,
+      aboutContent: fallbackOrNull(localeBlock.aboutContent, settings.aboutContent),
+      aboutUsContent: fallbackOrNull(localeBlock.aboutUsContent, settings.aboutUsContent),
+      contactUsContent: fallbackOrNull(localeBlock.contactUsContent, settings.contactUsContent),
+      contactUsEmail: localeBlock.contactUsEmail ?? settings.contactUsEmail,
+      privacyPolicyContent: fallbackOrNull(localeBlock.privacyPolicyContent, settings.privacyPolicyContent),
+      termsConditionsContent: fallbackOrNull(localeBlock.termsConditionsContent, settings.termsConditionsContent),
+      disclaimerContent: fallbackOrNull(localeBlock.disclaimerContent, settings.disclaimerContent),
+      pageClosingTexts: isDefaultLocale
+        ? {
+            ...(settings.pageClosingTexts || {}),
+            ...(localeBlock.pageClosingTexts || {}),
+          }
+        : {
+            ...(localeBlock.pageClosingTexts || {}),
+          },
+    };
   } catch {
     return null;
   }

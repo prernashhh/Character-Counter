@@ -12,7 +12,7 @@
   "start": "next start",
   
     
-  "lint": "next lint"
+  "lint": "eslint ."
   
   },
   
@@ -50,6 +50,16 @@
   
     
   "tailwindcss": "^4.1.18"
+  
+  },
+  
+  "devDependencies": {
+  
+    
+  "eslint": "^9.39.4",
+  
+    
+  "eslint-config-next": "^16.2.3"
   
   }
 }

@@ -26,13 +26,14 @@ We may update this disclaimer at any time as features or legal requirements chan
 export default async function DisclaimerPage({ params }) {
   const { locale } = await params;
   const t = await getTranslations({ locale });
-  const settings = await getPublicPageSettings();
+  const settings = await getPublicPageSettings(locale);
+  const tr = (key, fallback) => (t.has(key) ? t(key) : fallback);
 
-  const disclaimerContent = settings?.disclaimerContent?.trim() || DEFAULT_DISCLAIMER_CONTENT;
+  const disclaimerContent = settings?.disclaimerContent?.trim() || tr('disclaimerDefaultContent', DEFAULT_DISCLAIMER_CONTENT);
   const formattedDisclaimerContent = formatPlainTextAsHtml(disclaimerContent);
   const pageClosingText =
     settings?.pageClosingTexts?.disclaimer ||
-    "Please review this disclaimer periodically to stay informed about updates.";
+    tr('disclaimerPageClosing', 'Please review this disclaimer periodically to stay informed about updates.');
 
   const lastUpdated = formatLastUpdated(
     settings?.staticPagesLastUpdated?.disclaimer || settings?.updatedAt || settings?.createdAt,

@@ -35,13 +35,14 @@ For questions about these terms, please use the Contact Us page.`;
 export default async function TermsConditionsPage({ params }) {
   const { locale } = await params;
   const t = await getTranslations({ locale });
-  const settings = await getPublicPageSettings();
+  const settings = await getPublicPageSettings(locale);
+  const tr = (key, fallback) => (t.has(key) ? t(key) : fallback);
 
-  const termsContent = settings?.termsConditionsContent?.trim() || DEFAULT_TERMS_CONTENT;
+  const termsContent = settings?.termsConditionsContent?.trim() || tr('termsDefaultContent', DEFAULT_TERMS_CONTENT);
   const formattedTermsContent = formatPlainTextAsHtml(termsContent);
   const pageClosingText =
     settings?.pageClosingTexts?.termsConditions ||
-    "By continuing to use this service, you agree to these terms and conditions.";
+    tr('termsPageClosing', 'By continuing to use this service, you agree to these terms and conditions.');
 
   const lastUpdated = formatLastUpdated(
     settings?.staticPagesLastUpdated?.termsConditions || settings?.updatedAt || settings?.createdAt,

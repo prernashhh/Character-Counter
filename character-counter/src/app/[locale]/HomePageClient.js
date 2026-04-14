@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { Link, useRouter, usePathname } from '@/i18n/navigation';
+import NextLink from 'next/link';
 import { getBlogUi } from '@/lib/blog-ui-text';
 
 const languages = [
@@ -73,7 +74,7 @@ const getDefaultHeadingSettings = () => ({
   h1Text: 'Character Counter',
   h2Text: '',
   h3Text: 'Statistics',
-  h4Text: 'About This Tool',
+  h4Text: 'About Character Counter Tool',
   tone: 'professional',
 });
 
@@ -81,14 +82,14 @@ const getDefaultHomeSeo = () => ({
   h1: 'Character Counter',
   h2: '',
   h3: 'Statistics',
-  h4: 'About This Tool',
+  h4: 'About Character Counter Tool',
   h5: '',
   h6: '',
 });
 
 const getDefaultSocialLinks = () => ({
-  instagramUrl: 'https://instagram.com/prerna.9_',
-  linkedinUrl: 'https://linkedin.com/in/prerna.9_',
+  instagramUrl: 'https://instagram.com/',
+  linkedinUrl: 'https://linkedin.com/in/',
   emailAddress: 'iamdineshswami@gmail.com',
 });
 
@@ -146,6 +147,45 @@ export default function HomePageClient() {
     const [headingSettings, setHeadingSettings] = useState(getDefaultHeadingSettings);
     const [socialLinks, setSocialLinks] = useState(getDefaultSocialLinks);
 
+  async function fetchAboutContent() {
+    try {
+      const response = await fetch(`/api/settings?scope=home&locale=${locale}`, { cache: 'force-cache' });
+      const data = await response.json();
+      if (data.success && data.settings) {
+        const nextFooterYear = Number.isInteger(data.settings.footerCopyrightYear)
+          ? data.settings.footerCopyrightYear
+          : new Date().getFullYear();
+        const nextHeadingSettings = {
+          ...getDefaultHeadingSettings(),
+          ...(data.settings.headingSettings || {}),
+        };
+        const nextHomeSeo = {
+          ...getDefaultHomeSeo(),
+          ...(data.settings.seoSettings?.home || {}),
+        };
+        const nextSocialLinks = {
+          ...getDefaultSocialLinks(),
+          ...(data.settings.socialLinks || {}),
+        };
+
+        setFooterYear(nextFooterYear);
+        setHeadingSettings(nextHeadingSettings);
+        setHomeSeo(nextHomeSeo);
+        setSocialLinks(nextSocialLinks);
+
+        localStorage.setItem(
+          HOME_SETTINGS_CACHE_KEY,
+          JSON.stringify({
+            footerCopyrightYear: nextFooterYear,
+            headingSettings: nextHeadingSettings,
+            homeSeo: nextHomeSeo,
+            socialLinks: nextSocialLinks,
+          })
+        );
+      }
+    } catch (error) {}
+  }
+
     useEffect(() => {
     const savedText = localStorage.getItem("textAnalyzerContent");
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -199,45 +239,6 @@ export default function HomePageClient() {
     });
   }, [router, locale]);
 
-  const fetchAboutContent = async () => {
-    try {
-      const response = await fetch('/api/settings?scope=home', { cache: 'force-cache' });
-      const data = await response.json();
-      if (data.success && data.settings) {
-        const nextFooterYear = Number.isInteger(data.settings.footerCopyrightYear)
-          ? data.settings.footerCopyrightYear
-          : new Date().getFullYear();
-        const nextHeadingSettings = {
-          ...getDefaultHeadingSettings(),
-          ...(data.settings.headingSettings || {}),
-        };
-        const nextHomeSeo = {
-          ...getDefaultHomeSeo(),
-          ...(data.settings.seoSettings?.home || {}),
-        };
-        const nextSocialLinks = {
-          ...getDefaultSocialLinks(),
-          ...(data.settings.socialLinks || {}),
-        };
-
-        setFooterYear(nextFooterYear);
-        setHeadingSettings(nextHeadingSettings);
-        setHomeSeo(nextHomeSeo);
-        setSocialLinks(nextSocialLinks);
-
-        localStorage.setItem(
-          HOME_SETTINGS_CACHE_KEY,
-          JSON.stringify({
-            footerCopyrightYear: nextFooterYear,
-            headingSettings: nextHeadingSettings,
-            homeSeo: nextHomeSeo,
-            socialLinks: nextSocialLinks,
-          })
-        );
-      }
-    } catch (error) {}
-  };
-
   const handleTextChange = (e) => {
     const newText = e.target.value;
     setText(newText);
@@ -289,7 +290,6 @@ export default function HomePageClient() {
     'specialCharacters',
     `Special ${translateWithFallback(t, 'characters', 'Characters')}`
   );
-  const aboutTitleText = translateWithFallback(t, 'aboutTitle', 'About This Tool');
   const aboutText = translateWithFallback(
     t,
     'aboutText',
@@ -320,29 +320,35 @@ export default function HomePageClient() {
     'Simply paste or type your text into the editor. The tool automatically calculates and displays counts instantly without needing to refresh the page.'
   );
   const faqTitle = translateWithFallback(t, 'faqTitle', 'Frequently Asked Questions (FAQ)');
-  const faqQuestion1 = translateWithFallback(t, 'faqQuestion1', 'What is a character counter?');
+  const faqQuestion1 = translateWithFallback(t, 'faqQuestion1', "1. What's a Character Counter?");
   const faqAnswer1 = translateWithFallback(
     t,
     'faqAnswer1',
     'A character counter is a tool that counts the number of characters in a piece of text, including or excluding spaces.'
   );
-  const faqQuestion2 = translateWithFallback(t, 'faqQuestion2', 'How do I use this tool?');
+  const faqQuestion2 = translateWithFallback(t, 'faqQuestion2', '2. How do I use it?');
   const faqAnswer2 = translateWithFallback(
     t,
     'faqAnswer2',
     'Type or paste your text into the input box and the tool will automatically calculate all counts.'
   );
-  const faqQuestion3 = translateWithFallback(t, 'faqQuestion3', 'Is it free to use?');
+  const faqQuestion3 = translateWithFallback(t, 'faqQuestion3', '3. Is it free?');
   const faqAnswer3 = translateWithFallback(
     t,
     'faqAnswer3',
     'Yes, this tool is completely free to use with no limits or subscriptions.'
   );
-  const faqQuestion4 = translateWithFallback(t, 'faqQuestion4', 'Do spaces count as characters?');
+  const faqQuestion4 = translateWithFallback(t, 'faqQuestion4', '4. Do spaces count as characters?');
   const faqAnswer4 = translateWithFallback(
     t,
     'faqAnswer4',
     'Yes, you can view counts both with and without spaces.'
+  );
+  const faqQuestion5 = translateWithFallback(t, 'faqQuestion5', '5. Can I use it for essays or blog posts?');
+  const faqAnswer5 = translateWithFallback(
+    t,
+    'faqAnswer5',
+    'Yes. It works well for essays, blog posts, captions, and SEO writing.'
   );
   const faqSchema = {
     "@context": "https://schema.org",
@@ -380,11 +386,19 @@ export default function HomePageClient() {
           text: faqAnswer4,
         },
       },
+      {
+        "@type": "Question",
+        name: faqQuestion5,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faqAnswer5,
+        },
+      },
     ],
   };
   const socialHandlesBlock = (
     <>
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</p>
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</h2>
       <div className="flex items-center justify-center gap-3">
         <a
           href={socialLinks.instagramUrl}
@@ -446,9 +460,6 @@ export default function HomePageClient() {
       <p className={`order-3 text-center text-base sm:text-lg lg:text-sm xl:text-base ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
         {resolveLocalizedHeading(homeSeo.h2, t('analyzeYourText'), HOME_H2_ENGLISH_DEFAULTS)}
       </p>
-      <p className="order-4 text-center text-sm text-slate-500">
-        For practical writing tips, read our <Link href="/blog" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">blog</Link>, learn more on our <Link href="/about-us" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">About Us</Link> page, or <Link href="/contact-us" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">contact us</Link> for support.
-      </p>
       {homeSeo.h5 && <p className="order-5 text-center text-sm text-slate-500">{homeSeo.h5}</p>}
       {homeSeo.h6 && <p className="order-6 text-center text-xs text-slate-500">{homeSeo.h6}</p>}
     </div>
@@ -467,9 +478,9 @@ export default function HomePageClient() {
           <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300">
             <div className="p-6">
               <div className="flex items-center justify-between mb-8">
-                <div className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h3 className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   {t('menu')}
-                </div>
+                </h3>
                 <button
                   onClick={() => setShowMenu(false)}
                   className="p-2 rounded-lg transition-all duration-200 ease-out hover:bg-gray-100 hover:rotate-90 hover:shadow-sm active:rotate-0"
@@ -556,7 +567,7 @@ export default function HomePageClient() {
                 
                 <div className="border-t border-gray-200 my-4"></div>
                 
-                <a
+                <NextLink
                   href="/admin/login"
                   className="group w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ease-out text-gray-700 font-medium flex items-center gap-3 border border-purple-200 hover:-translate-y-0.5 hover:bg-white hover:text-gray-900 hover:shadow-md active:translate-y-0"
                 >
@@ -564,7 +575,7 @@ export default function HomePageClient() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   Admin Panel
-                </a>
+                </NextLink>
               </nav>
             </div>
           </div>
@@ -584,7 +595,7 @@ export default function HomePageClient() {
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                <span className="font-semibold text-gray-700">{t('menu')}</span>
+                <h3 className="font-semibold text-gray-700">{t('menu')}</h3>
               </button>
               
               <div className="relative">
@@ -595,7 +606,7 @@ export default function HomePageClient() {
                   <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                   </svg>
-                  <span className="font-semibold text-gray-700">{t('language')}</span>
+                  <h3 className="font-semibold text-gray-700">{t('language')}</h3>
                 </button>
                 
                 {showLanguageMenu && (
@@ -658,13 +669,13 @@ export default function HomePageClient() {
                 <p className="text-2xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   {wordCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('words')}</p>
+                <h4 className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('words')}</h4>
               </div>
               <div className="bg-white/70 rounded-lg p-3 border border-purple-100">
                 <p className="text-2xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   {characterCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('characters')}</p>
+                <h4 className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('characters')}</h4>
               </div>
             </div>
 
@@ -674,13 +685,13 @@ export default function HomePageClient() {
                 <p className="text-2xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
                   {sentenceCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('sentences')}</p>
+                <h4 className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('sentences')}</h4>
               </div>
               <div className="bg-white/70 rounded-lg p-3 border border-rose-100">
                 <p className="text-2xl font-bold bg-linear-to-r from-rose-600 to-red-600 bg-clip-text text-transparent">
                   {paragraphCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('paragraphs')}</p>
+                <h4 className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('paragraphs')}</h4>
               </div>
             </div>
 
@@ -690,13 +701,13 @@ export default function HomePageClient() {
                 <p className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                   {spaceCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('spaces')}</p>
+                <h4 className="text-xs font-semibold text-gray-600 mt-1 uppercase">{t('spaces')}</h4>
               </div>
               <div className="bg-white/70 rounded-lg p-3 border border-indigo-100">
                 <p className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                   {specialCharCount}
                 </p>
-                <p className="text-xs font-semibold text-gray-600 mt-1 uppercase">{specialCharactersLabel}</p>
+                <h4 className="text-xs font-semibold text-gray-600 mt-1 uppercase">{specialCharactersLabel}</h4>
               </div>
             </div>
           </div>
@@ -776,16 +787,19 @@ export default function HomePageClient() {
             <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
               <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
               <div className="desktop-footer-links flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
-                <Link href="/about-us" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                <Link href="/about-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('aboutUs')}
                 </Link>
-                <Link href="/contact-us" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                <span aria-hidden="true" className="text-slate-500">|</span>
+                <Link href="/contact-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('contactUs')}
                 </Link>
-                <Link href="/privacy-policy" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                <span aria-hidden="true" className="text-slate-500">|</span>
+                <Link href="/privacy-policy" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('privacyData')}
                 </Link>
-                <Link href="/terms-conditions" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+                <span aria-hidden="true" className="text-slate-500">|</span>
+                <Link href="/terms-conditions" className="text-indigo-700 hover:text-indigo-900 transition-colors">
                   {t('termsConditions')}
                 </Link>
               </div>
@@ -806,31 +820,32 @@ export default function HomePageClient() {
             </h2>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
-                <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h3]:text-lg">
-                  <h3>{aboutTitleText}</h3>
+                <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base">
                   <p>{aboutText}</p>
 
-                  <h3>{statisticsTitleText}</h3>
+                  <h2>{statisticsTitleText}</h2>
                   <p>{statisticsText}</p>
 
-                  <h3>{wordDensityTitleText}</h3>
+                  <h2>{wordDensityTitleText}</h2>
                   <p>{wordDensityText}</p>
 
-                  <h3>{whyUseTitle}</h3>
+                  <h2>{whyUseTitle}</h2>
                   <p>{whyUseText}</p>
 
-                  <h3>{howItWorksTitle}</h3>
+                  <h2>{howItWorksTitle}</h2>
                   <p>{howItWorksText}</p>
 
-                  <h3>{faqTitle}</h3>
-                  <h4>{faqQuestion1}</h4>
+                  <h2>{faqTitle}</h2>
+                  <h3>{faqQuestion1}</h3>
                   <p>{faqAnswer1}</p>
-                  <h4>{faqQuestion2}</h4>
+                  <h3>{faqQuestion2}</h3>
                   <p>{faqAnswer2}</p>
-                  <h4>{faqQuestion3}</h4>
+                  <h3>{faqQuestion3}</h3>
                   <p>{faqAnswer3}</p>
-                  <h4>{faqQuestion4}</h4>
+                  <h3>{faqQuestion4}</h3>
                   <p>{faqAnswer4}</p>
+                  <h3>{faqQuestion5}</h3>
+                  <p>{faqAnswer5}</p>
                 </div>
               </div>
             </div>
@@ -849,16 +864,19 @@ export default function HomePageClient() {
         <div className="text-xs text-slate-700 flex flex-col sm:flex-row items-center justify-between gap-1.5">
           <p className="text-center sm:text-left">Copyright © {footerYear} Character Count Online Tool. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
-            <Link href="/about-us" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            <Link href="/about-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('aboutUs')}
             </Link>
-            <Link href="/contact-us" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            <span aria-hidden="true" className="text-slate-500">|</span>
+            <Link href="/contact-us" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('contactUs')}
             </Link>
-            <Link href="/privacy-policy" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            <span aria-hidden="true" className="text-slate-500">|</span>
+            <Link href="/privacy-policy" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('privacyData')}
             </Link>
-            <Link href="/terms-conditions" locale={locale} className="text-indigo-700 hover:text-indigo-900 transition-colors">
+            <span aria-hidden="true" className="text-slate-500">|</span>
+            <Link href="/terms-conditions" className="text-indigo-700 hover:text-indigo-900 transition-colors">
               {t('termsConditions')}
             </Link>
           </div>

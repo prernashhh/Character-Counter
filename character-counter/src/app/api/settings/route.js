@@ -3,11 +3,24 @@ import Settings from '@/models/Settings';
 
 export const dynamic = 'force-dynamic';
 
+function getLocaleBlock(localizedContent, locale) {
+  if (!locale || locale === 'en' || !localizedContent) {
+    return null;
+  }
+
+  if (typeof localizedContent.get === 'function') {
+    return localizedContent.get(locale) || null;
+  }
+
+  return localizedContent[locale] || null;
+}
+
 export async function GET(request) {
   try {
     await connectDB();
     const { searchParams } = new URL(request.url);
     const scope = searchParams.get('scope');
+    const locale = (searchParams.get('locale') || 'en').toLowerCase();
 
     let settings = await Settings.findOne().lean();
 
@@ -72,12 +85,14 @@ export async function GET(request) {
       disclaimer: settings.staticPagesLastUpdated?.disclaimer || fallbackDate,
     };
 
+    const localeBlock = getLocaleBlock(settings.localizedContent, locale) || {};
+
     if (scope === 'home') {
       return Response.json(
         {
           success: true,
           settings: {
-            aboutContent: settings.aboutContent ?? '',
+            aboutContent: localeBlock.aboutContent ?? settings.aboutContent ?? '',
             footerCopyrightYear: settings.footerCopyrightYear ?? new Date().getFullYear(),
             headingSettings: settings.headingSettings ?? {
               h1Text: 'Character Counter',
@@ -91,6 +106,7 @@ export async function GET(request) {
               linkedinUrl: 'https://linkedin.com/in/prerna.9_',
               emailAddress: 'iamdineshswami@gmail.com',
             },
+            locale,
           },
         },
         {
@@ -102,17 +118,24 @@ export async function GET(request) {
     }
 
     if (scope === 'public-pages') {
+      const mergedClosingTexts = {
+        ...(settings.pageClosingTexts ?? {}),
+        ...(localeBlock.pageClosingTexts ?? {}),
+      };
+
       return Response.json(
         {
           success: true,
           settings: {
-            aboutUsContent: settings.aboutUsContent ?? { sections: [], closingText: '' },
-            contactUsContent: settings.contactUsContent ?? '',
-            contactUsEmail: settings.contactUsEmail ?? settings.socialLinks?.emailAddress ?? 'iamdineshswami@gmail.com',
-            termsConditionsContent: settings.termsConditionsContent ?? '',
-            privacyPolicyContent: settings.privacyPolicyContent ?? '',
-            disclaimerContent: settings.disclaimerContent ?? '',
-            pageClosingTexts: settings.pageClosingTexts ?? {
+            aboutUsContent: localeBlock.aboutUsContent ?? settings.aboutUsContent ?? { sections: [], closingText: '' },
+            contactUsContent: localeBlock.contactUsContent ?? settings.contactUsContent ?? '',
+            contactUsEmail: localeBlock.contactUsEmail ?? settings.contactUsEmail ?? settings.socialLinks?.emailAddress ?? 'iamdineshswami@gmail.com',
+            termsConditionsContent: localeBlock.termsConditionsContent ?? settings.termsConditionsContent ?? '',
+            privacyPolicyContent: localeBlock.privacyPolicyContent ?? settings.privacyPolicyContent ?? '',
+            disclaimerContent: localeBlock.disclaimerContent ?? settings.disclaimerContent ?? '',
+            pageClosingTexts: mergedClosingTexts,
+            locale,
+            fallbackPageClosingTexts: settings.pageClosingTexts ?? {
               aboutUs: 'We value your trust and will keep improving this tool for you.',
               contactUs: 'Thank you for reaching out. We appreciate your time and feedback.',
               termsConditions: 'By continuing to use this service, you agree to these terms and conditions.',
@@ -135,6 +158,7 @@ export async function GET(request) {
 
     const settingsWithoutSeo = { ...settings };
     delete settingsWithoutSeo.seoSettings;
+    settingsWithoutSeo.localizedContent = settings.localizedContent ?? {};
 
     return Response.json({
       success: true,
@@ -168,7 +192,11 @@ export async function PUT(request) {
       pageClosingTexts,
       footerCopyrightYear,
       headingSettings,
+      locale,
     } = body;
+
+    const normalizedLocale = typeof locale === 'string' ? locale.toLowerCase() : 'en';
+    const isLocalizedUpdate = normalizedLocale && normalizedLocale !== 'en';
 
     const toComparable = (value) => {
       if (value && typeof value.toObject === 'function') {
@@ -215,6 +243,7 @@ export async function PUT(request) {
           disclaimer: now,
         },
         pageClosingTexts,
+        localizedContent: new Map(),
       });
     } else {
       if (!settings.staticPagesLastUpdated) {
@@ -227,7 +256,76 @@ export async function PUT(request) {
         };
       }
 
-      if (aboutContent !== undefined) settings.aboutContent = aboutContent;
+      if (isLocalizedUpdate) {
+        const currentLocalizedMap = settings.localizedContent || new Map();
+        const existingLocaleBlock = currentLocalizedMap.get(normalizedLocale) || {};
+        const nextLocaleBlock = { ...existingLocaleBlock };
+
+        if (aboutContent !== undefined) {
+          nextLocaleBlock.aboutContent = aboutContent;
+        }
+        if (aboutUsContent !== undefined) {
+          if (hasChanged(existingLocaleBlock.aboutUsContent, aboutUsContent)) {
+            settings.staticPagesLastUpdated.aboutUs = now;
+          }
+          nextLocaleBlock.aboutUsContent = aboutUsContent;
+        }
+        if (privacyPolicyContent !== undefined) {
+          if (hasChanged(existingLocaleBlock.privacyPolicyContent, privacyPolicyContent)) {
+            settings.staticPagesLastUpdated.privacyPolicy = now;
+          }
+          nextLocaleBlock.privacyPolicyContent = privacyPolicyContent;
+        }
+        if (contactUsContent !== undefined) {
+          if (hasChanged(existingLocaleBlock.contactUsContent, contactUsContent)) {
+            settings.staticPagesLastUpdated.contactUs = now;
+          }
+          nextLocaleBlock.contactUsContent = contactUsContent;
+        }
+        if (contactUsEmail !== undefined) {
+          if (hasChanged(existingLocaleBlock.contactUsEmail, contactUsEmail)) {
+            settings.staticPagesLastUpdated.contactUs = now;
+          }
+          nextLocaleBlock.contactUsEmail = contactUsEmail;
+        }
+        if (termsConditionsContent !== undefined) {
+          if (hasChanged(existingLocaleBlock.termsConditionsContent, termsConditionsContent)) {
+            settings.staticPagesLastUpdated.termsConditions = now;
+          }
+          nextLocaleBlock.termsConditionsContent = termsConditionsContent;
+        }
+        if (disclaimerContent !== undefined) {
+          if (hasChanged(existingLocaleBlock.disclaimerContent, disclaimerContent)) {
+            settings.staticPagesLastUpdated.disclaimer = now;
+          }
+          nextLocaleBlock.disclaimerContent = disclaimerContent;
+        }
+        if (pageClosingTexts !== undefined) {
+          const existingLocalizedClosings = existingLocaleBlock.pageClosingTexts || {};
+
+          if (hasChanged(existingLocalizedClosings.aboutUs, pageClosingTexts.aboutUs)) {
+            settings.staticPagesLastUpdated.aboutUs = now;
+          }
+          if (hasChanged(existingLocalizedClosings.contactUs, pageClosingTexts.contactUs)) {
+            settings.staticPagesLastUpdated.contactUs = now;
+          }
+          if (hasChanged(existingLocalizedClosings.termsConditions, pageClosingTexts.termsConditions)) {
+            settings.staticPagesLastUpdated.termsConditions = now;
+          }
+          if (hasChanged(existingLocalizedClosings.privacyPolicy, pageClosingTexts.privacyPolicy)) {
+            settings.staticPagesLastUpdated.privacyPolicy = now;
+          }
+          if (hasChanged(existingLocalizedClosings.disclaimer, pageClosingTexts.disclaimer)) {
+            settings.staticPagesLastUpdated.disclaimer = now;
+          }
+
+          nextLocaleBlock.pageClosingTexts = pageClosingTexts;
+        }
+
+        currentLocalizedMap.set(normalizedLocale, nextLocaleBlock);
+        settings.localizedContent = currentLocalizedMap;
+      } else {
+        if (aboutContent !== undefined) settings.aboutContent = aboutContent;
       if (aboutUsContent !== undefined) {
         if (hasChanged(settings.aboutUsContent, aboutUsContent)) {
           settings.staticPagesLastUpdated.aboutUs = now;
@@ -289,6 +387,7 @@ export async function PUT(request) {
       }
       if (footerCopyrightYear !== undefined) settings.footerCopyrightYear = footerCopyrightYear;
       if (headingSettings !== undefined) settings.headingSettings = headingSettings;
+      }
 
       await settings.save();
     }
