@@ -6,6 +6,20 @@ import {
   getPublicPageSettings,
 } from "@/lib/public-page-content";
 
+export async function generateMetadata() {
+  const title = "Contact Us - Character Counter Tool";
+  const description =
+    "Get in touch with us for support, feedback, or questions about our character counter tool.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "/contact-us",
+    },
+  };
+}
+
 export default async function ContactUsPage({ params }) {
   const { locale } = await params;
   const t = await getTranslations({ locale });

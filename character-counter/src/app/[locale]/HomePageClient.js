@@ -453,9 +453,13 @@ export default function HomePageClient() {
         />
       </a>
       <div className="order-2 relative text-center">
-        <h1 className="text-center text-balance text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
+        <p
+          role="heading"
+          aria-level={1}
+          className="text-center text-balance text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
+        >
           {resolveLocalizedHeading(homeSeo.h1, t('characterCounter'), HOME_H1_ENGLISH_DEFAULTS)}
-        </h1>
+        </p>
       </div>
       <p className={`order-3 text-center text-base sm:text-lg lg:text-sm xl:text-base ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
         {resolveLocalizedHeading(homeSeo.h2, t('analyzeYourText'), HOME_H2_ENGLISH_DEFAULTS)}

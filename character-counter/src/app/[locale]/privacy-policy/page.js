@@ -6,6 +6,20 @@ import {
   getPublicPageSettings,
 } from "@/lib/public-page-content";
 
+export async function generateMetadata() {
+  const title = "Privacy Policy - Character Counter Tool";
+  const description =
+    "Read how Character Counter Tool handles your data, local storage, cookies, and privacy-related information.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "/privacy-policy",
+    },
+  };
+}
+
 const defaultPrivacyPolicy = `At Character Count Online Tool, we respect your privacy and are committed to protecting your information.
 
 1. Information We Process
