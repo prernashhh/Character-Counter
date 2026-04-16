@@ -22,6 +22,14 @@ export async function generateMetadata() {
   const title = "Character Counter & Word Counter Tool";
   const description =
     "Free character and word counter to instantly count words, characters, sentences, and paragraphs. Simple, fast, and accurate.";
+  const keywords = [
+    "character counter",
+    "word counter",
+    "online character count tool",
+    "character count tool",
+    "word count tool",
+    "count characters online",
+  ];
 
   const url = "https://charactercountonlinetool.com";
 
@@ -30,6 +38,7 @@ export async function generateMetadata() {
 
     title,
     description,
+    keywords,
 
     alternates: {
       canonical: "/",
