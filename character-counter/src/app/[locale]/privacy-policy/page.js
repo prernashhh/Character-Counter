@@ -1,21 +1,24 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { getPageSeoServer } from "@/lib/seo-server";
+import { buildCanonicalUrl } from "@/lib/url";
 import {
   formatLastUpdated,
   formatPlainTextAsHtml,
   getPublicPageSettings,
 } from "@/lib/public-page-content";
 
-export async function generateMetadata() {
-  const title = "Privacy Policy - Character Counter Tool";
-  const description =
-    "Read how Character Counter Tool handles your data, local storage, cookies, and privacy-related information.";
+export async function generateMetadata({ params }) {
+  const resolvedParams = typeof params?.then === "function" ? await params : (params || {});
+  const locale = resolvedParams.locale || "en";
+  const seo = await getPageSeoServer("privacyPolicy");
+  const canonicalUrl = buildCanonicalUrl("/privacy-policy", locale);
 
   return {
-    title,
-    description,
+    title: seo.metaTitle,
+    description: seo.metaDescription,
     alternates: {
-      canonical: "/privacy-policy",
+      canonical: canonicalUrl,
     },
   };
 }

@@ -1,6 +1,23 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatLastUpdated, getPublicPageSettings } from "@/lib/public-page-content";
+import { getPageSeoServer } from "@/lib/seo-server";
+import { buildCanonicalUrl } from "@/lib/url";
+
+export async function generateMetadata({ params }) {
+  const resolvedParams = typeof params?.then === "function" ? await params : (params || {});
+  const locale = resolvedParams.locale || "en";
+  const seo = await getPageSeoServer("aboutUs");
+  const canonicalUrl = buildCanonicalUrl("/about-us", locale);
+
+  return {
+    title: seo.metaTitle,
+    description: seo.metaDescription,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
+}
 
 export default async function AboutUsPage({ params }) {
   const { locale } = await params;
@@ -90,14 +107,6 @@ export default async function AboutUsPage({ params }) {
                 ) : null}
               </section>
             ))}
-
-            <h2 className="text-2xl font-bold text-gray-800 mt-8 mb-4">{tr('aboutWhyPeopleUseTitle', 'Why People Use Our Tool')}</h2>
-            <ul className="list-disc list-inside space-y-2 pl-4">
-              <li>{tr('aboutWhyPeopleUseItem1', 'Fast character count and word count analysis')}</li>
-              <li>{tr('aboutWhyPeopleUseItem2', 'Useful for SEO snippets, social posts, and assignments')}</li>
-              <li>{tr('aboutWhyPeopleUseItem3', 'Clear layout with practical writing stats')}</li>
-              <li>{tr('aboutWhyPeopleUseItem4', 'Works smoothly on desktop and mobile')}</li>
-            </ul>
 
             <div className="bg-linear-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mt-8">
               <p className="text-center text-gray-700 italic">{pageClosingText}</p>

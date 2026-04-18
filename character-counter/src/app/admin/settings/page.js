@@ -72,13 +72,13 @@ export default function AdminSettings() {
     socialLinks: {
       instagramUrl: 'https://instagram.com/prerna.9_',
       linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-      emailAddress: 'iamdineshswami@gmail.com',
+      emailAddress: 'charactercountonlinetool@gmail.com',
     },
     instagramHandle: '',
     instagramUrl: '',
     privacyPolicyContent: '',
     contactUsContent: '',
-    contactUsEmail: 'iamdineshswami@gmail.com',
+    contactUsEmail: 'charactercountonlinetool@gmail.com',
     termsConditionsContent: '',
     disclaimerContent: '',
     pageClosingTexts: {
@@ -180,10 +180,10 @@ export default function AdminSettings() {
           socialLinks: {
             instagramUrl: socialLinks.instagramUrl || aboutUsContacts.instagramUrl || 'https://instagram.com/prerna.9_',
             linkedinUrl: socialLinks.linkedinUrl || aboutUsContacts.linkedinUrl || 'https://linkedin.com/in/prerna.9_',
-            emailAddress: socialLinks.emailAddress || aboutUsContacts.gmail || 'iamdineshswami@gmail.com',
+            emailAddress: socialLinks.emailAddress || aboutUsContacts.gmail || 'charactercountonlinetool@gmail.com',
           },
           contactUsContent: data.settings.contactUsContent || '',
-          contactUsEmail: data.settings.contactUsEmail || socialLinks.emailAddress || 'iamdineshswami@gmail.com',
+          contactUsEmail: data.settings.contactUsEmail || socialLinks.emailAddress || 'charactercountonlinetool@gmail.com',
           termsConditionsContent: data.settings.termsConditionsContent || '',
           disclaimerContent: data.settings.disclaimerContent || '',
           pageClosingTexts: {
@@ -835,7 +835,7 @@ export default function AdminSettings() {
                   type="email"
                   value={getCurrentFieldValue('contactUsEmail', '')}
                   onChange={(e) => updateCurrentFieldValue('contactUsEmail', e.target.value)}
-                  placeholder="iamdineshswami@gmail.com"
+                  placeholder="charactercountonlinetool@gmail.com"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                 />
               </div>
@@ -1205,3 +1205,4 @@ export default function AdminSettings() {
     </div>
   );
 }
+

@@ -90,7 +90,7 @@ const getDefaultHomeSeo = () => ({
 const getDefaultSocialLinks = () => ({
   instagramUrl: 'https://instagram.com/',
   linkedinUrl: 'https://linkedin.com/in/',
-  emailAddress: 'iamdineshswami@gmail.com',
+  emailAddress: 'charactercountonlinetool@gmail.com',
 });
 
 const translateWithFallback = (translator, key, fallback) => {
@@ -146,6 +146,7 @@ export default function HomePageClient() {
     const [homeSeo, setHomeSeo] = useState(getDefaultHomeSeo);
     const [headingSettings, setHeadingSettings] = useState(getDefaultHeadingSettings);
     const [socialLinks, setSocialLinks] = useState(getDefaultSocialLinks);
+    const [aboutContent, setAboutContent] = useState('');
 
   async function fetchAboutContent() {
     try {
@@ -155,6 +156,7 @@ export default function HomePageClient() {
         const nextFooterYear = Number.isInteger(data.settings.footerCopyrightYear)
           ? data.settings.footerCopyrightYear
           : new Date().getFullYear();
+        const nextAboutContent = (data.settings.aboutContent || '').trim();
         const nextHeadingSettings = {
           ...getDefaultHeadingSettings(),
           ...(data.settings.headingSettings || {}),
@@ -169,6 +171,7 @@ export default function HomePageClient() {
         };
 
         setFooterYear(nextFooterYear);
+        setAboutContent(nextAboutContent);
         setHeadingSettings(nextHeadingSettings);
         setHomeSeo(nextHomeSeo);
         setSocialLinks(nextSocialLinks);
@@ -177,6 +180,7 @@ export default function HomePageClient() {
           HOME_SETTINGS_CACHE_KEY,
           JSON.stringify({
             footerCopyrightYear: nextFooterYear,
+            aboutContent: nextAboutContent,
             headingSettings: nextHeadingSettings,
             homeSeo: nextHomeSeo,
             socialLinks: nextSocialLinks,
@@ -204,6 +208,9 @@ export default function HomePageClient() {
         const parsed = JSON.parse(cachedSettings);
         if (Number.isInteger(parsed.footerCopyrightYear)) {
           setFooterYear(parsed.footerCopyrightYear);
+        }
+        if (typeof parsed.aboutContent === 'string') {
+          setAboutContent(parsed.aboutContent);
         }
         if (parsed.headingSettings) {
           setHeadingSettings({
@@ -295,6 +302,7 @@ export default function HomePageClient() {
     'aboutText',
     'This character counter tool helps you analyze your text in real time. Whether you are writing an essay, a blog post, or a social media caption, you can quickly check the number of characters, words, sentences, and paragraphs.'
   );
+  const aboutTextHtml = aboutContent.trim();
   const statisticsTitleText = translateWithFallback(t, 'statisticsTitle', 'Statistics');
   const statisticsText = translateWithFallback(
     t,
@@ -823,7 +831,11 @@ export default function HomePageClient() {
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
                 <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base">
-                  <p>{aboutText}</p>
+                  {aboutTextHtml ? (
+                    <div dangerouslySetInnerHTML={{ __html: aboutTextHtml }} />
+                  ) : (
+                    <p>{aboutText}</p>
+                  )}
 
                   <h2>{statisticsTitleText}</h2>
                   <p>{statisticsText}</p>

@@ -40,13 +40,13 @@ export async function GET(request) {
         socialLinks: {
           instagramUrl: 'https://instagram.com/prerna.9_',
           linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-          emailAddress: 'iamdineshswami@gmail.com',
+          emailAddress: 'charactercountonlinetool@gmail.com',
         },
         instagramHandle: '',
         instagramUrl: '',
         privacyPolicyContent: '',
         contactUsContent: '',
-        contactUsEmail: 'iamdineshswami@gmail.com',
+        contactUsEmail: 'charactercountonlinetool@gmail.com',
         termsConditionsContent: '',
         disclaimerContent: '',
         footerCopyrightYear: new Date().getFullYear(),
@@ -104,7 +104,7 @@ export async function GET(request) {
             socialLinks: settings.socialLinks ?? {
               instagramUrl: 'https://instagram.com/prerna.9_',
               linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-              emailAddress: 'iamdineshswami@gmail.com',
+              emailAddress: 'charactercountonlinetool@gmail.com',
             },
             locale,
           },
@@ -129,7 +129,7 @@ export async function GET(request) {
           settings: {
             aboutUsContent: localeBlock.aboutUsContent ?? settings.aboutUsContent ?? { sections: [], closingText: '' },
             contactUsContent: localeBlock.contactUsContent ?? settings.contactUsContent ?? '',
-            contactUsEmail: localeBlock.contactUsEmail ?? settings.contactUsEmail ?? settings.socialLinks?.emailAddress ?? 'iamdineshswami@gmail.com',
+            contactUsEmail: localeBlock.contactUsEmail ?? settings.contactUsEmail ?? settings.socialLinks?.emailAddress ?? 'charactercountonlinetool@gmail.com',
             termsConditionsContent: localeBlock.termsConditionsContent ?? settings.termsConditionsContent ?? '',
             privacyPolicyContent: localeBlock.privacyPolicyContent ?? settings.privacyPolicyContent ?? '',
             disclaimerContent: localeBlock.disclaimerContent ?? settings.disclaimerContent ?? '',
@@ -408,3 +408,4 @@ export async function PUT(request) {
     }, { status: 500 });
   }
 }
+

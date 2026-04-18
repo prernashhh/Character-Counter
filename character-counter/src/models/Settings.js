@@ -48,7 +48,7 @@ const SocialLinksSchema = new mongoose.Schema({
   },
   emailAddress: {
     type: String,
-    default: 'iamdineshswami@gmail.com',
+    default: 'charactercountonlinetool@gmail.com',
   },
 }, { _id: false });
 
@@ -201,7 +201,7 @@ const SettingsSchema = new mongoose.Schema(
       default: () => ({
         instagramUrl: 'https://instagram.com/prerna.9_',
         linkedinUrl: 'https://linkedin.com/in/prerna.9_',
-        emailAddress: 'iamdineshswami@gmail.com',
+        emailAddress: 'charactercountonlinetool@gmail.com',
       }),
     },
     instagramHandle: {
@@ -222,7 +222,7 @@ const SettingsSchema = new mongoose.Schema(
     },
     contactUsEmail: {
       type: String,
-      default: 'iamdineshswami@gmail.com',
+      default: 'charactercountonlinetool@gmail.com',
     },
     termsConditionsContent: {
       type: String,
@@ -283,3 +283,4 @@ const SettingsSchema = new mongoose.Schema(
 );
 
 export default mongoose.models.Settings || mongoose.model('Settings', SettingsSchema);
+

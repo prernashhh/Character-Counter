@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://charactercountonlinetool.com"),
   icons: {
     icon: {
       url: "/Charater Count Favicon Logo.png",
