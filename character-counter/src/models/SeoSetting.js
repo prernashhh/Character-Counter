@@ -17,6 +17,10 @@ const SeoSettingSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    keywords: {
+      type: String,
+      default: '',
+    },
     ogImage: {
       type: String,
       default: '',

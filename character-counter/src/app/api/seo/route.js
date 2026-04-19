@@ -34,6 +34,7 @@ export async function PUT(request) {
     const page = String(body?.page || '').trim().toLowerCase();
     const title = String(body?.title || '').trim();
     const description = String(body?.description || '').trim();
+    const keywords = String(body?.keywords || '').trim();
     const ogImage = String(body?.ogImage || '').trim();
     const ogImagePublicId = String(body?.ogImagePublicId || '').trim();
 
@@ -49,7 +50,7 @@ export async function PUT(request) {
 
     const seo = await SeoSetting.findOneAndUpdate(
       { page },
-      { title, description, ogImage, ogImagePublicId },
+      { title, description, keywords, ogImage, ogImagePublicId },
       { upsert: true, new: true }
     ).lean();
 

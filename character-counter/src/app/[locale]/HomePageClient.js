@@ -133,7 +133,7 @@ const HOME_H2_ENGLISH_DEFAULTS = [
   'Analyze your text',
 ];
 
-export default function HomePageClient() {
+export default function HomePageClient({ initialHomeSettings }) {
     const t = useTranslations();
     const locale = useLocale();
   const blogUi = useMemo(() => getBlogUi(locale), [locale]);
@@ -142,11 +142,21 @@ export default function HomePageClient() {
     const [text, setText] = useState("");
     const [showLanguageMenu, setShowLanguageMenu] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
-    const [footerYear, setFooterYear] = useState(new Date().getFullYear());
+    const [footerYear, setFooterYear] = useState(
+      Number.isInteger(initialHomeSettings?.footerCopyrightYear)
+        ? initialHomeSettings.footerCopyrightYear
+        : new Date().getFullYear()
+    );
     const [homeSeo, setHomeSeo] = useState(getDefaultHomeSeo);
-    const [headingSettings, setHeadingSettings] = useState(getDefaultHeadingSettings);
-    const [socialLinks, setSocialLinks] = useState(getDefaultSocialLinks);
-    const [aboutContent, setAboutContent] = useState('');
+    const [headingSettings, setHeadingSettings] = useState({
+      ...getDefaultHeadingSettings(),
+      ...(initialHomeSettings?.headingSettings || {}),
+    });
+    const [socialLinks, setSocialLinks] = useState({
+      ...getDefaultSocialLinks(),
+      ...(initialHomeSettings?.socialLinks || {}),
+    });
+    const [aboutContent, setAboutContent] = useState((initialHomeSettings?.aboutContent || '').trim());
 
   async function fetchHomePageContent() {
     try {
@@ -297,16 +307,6 @@ export default function HomePageClient() {
     'specialCharacters',
     `Special ${translateWithFallback(t, 'characters', 'Characters')}`
   );
-<<<<<<< HEAD
-
-=======
-  const aboutText = translateWithFallback(
-    t,
-    'aboutText',
-    'This character counter tool helps you analyze your text in real time. Whether you are writing an essay, a blog post, or a social media caption, you can quickly check the number of characters, words, sentences, and paragraphs.'
-  );
-  const aboutTextHtml = aboutContent.trim();
->>>>>>> d005a33bc50a906ae1105eab5e3b3a284ca4f1b8
   const socialHandlesBlock = (
     <>
       <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</h2>
@@ -733,19 +733,10 @@ export default function HomePageClient() {
             </h2>
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
-<<<<<<< HEAD
                 <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base [&_h2]:font-semibold [&_h2]:text-slate-800 [&_h3]:font-medium [&_h3]:text-slate-700">
                   {aboutContent ? (
                     <div dangerouslySetInnerHTML={{ __html: aboutContent }} />
                   ) : null}
-=======
-                <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base">
-                  {aboutTextHtml ? (
-                    <div dangerouslySetInnerHTML={{ __html: aboutTextHtml }} />
-                  ) : (
-                    <p>{aboutText}</p>
-                  )}
->>>>>>> d005a33bc50a906ae1105eab5e3b3a284ca4f1b8
                 </div>
               </div>
             </div>

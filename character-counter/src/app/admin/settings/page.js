@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 
 const defaultSeoSettings = {
-  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
-  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', ogImage: '/og-image.svg', ogImagePublicId: '' },
-  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', ogImage: '/og-image.svg', ogImagePublicId: '' },
-  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
-  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
-  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
-  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  home: { metaTitle: 'Character Counter', metaDescription: 'Count characters, words, sentences, paragraphs, and spaces instantly with the Character Count Online Tool.', metaKeywords: 'character counter, word counter, character count tool, text analyzer, online character counter', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  aboutUs: { metaTitle: 'About Us | Character Count Online Tool', metaDescription: 'Learn about Character Count Online Tool, our mission, and how we help users analyze text quickly and accurately.', metaKeywords: 'about character count tool, character counter team, writing tool platform', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  contactUs: { metaTitle: 'Contact Us | Character Count Online Tool', metaDescription: 'Contact Character Count Online Tool for support, questions, or feedback.', metaKeywords: 'contact character counter, support character count tool, feedback character counter', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  termsConditions: { metaTitle: 'Terms and Conditions | Character Count Online Tool', metaDescription: 'Read the terms and conditions for using Character Count Online Tool.', metaKeywords: 'terms and conditions, character count online tool terms', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  disclaimer: { metaTitle: 'Disclaimer | Character Count Online Tool', metaDescription: 'Read the legal disclaimer for Character Count Online Tool.', metaKeywords: 'disclaimer, character count online tool disclaimer', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  privacyPolicy: { metaTitle: 'Privacy Policy | Character Count Online Tool', metaDescription: 'Read the privacy policy for Character Count Online Tool.', metaKeywords: 'privacy policy, character count online tool privacy', ogImage: '/og-image.svg', ogImagePublicId: '' },
+  blog: { metaTitle: 'Blog | Character Count Online Tool', metaDescription: 'Read the latest blog posts from Character Count Online Tool.', metaKeywords: 'character counter blog, writing tips, content optimization', ogImage: '/og-image.svg', ogImagePublicId: '' },
 };
 
 const pageSeoOptions = [
@@ -162,6 +162,7 @@ export default function AdminSettings() {
               acc[uiPageKey] = {
                 metaTitle: item.title || defaultSeoSettings[uiPageKey].metaTitle,
                 metaDescription: item.description || defaultSeoSettings[uiPageKey].metaDescription,
+                metaKeywords: item.keywords || defaultSeoSettings[uiPageKey].metaKeywords,
                 ogImage: item.ogImage || defaultSeoSettings[uiPageKey].ogImage,
                 ogImagePublicId: item.ogImagePublicId || '',
               };
@@ -626,6 +627,7 @@ export default function AdminSettings() {
           page: DB_PAGE_BY_UI[selectedSeoPage] || selectedSeoPage,
           title: selectedSeo.metaTitle || '',
           description: selectedSeo.metaDescription || '',
+          keywords: selectedSeo.metaKeywords || '',
           ogImage: selectedSeo.ogImage || '',
           ogImagePublicId: selectedSeo.ogImagePublicId || '',
         }),
@@ -988,6 +990,16 @@ export default function AdminSettings() {
                     onChange={(e) => updateSeoField(selectedSeoPage, 'metaDescription', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
                     placeholder="SEO description for selected page"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
+                  <textarea
+                    rows={2}
+                    value={settings.seoSettings?.[selectedSeoPage]?.metaKeywords || ''}
+                    onChange={(e) => updateSeoField(selectedSeoPage, 'metaKeywords', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-gray-900"
+                    placeholder="keyword1, keyword2, keyword3"
                   />
                 </div>
               </div>

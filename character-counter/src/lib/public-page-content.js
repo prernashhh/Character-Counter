@@ -70,6 +70,79 @@ export async function getPublicPageSettings(locale = 'en') {
   }
 }
 
+export async function getHomePageSettings(locale = 'en') {
+  try {
+    await connectDB();
+    const settings = await Settings.findOne()
+      .select(
+        [
+          "aboutContent",
+          "headingSettings",
+          "socialLinks",
+          "footerCopyrightYear",
+          "localizedContent",
+        ].join(" ")
+      )
+      .lean();
+
+    if (!settings) {
+      return {
+        aboutContent: '',
+        headingSettings: {
+          h1Text: 'Character Counter',
+          h2Text: '',
+          h3Text: 'Statistics',
+          h4Text: 'About Character Counter Tool',
+          tone: 'professional',
+        },
+        socialLinks: {
+          instagramUrl: 'https://instagram.com/',
+          linkedinUrl: 'https://linkedin.com/in/',
+          emailAddress: 'charactercountonlinetool@gmail.com',
+        },
+        footerCopyrightYear: new Date().getFullYear(),
+      };
+    }
+
+    const normalizedLocale = String(locale || 'en').toLowerCase();
+    const localeBlock = getLocaleBlock(settings.localizedContent, normalizedLocale) || {};
+
+    return {
+      aboutContent: localeBlock.aboutContent ?? settings.aboutContent ?? '',
+      headingSettings: settings.headingSettings ?? {
+        h1Text: 'Character Counter',
+        h2Text: '',
+        h3Text: 'Statistics',
+        h4Text: 'About Character Counter Tool',
+        tone: 'professional',
+      },
+      socialLinks: settings.socialLinks ?? {
+        instagramUrl: 'https://instagram.com/',
+        linkedinUrl: 'https://linkedin.com/in/',
+        emailAddress: 'charactercountonlinetool@gmail.com',
+      },
+      footerCopyrightYear: settings.footerCopyrightYear ?? new Date().getFullYear(),
+    };
+  } catch {
+    return {
+      aboutContent: '',
+      headingSettings: {
+        h1Text: 'Character Counter',
+        h2Text: '',
+        h3Text: 'Statistics',
+        h4Text: 'About Character Counter Tool',
+        tone: 'professional',
+      },
+      socialLinks: {
+        instagramUrl: 'https://instagram.com/',
+        linkedinUrl: 'https://linkedin.com/in/',
+        emailAddress: 'charactercountonlinetool@gmail.com',
+      },
+      footerCopyrightYear: new Date().getFullYear(),
+    };
+  }
+}
+
 export function formatLastUpdated(value, locale = "en") {
   if (!value) return "";
 
