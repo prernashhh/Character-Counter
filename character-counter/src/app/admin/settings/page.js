@@ -69,6 +69,11 @@ export default function AdminSettings() {
       sections: [],
       closingText: '',
     },
+    homePageContent: {
+      intro: '',
+      sections: [],
+      faq: [],
+    },
     socialLinks: {
       instagramUrl: 'https://instagram.com/prerna.9_',
       linkedinUrl: 'https://linkedin.com/in/prerna.9_',
@@ -140,6 +145,7 @@ export default function AdminSettings() {
 
       if (data.success) {
         const aboutUsContent = data.settings.aboutUsContent || { sections: [], closingText: '' };
+        const homePageContent = data.settings.homePageContent || { intro: '', sections: [], faq: [] };
         const headingSettings = data.settings.headingSettings || {
           h1Text: 'Character Counter',
           h2Text: '',
@@ -168,6 +174,11 @@ export default function AdminSettings() {
           aboutUsContent: {
             sections: aboutUsContent.sections || [],
             closingText: aboutUsContent.closingText || '',
+          },
+          homePageContent: {
+            intro: homePageContent.intro || '',
+            sections: homePageContent.sections || [],
+            faq: homePageContent.faq || [],
           },
           footerCopyrightYear: data.settings.footerCopyrightYear || new Date().getFullYear(),
           headingSettings: {

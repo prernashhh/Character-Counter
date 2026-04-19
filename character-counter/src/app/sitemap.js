@@ -52,12 +52,15 @@ async function getDynamicBlogEntries() {
 
     return posts
       .filter((post) => typeof post?.slug === "string" && post.slug.trim().length > 0)
-      .flatMap((post) => {
+      .map((post) => {
         const slug = post.slug.trim();
-        const localizedPath = `/blog/${slug}`;
+        const path = `/blog/${slug}`;
         const lastModified = post.updatedAt || post.publishDate || post.createdAt || new Date();
 
-        return getLocalizedEntriesForPath(localizedPath, lastModified);
+        return {
+          url: toAbsoluteUrl(path),
+          lastModified,
+        };
       });
   } catch {
     return [];

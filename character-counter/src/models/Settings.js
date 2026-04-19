@@ -120,6 +120,22 @@ const StaticPagesLastUpdatedSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const HomePageFaqItemSchema = new mongoose.Schema({
+  q: { type: String, default: '' },
+  a: { type: String, default: '' },
+}, { _id: false });
+
+const HomePageSectionSchema = new mongoose.Schema({
+  title: { type: String, default: '' },
+  content: { type: String, default: '' },
+}, { _id: false });
+
+const HomePageContentSchema = new mongoose.Schema({
+  intro: { type: String, default: '' },
+  sections: { type: [HomePageSectionSchema], default: [] },
+  faq: { type: [HomePageFaqItemSchema], default: [] },
+}, { _id: false });
+
 const PageClosingTextsSchema = new mongoose.Schema({
   aboutUs: {
     type: String,
@@ -156,6 +172,10 @@ const LocalizedContentSchema = new mongoose.Schema({
     type: AboutUsContentSchema,
     default: () => ({ sections: [], closingText: '' }),
   },
+  homePageContent: {
+    type: HomePageContentSchema,
+    default: () => ({ intro: '', sections: [], faq: [] }),
+  },
   privacyPolicyContent: {
     type: String,
     default: '',
@@ -191,6 +211,10 @@ const SettingsSchema = new mongoose.Schema(
     aboutUsContent: {
       type: AboutUsContentSchema,
       default: () => ({ sections: [], closingText: '' }),
+    },
+    homePageContent: {
+      type: HomePageContentSchema,
+      default: () => ({ intro: '', sections: [], faq: [] }),
     },
     aboutUsContacts: {
       type: AboutUsContactsSchema,

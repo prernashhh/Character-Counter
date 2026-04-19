@@ -87,12 +87,65 @@ export async function GET(request) {
 
     const localeBlock = getLocaleBlock(settings.localizedContent, locale) || {};
 
+    const DEFAULT_HOME_PAGE_CONTENT = {
+      intro: 'This character counter tool helps you analyze your text in real time. Whether you are writing an essay, a blog post, or a social media caption, you can quickly check the number of characters, words, sentences, and paragraphs.',
+      sections: [
+        {
+          title: 'Statistics',
+          content: 'Get detailed insights into your content including total words, characters, sentences, paragraphs, and spaces. This helps you understand the structure and readability of your text.',
+        },
+        {
+          title: 'Word Density',
+          content: 'Track how often specific words appear in your content. This is useful for improving keyword usage and optimizing your writing for SEO.',
+        },
+        {
+          title: 'What\'s the Character Counter Tool',
+          content: 'The character counter tool measures your text instantly and shows detailed counts so you can write within platform limits and improve content quality.',
+        },
+        {
+          title: 'Why Use a Character Counter Tool',
+          content: 'Character limits are important for platforms like Twitter, Instagram, and SEO writing. This tool ensures your content fits within limits while staying clear and effective.',
+        },
+        {
+          title: 'How It Works',
+          content: 'Simply paste or type your text into the editor. The tool automatically calculates and displays counts instantly without needing to refresh the page.',
+        },
+        {
+          title: 'Character Count And Readability',
+          content: 'Character count and readability together help you keep content concise, scannable, and easy to understand for your audience.',
+        },
+      ],
+      faq: [
+        {
+          q: 'What\'s a Character Counter?',
+          a: 'A character counter is a tool that counts the number of characters in a piece of text, including or excluding spaces.',
+        },
+        {
+          q: 'How do I use it?',
+          a: 'Type or paste your text into the input box and the tool will automatically calculate all counts.',
+        },
+        {
+          q: 'Is it free?',
+          a: 'Yes, this tool is completely free to use with no limits or subscriptions.',
+        },
+        {
+          q: 'Do spaces count as characters?',
+          a: 'Yes, you can view counts both with and without spaces.',
+        },
+        {
+          q: 'Can I use it for essays or blog posts?',
+          a: 'Yes. It works well for essays, blog posts, captions, and SEO writing.',
+        },
+      ],
+    };
+
     if (scope === 'home') {
       return Response.json(
         {
           success: true,
           settings: {
             aboutContent: localeBlock.aboutContent ?? settings.aboutContent ?? '',
+            homePageContent: localeBlock.homePageContent ?? settings.homePageContent ?? DEFAULT_HOME_PAGE_CONTENT,
             footerCopyrightYear: settings.footerCopyrightYear ?? new Date().getFullYear(),
             headingSettings: settings.headingSettings ?? {
               h1Text: 'Character Counter',
@@ -180,6 +233,7 @@ export async function PUT(request) {
     const {
       aboutContent,
       aboutUsContent,
+      homePageContent,
       aboutUsContacts,
       socialLinks,
       instagramHandle,
@@ -218,6 +272,7 @@ export async function PUT(request) {
       settings = await Settings.create({
         aboutContent,
         aboutUsContent,
+        homePageContent,
         aboutUsContacts,
         socialLinks,
         instagramHandle,
@@ -269,6 +324,9 @@ export async function PUT(request) {
             settings.staticPagesLastUpdated.aboutUs = now;
           }
           nextLocaleBlock.aboutUsContent = aboutUsContent;
+        }
+        if (homePageContent !== undefined) {
+          nextLocaleBlock.homePageContent = homePageContent;
         }
         if (privacyPolicyContent !== undefined) {
           if (hasChanged(existingLocaleBlock.privacyPolicyContent, privacyPolicyContent)) {
@@ -331,6 +389,9 @@ export async function PUT(request) {
           settings.staticPagesLastUpdated.aboutUs = now;
         }
         settings.aboutUsContent = aboutUsContent;
+      }
+      if (homePageContent !== undefined) {
+        settings.homePageContent = homePageContent;
       }
       if (aboutUsContacts !== undefined) settings.aboutUsContacts = aboutUsContacts;
       if (socialLinks !== undefined) settings.socialLinks = socialLinks;
