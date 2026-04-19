@@ -303,107 +303,6 @@ export default function HomePageClient() {
     'This character counter tool helps you analyze your text in real time. Whether you are writing an essay, a blog post, or a social media caption, you can quickly check the number of characters, words, sentences, and paragraphs.'
   );
   const aboutTextHtml = aboutContent.trim();
-  const statisticsTitleText = translateWithFallback(t, 'statisticsTitle', 'Statistics');
-  const statisticsText = translateWithFallback(
-    t,
-    'statisticsText',
-    'Get detailed insights into your content including total words, characters, sentences, paragraphs, and spaces. This helps you understand the structure and readability of your text.'
-  );
-  const wordDensityTitleText = translateWithFallback(t, 'wordDensityTitle', 'Word Density');
-  const wordDensityText = translateWithFallback(
-    t,
-    'wordDensityText',
-    'Track how often specific words appear in your content. This is useful for improving keyword usage and optimizing your writing for SEO.'
-  );
-  const whyUseTitle = translateWithFallback(t, 'whyUseTitle', 'Why Use a Character Counter Tool');
-  const whyUseText = translateWithFallback(
-    t,
-    'whyUseText',
-    'Character limits are important for platforms like Twitter, Instagram, and SEO writing. This tool ensures your content fits within limits while staying clear and effective.'
-  );
-  const howItWorksTitle = translateWithFallback(t, 'howItWorksTitle', 'How It Works');
-  const howItWorksText = translateWithFallback(
-    t,
-    'howItWorksText',
-    'Simply paste or type your text into the editor. The tool automatically calculates and displays counts instantly without needing to refresh the page.'
-  );
-  const faqTitle = translateWithFallback(t, 'faqTitle', 'Frequently Asked Questions (FAQ)');
-  const faqQuestion1 = translateWithFallback(t, 'faqQuestion1', "1. What's a Character Counter?");
-  const faqAnswer1 = translateWithFallback(
-    t,
-    'faqAnswer1',
-    'A character counter is a tool that counts the number of characters in a piece of text, including or excluding spaces.'
-  );
-  const faqQuestion2 = translateWithFallback(t, 'faqQuestion2', '2. How do I use it?');
-  const faqAnswer2 = translateWithFallback(
-    t,
-    'faqAnswer2',
-    'Type or paste your text into the input box and the tool will automatically calculate all counts.'
-  );
-  const faqQuestion3 = translateWithFallback(t, 'faqQuestion3', '3. Is it free?');
-  const faqAnswer3 = translateWithFallback(
-    t,
-    'faqAnswer3',
-    'Yes, this tool is completely free to use with no limits or subscriptions.'
-  );
-  const faqQuestion4 = translateWithFallback(t, 'faqQuestion4', '4. Do spaces count as characters?');
-  const faqAnswer4 = translateWithFallback(
-    t,
-    'faqAnswer4',
-    'Yes, you can view counts both with and without spaces.'
-  );
-  const faqQuestion5 = translateWithFallback(t, 'faqQuestion5', '5. Can I use it for essays or blog posts?');
-  const faqAnswer5 = translateWithFallback(
-    t,
-    'faqAnswer5',
-    'Yes. It works well for essays, blog posts, captions, and SEO writing.'
-  );
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: faqQuestion1,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faqAnswer1,
-        },
-      },
-      {
-        "@type": "Question",
-        name: faqQuestion2,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faqAnswer2,
-        },
-      },
-      {
-        "@type": "Question",
-        name: faqQuestion3,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faqAnswer3,
-        },
-      },
-      {
-        "@type": "Question",
-        name: faqQuestion4,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faqAnswer4,
-        },
-      },
-      {
-        "@type": "Question",
-        name: faqQuestion5,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faqAnswer5,
-        },
-      },
-    ],
-  };
   const socialHandlesBlock = (
     <>
       <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</h2>
@@ -836,30 +735,6 @@ export default function HomePageClient() {
                   ) : (
                     <p>{aboutText}</p>
                   )}
-
-                  <h2>{statisticsTitleText}</h2>
-                  <p>{statisticsText}</p>
-
-                  <h2>{wordDensityTitleText}</h2>
-                  <p>{wordDensityText}</p>
-
-                  <h2>{whyUseTitle}</h2>
-                  <p>{whyUseText}</p>
-
-                  <h2>{howItWorksTitle}</h2>
-                  <p>{howItWorksText}</p>
-
-                  <h2>{faqTitle}</h2>
-                  <h3>{faqQuestion1}</h3>
-                  <p>{faqAnswer1}</p>
-                  <h3>{faqQuestion2}</h3>
-                  <p>{faqAnswer2}</p>
-                  <h3>{faqQuestion3}</h3>
-                  <p>{faqAnswer3}</p>
-                  <h3>{faqQuestion4}</h3>
-                  <p>{faqAnswer4}</p>
-                  <h3>{faqQuestion5}</h3>
-                  <p>{faqAnswer5}</p>
                 </div>
               </div>
             </div>
@@ -897,12 +772,6 @@ export default function HomePageClient() {
         </div>
       </div>
     </footer>
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(faqSchema),
-      }}
-    />
     </>
   );
 }
