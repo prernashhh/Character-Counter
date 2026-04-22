@@ -121,6 +121,15 @@ const resolveLocalizedHeading = (value, localizedFallback, englishDefaults = [])
   return matchesEnglishDefault ? localizedFallback : normalizedValue;
 };
 
+const demoteH1Tags = (html = '') => {
+  const value = String(html || '');
+  if (!value) return '';
+
+  return value
+    .replace(/<\s*h1(\s[^>]*)?>/gi, '<h2$1>')
+    .replace(/<\s*\/\s*h1\s*>/gi, '</h2>');
+};
+
 const HOME_H1_ENGLISH_DEFAULTS = [
   'Character Counter',
   'Character Count Online Tool',
@@ -307,6 +316,7 @@ export default function HomePageClient({ initialHomeSettings }) {
     'specialCharacters',
     `Special ${translateWithFallback(t, 'characters', 'Characters')}`
   );
+  const sanitizedAboutContent = useMemo(() => demoteH1Tags(aboutContent), [aboutContent]);
   const socialHandlesBlock = (
     <>
       <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 text-center">{connectWithUsLabel}</h2>
@@ -348,8 +358,11 @@ export default function HomePageClient({ initialHomeSettings }) {
       </div>
     </>
   );
-  const introBlock = (
-    <div className="w-full flex flex-col items-center gap-1 shrink-0 py-1 xl:py-2">
+  const renderIntroBlock = (useH1 = true) => {
+    const HeadingTag = useH1 ? 'h1' : 'div';
+
+    return (
+      <div className="w-full flex flex-col items-center gap-1 shrink-0 py-1 xl:py-2">
       <a
         href="https://charactercountonlinetool.com/"
         className="order-1 block mx-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full"
@@ -364,19 +377,20 @@ export default function HomePageClient({ initialHomeSettings }) {
         />
       </a>
       <div className="order-2 relative text-center">
-        <h1
+        <HeadingTag
           className="text-center text-balance text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight bg-linear-to-r from-indigo-600 via-violet-600 to-pink-600 bg-clip-text text-transparent drop-shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
         >
           {resolveLocalizedHeading(homeSeo.h1, t('characterCounter'), HOME_H1_ENGLISH_DEFAULTS)}
-        </h1>
+        </HeadingTag>
       </div>
       <p className={`order-3 text-center text-base sm:text-lg lg:text-sm xl:text-base ${isProfessionalTone ? 'text-slate-600 font-medium' : 'text-indigo-700 font-semibold'}`}>
         {resolveLocalizedHeading(homeSeo.h2, t('analyzeYourText'), HOME_H2_ENGLISH_DEFAULTS)}
       </p>
       {homeSeo.h5 && <p className="order-5 text-center text-sm text-slate-500">{homeSeo.h5}</p>}
       {homeSeo.h6 && <p className="order-6 text-center text-xs text-slate-500">{homeSeo.h6}</p>}
-    </div>
-  );
+      </div>
+    );
+  };
 
   return (
     <>
@@ -549,7 +563,7 @@ export default function HomePageClient({ initialHomeSettings }) {
           </div>
 
           <div className="lg:hidden bg-white/80 rounded-xl p-4 border border-indigo-100 shadow-sm">
-            {introBlock}
+            {renderIntroBlock(true)}
           </div>
 
           {/* Mobile Text Input (shown above stats/cards) */}
@@ -674,7 +688,7 @@ export default function HomePageClient({ initialHomeSettings }) {
       <section className="hidden lg:flex flex-1 flex-col min-h-0 px-4 sm:px-6 lg:px-6 xl:px-8 py-3 xl:py-4 overflow-y-auto">
         <div className="w-full max-w-4xl lg:max-w-5xl mx-auto h-full min-h-0 flex flex-col gap-2 xl:gap-3">
           <div className="w-full">
-            {introBlock}
+            {renderIntroBlock(false)}
           </div>
 
           {/* Text Input Section */}
@@ -734,8 +748,8 @@ export default function HomePageClient({ initialHomeSettings }) {
             <div className="text-gray-700 space-y-3 text-sm">
               <div className="leading-relaxed">
                 <div className="prose prose-sm max-w-none text-slate-700 [&_p]:mb-4 [&_p]:leading-7 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base [&_h2]:font-semibold [&_h2]:text-slate-800 [&_h3]:font-medium [&_h3]:text-slate-700">
-                  {aboutContent ? (
-                    <div dangerouslySetInnerHTML={{ __html: aboutContent }} />
+                  {sanitizedAboutContent ? (
+                    <div dangerouslySetInnerHTML={{ __html: sanitizedAboutContent }} />
                   ) : null}
                 </div>
               </div>
