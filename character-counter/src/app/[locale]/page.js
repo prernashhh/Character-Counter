@@ -30,7 +30,6 @@ export default async function HomePage({ params }) {
 
   return (
     <>
-      <h1 className="sr-only">Character Counter & Word Counter Tool</h1>
       <HomePageClient initialHomeSettings={initialHomeSettings} />
     </>
   );
